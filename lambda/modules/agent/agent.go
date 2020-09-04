@@ -25,7 +25,6 @@ func Set(e *echo.Echo) {
 	//templates["agentForgot.html"] = template.Must(template.ParseFiles("github.com/khankhulgun/khankhulgun/lambda/modules/agent/templates/email/forgot.html"))
 
 	/* ROUTES */
-
 	a :=e.Group("/auth")
 	a.GET("/", handlers.LoginPage)
 	a.GET("/login", handlers.LoginPage)
