@@ -9,11 +9,10 @@ import (
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-
 )
 
 
-// App denotes the Fiber application.
+// App KhanKhulgun application.
 type App struct {
 	Echo *echo.Echo
 	ModuleName string
@@ -23,7 +22,10 @@ type App struct {
 	GetRules func(schema_id string) map[string][]string
 }
 
-
+func (app *App) Start() {
+	app.Echo.Logger.Fatal(app.Echo.Start(config.Config.App.Port))
+	defer DB.DB.Close()
+}
 
 func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string) *App {
 
@@ -54,8 +56,6 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 
 
 	app.Echo.Static("/", "public")
-	app.Echo.Logger.Fatal(app.Echo.Start(config.Config.App.Port))
-	defer DB.DB.Close()
 
 
 	return app
