@@ -35,7 +35,8 @@ func AutoMigrateSeed() {
 func seedData() {
 
 	var vbs []puzzleModels.VBSchemaAdmin
-	dataFile, err := os.Open("github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/initialData/vb_schemas_admin.json")
+	AbsolutePath := config.AbsolutePath()
+	dataFile, err := os.Open(AbsolutePath+"lambda/modules/puzzle/initialData/vb_schemas_admin.json")
 	defer dataFile.Close()
 	if err != nil {
 		fmt.Println("PUZZLE SEED ERROR")
