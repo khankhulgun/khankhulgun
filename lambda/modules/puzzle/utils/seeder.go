@@ -1,31 +1,42 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/DB"
+	"github.com/khankhulgun/khankhulgun/config"
 	puzzleModels "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	analyticModels "github.com/khankhulgun/khankhulgun/lambda/plugins/dataanalytic/models"
-	"encoding/json"
 	"os"
 )
 
 func AutoMigrateSeed() {
-	db := DB.DB
 
-	db.AutoMigrate(
-		&puzzleModels.VBSchema{},
-		&puzzleModels.VBSchemaAdmin{},
-		&analyticModels.Analytic{},
-		&analyticModels.AnalyticFilter{},
-		&analyticModels.AnalyticRangeFilter{},
-		&analyticModels.AnalyticRowsColumn{},
-		&analyticModels.AnalyticRangeRowColumn{},
-	)
+	if config.Config.Database.Connection == "mssql"{
+		DB.DB.AutoMigrate(
+			&puzzleModels.VBSchemaMSSQL{},
+			&puzzleModels.VBSchemaAdminMSSQL{},
+			&analyticModels.Analytic{},
+			&analyticModels.AnalyticFilter{},
+			&analyticModels.AnalyticRangeFilter{},
+			&analyticModels.AnalyticRowsColumn{},
+			&analyticModels.AnalyticRangeRowColumn{},
+		)
+	} else {
+		DB.DB.AutoMigrate(
+			&puzzleModels.VBSchema{},
+			&puzzleModels.VBSchemaAdmin{},
+			&analyticModels.Analytic{},
+			&analyticModels.AnalyticFilter{},
+			&analyticModels.AnalyticRangeFilter{},
+			&analyticModels.AnalyticRowsColumn{},
+			&analyticModels.AnalyticRangeRowColumn{},
+		)
+	}
 
 	if config.Config.App.Seed == "true" {
 		var vbs []puzzleModels.VBSchemaAdmin
-		db.Find(&vbs)
+		DB.DB.Find(&vbs)
 
 		if len(vbs) <= 0 {
 			seedData()
@@ -48,10 +59,10 @@ func seedData() {
 		fmt.Println("PUZZLE SEED DATA ERROR")
 	}
 	//fmt.Println(len(vbs))
-	db := DB.DB
+
 	for _, vb := range vbs {
 
-		db.Create(&vb)
+		DB.DB.Create(&vb)
 	}
 
 }

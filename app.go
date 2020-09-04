@@ -7,6 +7,7 @@ import (
 	"github.com/khankhulgun/khankhulgun/lambda/modules/krud"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/notify"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle"
+	"github.com/khankhulgun/khankhulgun/controlPanel"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -41,6 +42,7 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 	puzzle.Set(app.Echo, app.ModuleName, app.GetGridMODEL)
 	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules)
 	notify.Set(app.Echo)
+	controlPanel.Set(app.Echo)
 
 
 	app.Echo.Use(middleware.Secure())
