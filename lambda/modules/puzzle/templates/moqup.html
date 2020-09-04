@@ -1,0 +1,36 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="">
+    <title>{{.title}}</title>
+    <link href="{{.favicon}}" rel="icon"/>
+    <link rel="stylesheet" href="/control_panel/fonts/roboto/roboto.css?family=Roboto:400,300,100,100italic,300italic,400italic,700,700italic">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/vendor.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/moqup.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/chart.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/control_panel/moqup_view.css"}}">
+    <link rel="stylesheet" href="/fonts/themify/themify-icons.css">
+    <link rel="stylesheet" href="{{index .mix "/control_panel/control.css"}}">
+</head>
+<body>
+<div id="moqup">
+
+</div>
+<script src="{{index .mix "/lambda2/manifest.js"}}"></script>
+<script src="{{index .mix "/lambda2/vendor.js"}}"></script>
+<script type="text/javascript" src="/static/echart/echarts-en.js"></script>
+
+<script>
+    window.init = {
+        url: "/github.com/khankhulgun/khankhulgun/lambda/puzzle/schema/moqup/{{.id}}",
+    };
+</script>
+<script src="{{index .mix "/lambda2/moqup.js"}}"></script>
+<script src="{{index .mix "/lambda2/chart.js"}}"></script>
+<script src="{{index .mix "/control_panel/moqup_view.js" }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="">
+    <title>{{index . "title"}}</title>
+    <link href="{{.favicon}}" rel="icon"/>
+    <link rel="stylesheet" href="/lambda2/fonts/roboto/roboto.css?family=Roboto:400,300,100,100italic,300italic,400italic,700,700italic">
+
+    <link rel="stylesheet" href="{{index .mix "/lambda2/vendor.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/paper.css"}}">
+    <link rel="stylesheet" href="/fonts/themify/themify-icons.css">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/moqup.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/dataform.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/datagrid.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/datasource.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/chart.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/agent.css"}}">
+    <link rel="stylesheet" href="{{index .mix "/lambda2/puzzle.css"}}">
+
+</head>
+<body>
+<div id="puzzle" class="app-wrapper"></div>
+
+<script src="{{index .mix "/lambda2/manifest.js"}}"></script>
+<script src="{{index .mix "/lambda2/vendor.js"}}"></script>
+<script src="{{index .mix "/lambda2/datagrid-vendor.js"}}"></script>
+<script src="{{index .mix "/lambda2/paper.js"}}"></script>
+
+<!--<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3.3&key=AIzaSyCgujeRp8ZmWBiCwTbJwbSrPQ-CUTbCMN4&sensor=false&language=mn"></script>-->
+<script type="text/javascript" src="/static/echart/echarts-en.js"></script>
+<script type="text/javascript" src="/static/ckeditor/ckeditor.js"></script>
+<script>
+    window.init = {
+        user: {{.User}},
+        app_logo:{{.app_logo}},
+        app_text:{{.app_text}},
+        dbSchema: {{.dbSchema}},
+        gridList: {{.gridList}},
+        user_fields: {{.user_fields}},
+        data_form_custom_elements: {{.data_form_custom_elements}}
+    };
+</script>
+<script src="{{index .mix "/lambda2/moqup.js"}}"></script>
+<script src="{{index .mix "/lambda2/dataform.js"}}"></script>
+<script src="{{index .mix "/lambda2/dataform-builder.js"}}"></script>
+<script src="{{index .mix "/lambda2/datagrid-vendor.js"}}"></script>
+<script src="{{index .mix "/lambda2/datagrid.js"}}"></script>
+<script src="{{index .mix "/lambda2/datagrid-builder.js"}}"></script>
+<script src="{{index .mix "/lambda2/datasource.js"}}"></script>
+<script src="{{index .mix "/lambda2/chart.js"}}"></script>
+<script src="{{index .mix "/lambda2/krud.js"}}"></script>
+<script src="{{index .mix "/lambda2/agent.js"}}"></script>
+<script src="{{index .mix "/lambda2/puzzle.js"}}"></script>
+
+</body>
+</html>
