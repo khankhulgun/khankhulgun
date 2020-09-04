@@ -30,7 +30,7 @@ func GetUsers(c echo.Context) error {
 	}
 	query = query.Where("deleted_at IS NULL")
 
-	data := utils.Paging(&utils.Param{
+	data := tools.Paging(&tools.Param{
 		DB:      query,
 		Page:    GetPage(c),
 		Limit:   16,
@@ -60,7 +60,7 @@ func SearchUsers(c echo.Context) error {
 		query = query.Or("phone LIKE ?", "%"+q+"%")
 	}
 
-	data := utils.Paging(&utils.Param{
+	data := tools.Paging(&tools.Param{
 		DB:      query,
 		Page:    GetPage(c),
 		Limit:   16,
@@ -91,7 +91,7 @@ func GetDeletedUsers(c echo.Context) error {
 
 
 
-	data := utils.Paging(&utils.Param{
+	data := tools.Paging(&tools.Param{
 		DB:      query,
 		Page:    GetPage(c),
 		Limit:   16,

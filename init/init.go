@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"lambda/modules/puzzle/DBSchema"
-	"lambda/modules/puzzle/models"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	"os"
 	"github.com/otiai10/copy"
-	"vp/DB"
+	"github.com/khankhulgun/khankhulgun/DB"
 )
 
 func main() {

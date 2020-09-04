@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/dbToStruct"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
@@ -294,7 +295,7 @@ func Tables() map[string][]string {
 
 	DB_ := DBConnection()
 
-	if utils.Config.Database.Connection == "mssql"{
+	if config.Config.Database.Connection == "mssql"{
 		rows, _ := DB_.Query("SELECT TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES ORDER BY TABLE_NAME")
 
 		for rows.Next() {
@@ -340,14 +341,14 @@ func TableMetas(tableName string) []TableMeta {
 	table_metas := make([]TableMeta, 0)
 	DB_ := DBConnection()
 
-	if utils.Config.Database.Connection == "mssql"{
+	if config.Config.Database.Connection == "mssql"{
 
 
 		var pkColumn models.PKColumn
-		DB.DB.Raw("SELECT COLUMN_NAME FROM "+utils.Config.Database.Database+".INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '"+tableName+"' AND CONSTRAINT_NAME LIKE '%PK%'").Scan(&pkColumn)
+		DB.DB.Raw("SELECT COLUMN_NAME FROM "+config.Config.Database.Database+".INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '"+tableName+"' AND CONSTRAINT_NAME LIKE '%PK%'").Scan(&pkColumn)
 
 		table_metas_ms := []models.MSTableMata{}
-		DB.DB.Raw("SELECT * FROM "+utils.Config.Database.Database+".INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName+"'").Scan(&table_metas_ms)
+		DB.DB.Raw("SELECT * FROM "+config.Config.Database.Database+".INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName+"'").Scan(&table_metas_ms)
 
 
 		for _, column := range table_metas_ms {

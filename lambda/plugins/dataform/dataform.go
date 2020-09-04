@@ -9,8 +9,6 @@ import (
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
 	puzzleModel "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
-	"github.com/khankhulgun/khankhulgun/models/form/caller"
-	"github.com/khankhulgun/khankhulgun/models/form/validationCaller"
 	"github.com/thedevsaddam/govalidator"
 	"io/ioutil"
 	"regexp"
@@ -26,14 +24,14 @@ import (
 	"time"
 )
 
-func Exec(c echo.Context, schemaId string, action string, id string) error {
+func Exec(c echo.Context, schemaId string, action string, id string, GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string) error {
 
-	Identity, Model := caller.GetMODEL(schemaId)
+	Identity, Model := GetMODEL(schemaId)
 	switch action {
 	case "store":
-		return Store(c, Model, schemaId, id, action, Identity)
+		return Store(c, Model, schemaId, id, action, Identity, GetMessages, GetRules)
 	case "update":
-		return Store(c, Model, schemaId, id, action, Identity)
+		return Store(c, Model, schemaId, id, action, Identity, GetMessages, GetRules)
 	case "edit":
 		return Edit(c, Model, schemaId, id, Identity)
 	case "options":
@@ -387,11 +385,11 @@ func DataClear(c echo.Context, Model interface{}, action string, id string, rule
 	return Model, dataJson, rules
 }
 
-func Store(c echo.Context, FromModel interface{}, schemaId string, id string, action string, Identity string) error {
+func Store(c echo.Context, FromModel interface{}, schemaId string, id string, action string, Identity string, GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string) error {
 
 	/*FORM VALIDATION*/
-	messages := validationCaller.GetMessages(schemaId)
-	Model, dataJson, rules := DataClear(c, FromModel, action, id, validationCaller.GetRules(schemaId))
+	messages := GetMessages(schemaId)
+	Model, dataJson, rules := DataClear(c, FromModel, action, id, GetRules(schemaId))
 
 	if len(rules) >= 1 {
 		opts := govalidator.Options{

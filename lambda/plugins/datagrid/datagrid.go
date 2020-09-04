@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"unicode/utf8"
-	"github.com/khankhulgun/khankhulgun/models/grid/caller"
 	"reflect"
 	"github.com/labstack/echo/v4"
 	"github.com/khankhulgun/khankhulgun/DB"
@@ -21,13 +20,13 @@ import (
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
 )
 
-func Exec(c echo.Context, schemaId string, action string, id string) error {
+func Exec(c echo.Context, schemaId string, action string, id string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string)) error {
 
 	//fmt.Println(schemaId)
 	//fmt.Println(action)
 	//fmt.Println(id)
 
-	GridModel, GridModelArray, table, name, MainTableModel, Identity := caller.GetMODEL(schemaId)
+	GridModel, GridModelArray, table, name, MainTableModel, Identity := GetGridMODEL(schemaId)
 
 	switch action {
 	case "data":
@@ -191,7 +190,7 @@ func fetchData(c echo.Context, GridModel interface{}, GridModelArray interface{}
 	}
 	Limit_, _ := strconv.Atoi(pageLimit)
 
-	data := utils.Paging(&utils.Param{
+	data := tools.Paging(&tools.Param{
 		DB:    query,
 		Page:  Page_,
 		Limit: Limit_,

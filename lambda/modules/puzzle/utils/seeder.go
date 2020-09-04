@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"github.com/khankhulgun/khankhulgun/tools"
+	"github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/DB"
 	puzzleModels "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	analyticModels "github.com/khankhulgun/khankhulgun/lambda/plugins/dataanalytic/models"
@@ -23,7 +23,7 @@ func AutoMigrateSeed() {
 		&analyticModels.AnalyticRangeRowColumn{},
 	)
 
-	if utils.Config.App.Seed == "true" {
+	if config.Config.App.Seed == "true" {
 		var vbs []puzzleModels.VBSchemaAdmin
 		db.Find(&vbs)
 

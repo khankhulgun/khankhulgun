@@ -9,8 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"html/template"
 )
-
-func Set(e *echo.Echo) {
+//
+func Set(e *echo.Echo,  GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string)) {
 
 	if config.Config.App.Migrate == "true"{
 		utils.AutoMigrateSeed()
@@ -27,8 +27,6 @@ func Set(e *echo.Echo) {
 	//g.GET("/puzzle", handlers.Index, agentMW.IsLoggedInCookie)
 	g.GET("/puzzle", handlers.Index, agentMW.IsLoggedInCookie, agentMW.IsAdmin)
 
-
-
 	//Puzzle
 	g.GET("/puzzle/schema/:type", handlers.GetVB, agentMW.IsLoggedInCookie)
 	g.GET("/puzzle/schema/:type/:id", handlers.GetVB, agentMW.IsLoggedInCookie)
@@ -41,7 +39,7 @@ func Set(e *echo.Echo) {
 	g.DELETE("/puzzle/delete/vb_schemas/:type/:id", handlers.DeleteVB, agentMW.IsLoggedInCookie, agentMW.IsAdmin)
 
 	//GRID
-	g.POST("/puzzle/grid/:action/:schemaId", handlers.GridVB, agentMW.IsLoggedInCookie)
+	g.POST("/puzzle/grid/:action/:schemaId", handlers.GridVB(GetGridMODEL), agentMW.IsLoggedInCookie)
 
 	//Get From Options
 	//g.POST("/puzzle/get_options", handlers.GetOptions, agentMW.IsLoggedInCookie)

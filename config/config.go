@@ -8,7 +8,7 @@ import (
 
 )
 // global vars
-var Project string
+
 var Config config
 
 var onceConfig sync.Once
@@ -16,9 +16,8 @@ var onceConfig sync.Once
 func init() {
 	onceConfig.Do(func() {
 
-		AbsolutePath := AbsolutePath()
 
-		if _, err := toml.DecodeFile(AbsolutePath+"config.toml", &Config); err != nil {
+		if _, err := toml.DecodeFile("config.toml", &Config); err != nil {
 			fmt.Println(err)
 		}
 

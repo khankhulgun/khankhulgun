@@ -5,15 +5,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4/middleware"
-
-	"github.com/khankhulgun/khankhulgun/tools"
+	"github.com/khankhulgun/khankhulgun/config"
 )
 
 var IsLoggedIn = middleware.JWTWithConfig(middleware.JWTConfig{
-	SigningKey: []byte(utils.Config.JWT.Secret),
+	SigningKey: []byte(config.Config.JWT.Secret),
 })
 var IsLoggedInCookie = middleware.JWTWithConfig(middleware.JWTConfig{
-	SigningKey:  []byte(utils.Config.JWT.Secret),
+	SigningKey:  []byte(config.Config.JWT.Secret),
 	TokenLookup: "cookie:token",
 })
 

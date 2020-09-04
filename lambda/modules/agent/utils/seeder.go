@@ -3,7 +3,7 @@ package utils
 import (
 	"time"
 	"github.com/khankhulgun/khankhulgun/DB"
-	"github.com/khankhulgun/khankhulgun/tools"
+	"github.com/khankhulgun/khankhulgun/config"
 	agentModels "github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
 
 )
@@ -17,7 +17,7 @@ func AutoMigrateSeed() {
 		&agentModels.PasswordReset{},
 	)
 
-	if utils.Config.App.Seed == "true" {
+	if config.Config.App.Seed == "true" {
 		var roles []agentModels.Role
 		db.Find(&roles)
 
@@ -37,11 +37,11 @@ func seedData() {
 	db.Create(&role)
 
 	/*SUPER ADMIN USER*/
-	password, _ := Hash(utils.Config.SuperAdmin.Password)
+	password, _ := Hash(config.Config.SuperAdmin.Password)
 	user := agentModels.User{
 		Role:1,
-		Login:utils.Config.SuperAdmin.Login,
-		Email:utils.Config.SuperAdmin.Email,
+		Login:config.Config.SuperAdmin.Login,
+		Email:config.Config.SuperAdmin.Email,
 		Password:password,
 		Status:"2",
 		Birthday:time.Now(),

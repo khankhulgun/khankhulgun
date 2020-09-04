@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
+	"github.com/khankhulgun/khankhulgun/config"
 	"sort"
 	"strings"
 )
@@ -18,13 +19,13 @@ func GetColumnsFromSQLlTable(db *sql.DB, dbTable string, hiddenColumns []string)
 
 	var pkColumn models.PKColumn
 
-	columnDataTypeQuery := "SELECT COLUMN_NAME, COLUMN_KEY, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '" + dbTable+"' AND table_schema = '" + utils.Config.Database.Database+"'"
+	columnDataTypeQuery := "SELECT COLUMN_NAME, COLUMN_KEY, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '" + dbTable+"' AND table_schema = '" + config.Config.Database.Database+"'"
 
-	if utils.Config.Database.Connection == "mssql"{
+	if config.Config.Database.Connection == "mssql"{
 
-		DB.DB.Raw("SELECT COLUMN_NAME FROM "+utils.Config.Database.Database+".INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '"+dbTable+"' AND CONSTRAINT_NAME LIKE '%PK%'").Scan(&pkColumn)
+		DB.DB.Raw("SELECT COLUMN_NAME FROM "+config.Config.Database.Database+".INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '"+dbTable+"' AND CONSTRAINT_NAME LIKE '%PK%'").Scan(&pkColumn)
 
-		columnDataTypeQuery = "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM "+utils.Config.Database.Database+".INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + dbTable+"'"
+		columnDataTypeQuery = "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM "+config.Config.Database.Database+".INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + dbTable+"'"
 	}
 
 	if Debug {
@@ -48,7 +49,7 @@ func GetColumnsFromSQLlTable(db *sql.DB, dbTable string, hiddenColumns []string)
 		var columnKey string
 		var dataType string
 		var nullable string
-		if utils.Config.Database.Connection == "mssql" {
+		if config.Config.Database.Connection == "mssql" {
 			rows.Scan(&column, &dataType, &nullable)
 		} else {
 			rows.Scan(&column, &columnKey, &dataType, &nullable)
@@ -62,7 +63,7 @@ func GetColumnsFromSQLlTable(db *sql.DB, dbTable string, hiddenColumns []string)
 			}
 		}
 		if isHidden == false{
-			if utils.Config.Database.Connection == "mssql" {
+			if config.Config.Database.Connection == "mssql" {
 				if pkColumn.ColumnName == column{
 					columnKey = "PRI"
 				}
@@ -86,13 +87,13 @@ func GetOnlyOneField(db *sql.DB, dbTable string, oneField string) (*map[string]m
 	// Select columnd data from INFORMATION_SCHEMA
 	var pkColumn models.PKColumn
 
-	columnDataTypeQuery := "SELECT COLUMN_NAME, COLUMN_KEY, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '" + dbTable+"' AND table_schema = '" + utils.Config.Database.Database+"'"
+	columnDataTypeQuery := "SELECT COLUMN_NAME, COLUMN_KEY, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '" + dbTable+"' AND table_schema = '" + config.Config.Database.Database+"'"
 
-	if utils.Config.Database.Connection == "mssql"{
+	if config.Config.Database.Connection == "mssql"{
 
-		DB.DB.Raw("SELECT COLUMN_NAME FROM "+utils.Config.Database.Database+".INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '"+dbTable+"' AND CONSTRAINT_NAME LIKE 'PK%'").Scan(&pkColumn)
+		DB.DB.Raw("SELECT COLUMN_NAME FROM "+config.Config.Database.Database+".INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '"+dbTable+"' AND CONSTRAINT_NAME LIKE 'PK%'").Scan(&pkColumn)
 
-		columnDataTypeQuery = "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM "+utils.Config.Database.Database+".INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + dbTable+"'"
+		columnDataTypeQuery = "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM "+config.Config.Database.Database+".INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + dbTable+"'"
 	}
 
 	if Debug {
@@ -116,14 +117,14 @@ func GetOnlyOneField(db *sql.DB, dbTable string, oneField string) (*map[string]m
 		var columnKey string
 		var dataType string
 		var nullable string
-		if utils.Config.Database.Connection == "mssql" {
+		if config.Config.Database.Connection == "mssql" {
 			rows.Scan(&column, &dataType, &nullable)
 		} else {
 			rows.Scan(&column, &columnKey, &dataType, &nullable)
 		}
 
 
-		if utils.Config.Database.Connection == "mssql" {
+		if config.Config.Database.Connection == "mssql" {
 			if pkColumn.ColumnName == column{
 				columnKey = "PRI"
 			}

@@ -7,7 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/smtp"
-	"github.com/khankhulgun/khankhulgun/tools"
+	"github.com/khankhulgun/khankhulgun/config"
 )
 
 type Request struct {
@@ -43,8 +43,8 @@ func (r *Request) parseTemplate(fileName string, data interface{}) error {
 
 func (r *Request) sendMail() bool {
 	body := "To: " + r.to[0] + "\r\nSubject: " + r.subject + "\r\n" + MIME + "\r\n" + r.body
-	SMTP := fmt.Sprintf("%s:%d", utils.Config.Mail.Host, utils.Config.Mail.Port)
-	if err := smtp.SendMail(SMTP, smtp.PlainAuth("", utils.Config.Mail.Username, utils.Config.Mail.Password, utils.Config.Mail.Host), utils.Config.Mail.Username, r.to, []byte(body)); err != nil {
+	SMTP := fmt.Sprintf("%s:%d", config.Config.Mail.Host, config.Config.Mail.Port)
+	if err := smtp.SendMail(SMTP, smtp.PlainAuth("", config.Config.Mail.Username, config.Config.Mail.Password, config.Config.Mail.Host), config.Config.Mail.Username, r.to, []byte(body)); err != nil {
 		return false
 	}
 	return true

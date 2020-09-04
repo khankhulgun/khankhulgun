@@ -46,7 +46,7 @@ func Index(c echo.Context) error {
 		"User":                      User,
 		"user_fields":               config.Config.UserDataFields,
 		"data_form_custom_elements": config.Config.DataFormCustomElements,
-		"mix":                       utils.Mix,
+		"mix":                       tools.Mix,
 	})
 
 }
@@ -263,13 +263,15 @@ func AfterSave(vb models.VBSchema, type_ string) bool{
 
 
 /*GRID*/
-func GridVB(c echo.Context) error {
-	schemaId := c.Param("schemaId")
-	action := c.Param("action")
-	id := c.Param("id")
 
-	return datagrid.Exec(c, schemaId, action, id)
+func GridVB(GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string)) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		schemaId := c.Param("schemaId")
+		action := c.Param("action")
+		id := c.Param("id")
 
+		return datagrid.Exec(c, schemaId, action, id, GetGridMODEL)
+	}
 }
 func WriteGridModel() {
 

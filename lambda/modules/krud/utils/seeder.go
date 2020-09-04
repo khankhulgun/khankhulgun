@@ -2,7 +2,7 @@ package utils
 
 import (
 
-	 "github.com/khankhulgun/khankhulgun/tools"
+	 "github.com/khankhulgun/khankhulgun/config"
 	 "github.com/khankhulgun/khankhulgun/DB"
 	krudModels "github.com/khankhulgun/khankhulgun/lambda/modules/krud/models"
 	
@@ -15,7 +15,7 @@ func AutoMigrateSeed() {
 		&krudModels.Krud{},
 		&krudModels.KrudTemplate{},
 	)
-	if utils.Config.App.Seed == "true" {
+	if config.Config.App.Seed == "true" {
 		var vbs []krudModels.KrudTemplate
 		db.Find(&vbs)
 
