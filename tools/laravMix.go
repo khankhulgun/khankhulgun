@@ -3,7 +3,7 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/khankhulgun/khankhulgun/config"
+
 	"io/ioutil"
 	"sync"
 )
@@ -15,9 +15,9 @@ func init()  {
 
 	onceMix.Do(func() {
 
-		AbsolutePath := config.AbsolutePath()
+		//AbsolutePath := config.AbsolutePath()
 
-		mixFile := AbsolutePath+"public/mix-manifest.json"
+		mixFile := "public/mix-manifest.json"
 
 		data, err := ioutil.ReadFile(mixFile)
 

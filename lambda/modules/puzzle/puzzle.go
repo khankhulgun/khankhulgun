@@ -10,15 +10,16 @@ import (
 	"html/template"
 )
 //
-func Set(e *echo.Echo,  GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string)) {
+func Set(e *echo.Echo, moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string)) {
 
 	if config.Config.App.Migrate == "true"{
 		utils.AutoMigrateSeed()
 	}
 	templates := vpUtils.GetTemplates(e)
 	/* REGISTER VIEWS */
-	templates["puzzle.html"] = template.Must(template.ParseFiles("github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/templates/puzzle.html"))
-	templates["moqup.html"] = template.Must(template.ParseFiles("github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/templates/moqup.html"))
+	AbsolutePath := config.AbsolutePath()
+	templates["puzzle.html"] = template.Must(template.ParseFiles(AbsolutePath+"lambda/modules/puzzle/templates/puzzle.html"))
+	templates["moqup.html"] = template.Must(template.ParseFiles(AbsolutePath+"lambda/modules/puzzle/templates/moqup.html"))
 
 	/*ROUTES */
 	e.GET("/build-me", handlers.BuildMe, agentMW.IsLoggedInCookie, agentMW.IsAdmin)
@@ -34,8 +35,8 @@ func Set(e *echo.Echo,  GetGridMODEL func(schema_id string) (interface{}, interf
 	g.GET("/puzzle/schema/:type/:id/:condition", handlers.GetVB, agentMW.IsLoggedInCookie)
 
 	//VB SCHEMA
-	g.POST("/puzzle/schema/:type", handlers.SaveVB, agentMW.IsLoggedInCookie, agentMW.IsAdmin)
-	g.POST("/puzzle/schema/:type/:id", handlers.SaveVB, agentMW.IsLoggedInCookie, agentMW.IsAdmin)
+	g.POST("/puzzle/schema/:type", handlers.SaveVB(moduleName), agentMW.IsLoggedInCookie, agentMW.IsAdmin)
+	g.POST("/puzzle/schema/:type/:id", handlers.SaveVB(moduleName), agentMW.IsLoggedInCookie, agentMW.IsAdmin)
 	g.DELETE("/puzzle/delete/vb_schemas/:type/:id", handlers.DeleteVB, agentMW.IsLoggedInCookie, agentMW.IsAdmin)
 
 	//GRID

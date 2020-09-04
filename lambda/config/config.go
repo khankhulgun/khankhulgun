@@ -60,8 +60,8 @@ var Config LambdaConfig
 func init()  {
 	onceConfig.Do(func() {
 
-		AbsolutePath := config.AbsolutePath()
-		configFiel := AbsolutePath+ config.Config.LambdaConfig.ConfigFile
+
+		configFiel := config.Config.LambdaConfig.ConfigFile
 		configFile, err := os.Open(configFiel)
 		defer configFile.Close()
 		if err != nil{

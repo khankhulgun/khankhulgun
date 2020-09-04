@@ -110,98 +110,99 @@ func GetVB(c echo.Context) error {
 	})
 
 }
-func SaveVB(c echo.Context) error {
+func SaveVB(modelName string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		type_ := c.Param("type")
+		id := c.Param("id")
+		//condition := c.Param("condition")
 
-	type_ := c.Param("type")
-	id := c.Param("id")
-	//condition := c.Param("condition")
+		vbs := new(vb_schema)
+		if err := c.Bind(vbs); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"status": "false",
+			})
+		}
 
-	vbs := new(vb_schema)
-	if err := c.Bind(vbs); err != nil {
+		if id != "" {
+			id_, _ := strconv.ParseUint(id, 0, 64)
+
+			vb := models.VBSchema{}
+
+			DB.DB.Where("id = ?", id_).First(&vb)
+
+			vb.Name = vbs.Name
+			vb.Schema = vbs.Schema
+			//_, err := vb.Update(context.Background(), DB, boil.Infer())
+
+			BeforeSave(id_, type_)
+
+			err := DB.DB.Save(&vb).Error
+
+			if type_ == "form" {
+				//WriteModelData(id_)
+				WriteModelData(modelName)
+			} else if type_ == "grid" {
+				WriteGridModel(modelName)
+			}
+
+
+
+
+
+
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, map[string]string{
+					"status": "false",
+				})
+			} else {
+				afterStatus := AfterSave(vb, type_)
+				return c.JSON(http.StatusOK, map[string]interface{}{
+					"status": afterStatus,
+				})
+			}
+
+		} else {
+			vb := models.VBSchema{
+				Name:   vbs.Name,
+				Schema: vbs.Schema,
+				Type:   type_,
+				ID:0,
+			}
+
+			//err := vb.Insert(context.Background(), DB, boil.Infer())
+
+			DB.DB.NewRecord(vb) // => returns `true` as primary key is blank
+
+			err := DB.DB.Create(&vb).Error
+
+			if type_ == "form" {
+				//WriteModelData(vb.ID)
+				WriteModelData(modelName)
+			} else if type_ == "grid" {
+				WriteGridModel(modelName)
+			}
+
+
+
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, map[string]string{
+					"status": "false",
+				})
+			} else {
+				afterStatus := AfterSave(vb, type_)
+				return c.JSON(http.StatusOK, map[string]interface{}{
+					"status": afterStatus,
+				})
+			}
+
+		}
+
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"status": "false",
 		})
 	}
-
-	if id != "" {
-		id_, _ := strconv.ParseUint(id, 0, 64)
-
-		vb := models.VBSchema{}
-
-		DB.DB.Where("id = ?", id_).First(&vb)
-
-		vb.Name = vbs.Name
-		vb.Schema = vbs.Schema
-		//_, err := vb.Update(context.Background(), DB, boil.Infer())
-
-		BeforeSave(id_, type_)
-
-		err := DB.DB.Save(&vb).Error
-
-		if type_ == "form" {
-			//WriteModelData(id_)
-			WriteModelData()
-		} else if type_ == "grid" {
-			WriteGridModel()
-		}
-
-
-
-
-
-
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"status": "false",
-			})
-		} else {
-			afterStatus := AfterSave(vb, type_)
-			return c.JSON(http.StatusOK, map[string]interface{}{
-				"status": afterStatus,
-			})
-		}
-
-	} else {
-		vb := models.VBSchema{
-			Name:   vbs.Name,
-			Schema: vbs.Schema,
-			Type:   type_,
-			ID:0,
-		}
-
-		//err := vb.Insert(context.Background(), DB, boil.Infer())
-
-		DB.DB.NewRecord(vb) // => returns `true` as primary key is blank
-
-		err := DB.DB.Create(&vb).Error
-
-		if type_ == "form" {
-			//WriteModelData(vb.ID)
-			WriteModelData()
-		} else if type_ == "grid" {
-			WriteGridModel()
-		}
-
-
-
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"status": "false",
-			})
-		} else {
-			afterStatus := AfterSave(vb, type_)
-			return c.JSON(http.StatusOK, map[string]interface{}{
-				"status": afterStatus,
-			})
-		}
-
-	}
-
-	return c.JSON(http.StatusBadRequest, map[string]string{
-		"status": "false",
-	})
-
 }
+
 func DeleteVB(c echo.Context) error {
 
 	type_ := c.Param("type")
@@ -273,22 +274,22 @@ func GridVB(GetGridMODEL func(schema_id string) (interface{}, interface{}, strin
 		return datagrid.Exec(c, schemaId, action, id, GetGridMODEL)
 	}
 }
-func WriteGridModel() {
+func WriteGridModel(modelName string) {
 
 	VBSchemas := []models.VBSchema{}
 	DB.DB.Where("type = ?", "grid").Find(&VBSchemas)
 	DBSchema.WriteGridModel(VBSchemas)
-	DBSchema.WriteGridDataCaller(VBSchemas)
+	DBSchema.WriteGridDataCaller(VBSchemas, modelName)
 
 }
 
 /*FROM*/
-func WriteModelData() {
+func WriteModelData(modelName string) {
 	VBSchemas := []models.VBSchema{}
 	DB.DB.Where("type = ?", "form").Find(&VBSchemas)
 	DBSchema.WriteFormModel(VBSchemas)
-	DBSchema.WriteModelCaller(VBSchemas)
-	DBSchema.WriteValidationCaller(VBSchemas)
+	DBSchema.WriteModelCaller(VBSchemas, modelName)
+	DBSchema.WriteValidationCaller(VBSchemas, modelName)
 }
 func GetOptions(c echo.Context) error {
 

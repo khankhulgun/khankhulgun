@@ -659,7 +659,7 @@ return triggers, "`+schema.Triggers.Namespace+`"
 	}
 
 }
-func WriteGridDataCaller(forms []models.VBSchema) {
+func WriteGridDataCaller(forms []models.VBSchema, moduleName string) {
 	//return new(models.Naiz)
 
 	f, err := os.Create("models/grid/caller/modelCaller.go")
@@ -673,7 +673,7 @@ func WriteGridDataCaller(forms []models.VBSchema) {
 		f.Close()
 
 	}
-	l2, err := f.WriteString("import \"github.com/khankhulgun/khankhulgun/models/grid\"\n")
+	l2, err := f.WriteString("import \""+moduleName+"/models/grid\"\n")
 	if err != nil {
 		fmt.Println(err, l2)
 		f.Close()
@@ -1044,7 +1044,7 @@ return triggers, "`+schema.Triggers.Namespace+`"
 	}
 
 }
-func WriteModelCaller(forms []models.VBSchema) {
+func WriteModelCaller(forms []models.VBSchema, moduleName string) {
 	//return new(models.Naiz)
 
 	f, err := os.Create("models/form/caller/modelCaller.go")
@@ -1058,7 +1058,7 @@ func WriteModelCaller(forms []models.VBSchema) {
 		f.Close()
 
 	}
-	l2, err := f.WriteString("import \"github.com/khankhulgun/khankhulgun/models/form\"\n")
+	l2, err := f.WriteString("import \""+moduleName+"/models/form\"\n")
 	if err != nil {
 		fmt.Println(err, l2)
 		f.Close()
@@ -1120,7 +1120,7 @@ return "id", new(form.UserPassword)
 
 	}
 }
-func WriteValidationCaller(forms []models.VBSchema) {
+func WriteValidationCaller(forms []models.VBSchema, moduleName string) {
 
 	f, err := os.Create("models/form/validationCaller/rulesCaller.go")
 	if err != nil {
@@ -1135,7 +1135,7 @@ func WriteValidationCaller(forms []models.VBSchema) {
 	}
 	l2, err := f.WriteString(`import (
 	"github.com/thedevsaddam/govalidator"
-	"github.com/khankhulgun/khankhulgun/models/form/validations"
+	"`+moduleName+`/models/form/validations"
 )
 
 `)
@@ -1205,9 +1205,9 @@ func WriteValidationCaller(forms []models.VBSchema) {
 
 	}
 
-	WriteValidationMessageCaller(forms)
+	WriteValidationMessageCaller(forms, moduleName)
 }
-func WriteValidationMessageCaller(forms []models.VBSchema) {
+func WriteValidationMessageCaller(forms []models.VBSchema, moduleName string) {
 
 	f, err := os.Create("models/form/validationCaller/messagesCaller.go")
 	if err != nil {
@@ -1222,7 +1222,7 @@ func WriteValidationMessageCaller(forms []models.VBSchema) {
 	}
 	l2, err := f.WriteString(`import (
 	"github.com/thedevsaddam/govalidator"
-    "github.com/khankhulgun/khankhulgun/models/form/validations"
+    "`+moduleName+`/models/form/validations"
 )
 
 `)
