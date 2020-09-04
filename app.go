@@ -3,11 +3,11 @@ package khankhulgun
 import (
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/config"
+	"github.com/khankhulgun/khankhulgun/controlPanel"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/agent"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/krud"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/notify"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle"
-	"github.com/khankhulgun/khankhulgun/controlPanel"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -20,6 +20,7 @@ type App struct {
 	GetMODEL func(schema_id string) (string, interface{})
 	GetMessages func(schema_id string) map[string][]string
 	GetRules func(schema_id string) map[string][]string
+	UseControlPanel bool
 }
 
 func (app *App) Start() {
@@ -27,7 +28,7 @@ func (app *App) Start() {
 	defer DB.DB.Close()
 }
 
-func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string) *App {
+func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, UseControlPanel bool) *App {
 
 	app := &App{
 		Echo:echo.New(),
@@ -36,20 +37,24 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 		GetMODEL:GetMODEL,
 		GetMessages:GetMessages,
 		GetRules:GetRules,
+		UseControlPanel: UseControlPanel,
 	}
 
 	agent.Set(app.Echo)
 	puzzle.Set(app.Echo, app.ModuleName, app.GetGridMODEL)
 	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules)
 	notify.Set(app.Echo)
-	controlPanel.Set(app.Echo)
+	if(app.UseControlPanel){
+		controlPanel.Set(app.Echo)
+	}
+
 
 
 	app.Echo.Use(middleware.Secure())
 
 	//CORS
 	app.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*","http://localhost:8080"},
+		AllowOrigins:     []string{"*","http://localhost:*"},
 		AllowCredentials: true,
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, "X-Requested-With", "x-requested-with"},
 		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS},
