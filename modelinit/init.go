@@ -15,29 +15,33 @@ func ModelInit(projectPath string, moduleName string) {
 	dir := projectPath
 	AbsolutePath := config.AbsolutePath()
 
-	formPatch := dir+"/models/form"
-	gridPatch := dir+"/models/grid"
+	formPatch := dir+"/models/form/"
+	gridPatch := dir+"/models/grid/"
 	if _, err := os.Stat(formPatch); os.IsNotExist(err) {
+		os.MkdirAll("models/", 0755)
 		os.MkdirAll(formPatch, 0755)
 		os.MkdirAll("models/form/validationCaller/", 0755)
 		os.MkdirAll("models/form/caller/", 0755)
 	} else {
+		os.MkdirAll("models/", 0755)
 		os.RemoveAll(formPatch)
 		os.MkdirAll(formPatch, 0755)
 		os.MkdirAll("models/form/validationCaller/", 0755)
 		os.MkdirAll("models/form/caller/", 0755)
 	}
 	if _, err := os.Stat(gridPatch); os.IsNotExist(err) {
+		os.MkdirAll("models/", 0755)
 		os.MkdirAll(gridPatch, 0755)
 		os.MkdirAll("models/grid/caller", 0755)
 	} else {
+		os.MkdirAll("models/", 0755)
 		os.RemoveAll(gridPatch)
 		os.MkdirAll(gridPatch, 0755)
 		os.MkdirAll("models/grid/caller", 0755)
 	}
 
-	copy.Copy(AbsolutePath+"lambda/plugins/dataform/models", dir+"/models/form")
-	copy.Copy(AbsolutePath+"lambda/plugins/datagrid/models", dir+"/models/grid")
+	copy.Copy(AbsolutePath+"lambda/plugins/dataform/models/", dir+"/models/form/")
+	copy.Copy(AbsolutePath+"lambda/plugins/datagrid/models/", dir+"/models/grid/")
 
 	WriteGridModel(moduleName)
 	WriteModelData(moduleName)
