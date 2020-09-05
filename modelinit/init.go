@@ -40,11 +40,15 @@ func ModelInit(projectPath string, moduleName string) {
 		os.MkdirAll("models/grid/caller", 0755)
 	}
 
-	copy.Copy(AbsolutePath+"lambda/plugins/dataform/models/", dir+"/models/form/")
-	copy.Copy(AbsolutePath+"lambda/plugins/datagrid/models/", dir+"/models/grid/")
+
 
 	WriteGridModel(moduleName)
 	WriteModelData(moduleName)
+
+
+	copy.Copy(AbsolutePath+"lambda/plugins/dataform/models/", dir+"/models/form/")
+	copy.Copy(AbsolutePath+"lambda/plugins/datagrid/models/", dir+"/models/grid/")
+
 	fmt.Println("MODEL INIT DONE")
 }
 
