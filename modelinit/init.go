@@ -21,12 +21,14 @@ func ModelInit(projectPath string, moduleName string) {
 		os.MkdirAll("models/", 0755)
 		os.MkdirAll(formPatch, 0755)
 		os.MkdirAll("models/form/validationCaller/", 0755)
+		os.MkdirAll("models/form/validations/", 0755)
 		os.MkdirAll("models/form/caller/", 0755)
 	} else {
 		os.MkdirAll("models/", 0755)
 		os.RemoveAll(formPatch)
 		os.MkdirAll(formPatch, 0755)
 		os.MkdirAll("models/form/validationCaller/", 0755)
+		os.MkdirAll("models/form/validations/", 0755)
 		os.MkdirAll("models/form/caller/", 0755)
 	}
 	if _, err := os.Stat(gridPatch); os.IsNotExist(err) {
