@@ -687,20 +687,21 @@ func OptionsData(DB *sql.DB, relation Ralation_, c echo.Context) []map[string]in
 			userField := User[userCon["userField"]]
 
 			//if userField
-			userFieldValue := strconv.FormatInt(reflect.ValueOf(userField).Int(), 10)
+			if(userField != nil){
+				userFieldValue := strconv.FormatInt(reflect.ValueOf(userField).Int(), 10)
 
-			userDataFilter := tableField + " = '" + userFieldValue + "'"
+				userDataFilter := tableField + " = '" + userFieldValue + "'"
 
-			if userFieldValue != "" && userFieldValue != "0" {
-				fmt.Println(userFieldValue, "userFieldValue")
+				if userFieldValue != "" && userFieldValue != "0" {
+					fmt.Println(userFieldValue, "userFieldValue")
 
-				if where_value == "" {
-					where_value = "WHERE " + userDataFilter
-				} else {
-					where_value = where_value + " AND " + userDataFilter
+					if where_value == "" {
+						where_value = "WHERE " + userDataFilter
+					} else {
+						where_value = where_value + " AND " + userDataFilter
+					}
 				}
 			}
-
 		}
 	}
 
