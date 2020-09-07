@@ -3,16 +3,15 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/khankhulgun/khankhulgun/config"
 	"io/ioutil"
 )
 
 
 func FrontMix(path string) map[string]string  {
 	var frontEndMix map[string]string
-	AbsolutePath := config.AbsolutePath()
+	//AbsolutePath := config.AbsolutePath()
 
-	mixFile := AbsolutePath+"public/"+path
+	mixFile := "public/"+path
 
 	data, err := ioutil.ReadFile(mixFile)
 

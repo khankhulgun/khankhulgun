@@ -1,0 +1,135 @@
+.dv-pagination {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 10px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    box-shadow: rgba(221, 221, 221, 0.7) 0 0 8px 1px;
+    border-radius: 4px;
+    &-info {
+        display: flex;
+        align-items: center;
+        &-sort {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-right: 10px;
+            .roles-select {
+                margin-right: 10px;
+            }
+            &-select {
+                margin-left: 30px;
+                .dv-sort-direction {
+                    float: right;
+                    color: #2d8cf0
+                }
+                .ivu-select-item-selected {
+                    .dv-sort-direction {
+                        color: #fff;
+                    }
+                }
+                span.ivu-select-placeholder {
+                    color: $card-title-color !important;
+                }
+                span.ivu-select-placeholder:hover {
+                    color: $primary !important;
+                }
+            }
+        }
+
+        .page-info {
+            color: $card-title-color;
+            font-size: 13px;
+            line-height: 24px;
+        }
+    }
+
+    &-control {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        .ivu-page-options-elevator input, .ivu-page.mini .ivu-page-options-elevator input {
+            padding: 1px 5px;
+            margin: 0;
+            border-radius: 3px;
+            width: 30px;
+            height: 24px;
+            text-align: center;
+        }
+        .dv-per-page {
+            color: $card-title-color;
+            font-size: 13px;
+            margin-right: 10px;
+            line-height: 24px;
+            height: 24px;
+        }
+        .dv-control {
+            font-size: 13px;
+            color: $card-title-color;
+            .ivu-page-item {
+                a {
+                    color: $card-title-color;
+                }
+                &-active a {
+                    color: #fff;
+                    font-weight: 600;
+                }
+            }
+            .ivu-page-item:hover {
+                a {
+                    color: $primary;
+                }
+                font-weight: bold;
+                box-shadow: 0 0 0 1px $primary;
+            }
+            .ivu-page-item.ivu-page-item-active:hover {
+                box-shadow: none;
+                a {
+                    color: #fff;
+                }
+            }
+            .ivu-page-prev, .ivu-page-next {
+                background-color: #fff;
+            }
+            .ivu-page-prev:hover, .ivu-page-next:hover {
+                box-shadow: 0 0 0 1px $primary;
+                a {
+                    i {
+                        font-weight: 600;
+                        color: $primary;
+                    }
+                }
+            }
+            .ivu-page-disabled {
+                background: $header-bg;
+                a {
+                    i {
+                        font-weight: 600;
+                        color: $card-title-color;
+                    }
+                }
+            }
+            .ivu-page-disabled:hover {
+                box-shadow: none;
+                a {
+                    i {
+                        font-weight: 600;
+                        color: $card-title-color;
+                    }
+                }
+            }
+            .ivu-page-disabled, .ivu-page-item-jump-next, .ivu-page-item-jump-prev, .ivu-page-next, .ivu-page-prev {
+                > a {
+                    position: relative;
+                    i {
+                        position: absolute;
+                        top: 5px;
+                        right: -2px;
+                        color: $card-title-color;
+                    }
+                }
+            }
+        }
+    }
+}

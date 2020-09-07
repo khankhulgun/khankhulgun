@@ -1,0 +1,15 @@
+@import "page_loader";
+@import "btn_loader";
+html,
+body {
+    height: 100%;
+    position: relative;
+    background-size: cover;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+@import url(https://fonts.googleapis.com/css?family=Roboto:500,400,100,200,300);
