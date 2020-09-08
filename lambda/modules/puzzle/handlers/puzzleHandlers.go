@@ -157,7 +157,6 @@ func SaveVB(modelName string) echo.HandlerFunc {
 				afterStatus := AfterSave(vb, type_)
 				return c.JSON(http.StatusOK, map[string]interface{}{
 					"status": afterStatus,
-					"error": err.Error(),
 				})
 			}
 
