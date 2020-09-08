@@ -42,7 +42,7 @@ type MSTableMata struct {
 type VBSchemaAdmin struct {
 	VbId        uint64       `gorm:"column:vb_id;primary_key" json:"vb_id"`
 	Name      string    `gorm:"column:name" json:"name"`
-	Schema    string    `gorm:"column:schema;type:TEXT" json:"schema"`
+	Schema    string    `gorm:"column:schema;type:LONGTEXT" json:"schema"`
 	Type      string    `gorm:"column:type" json:"type"`
 	Id      string    `gorm:"column:id" json:"id"`
 	CreatedAt time.Time `gorm:"column:created_at" json:"created_at"`

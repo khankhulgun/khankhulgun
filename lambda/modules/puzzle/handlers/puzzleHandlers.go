@@ -120,6 +120,7 @@ func SaveVB(modelName string) echo.HandlerFunc {
 		if err := c.Bind(vbs); err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"status": "false",
+				"error": err.Error(),
 			})
 		}
 
@@ -146,18 +147,23 @@ func SaveVB(modelName string) echo.HandlerFunc {
 			}
 
 
-
+fmt.Println("HIHI")
+fmt.Println(err)
 
 
 
 			if err != nil {
+				fmt.Println("HIHI 1")
 				return c.JSON(http.StatusBadRequest, map[string]string{
 					"status": "false",
+					"error": err.Error(),
 				})
 			} else {
+				fmt.Println("HIHI 2")
 				afterStatus := AfterSave(vb, type_)
 				return c.JSON(http.StatusOK, map[string]interface{}{
 					"status": afterStatus,
+					"error": err.Error(),
 				})
 			}
 
