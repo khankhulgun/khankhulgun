@@ -71,7 +71,6 @@ func Edit(c echo.Context, Model interface{}, schemaId string, id string, Identit
 				subData, _ := json.Marshal(Sub["subForm"])
 				json.Unmarshal(subData, &dataSub)
 
-				fmt.Println(dataSub)
 				dataWitSub := []map[string]interface{}{}
 				for _, sData := range dataSub {
 

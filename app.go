@@ -27,21 +27,32 @@ func (app *App) Start() {
 	app.Echo.Logger.Fatal(app.Echo.Start(config.Config.App.Port))
 	defer DB.DB.Close()
 }
-type ControlPanelSettings struct {
+type Settings struct {
 	UseControlPanel bool
+	UseNotify bool
+	UseCrudLogger bool
 
 }
 
-var useControlPanel = true
+var UseControlPanel = true
+var UseNotify = true
+var UseCrudLogger = false
 
 
-func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, controlPanelSettings ...*ControlPanelSettings) *App {
+func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, controlPanelSettings ...*Settings) *App {
 
 
 
 	if(len(controlPanelSettings) >= 1){
 		if(controlPanelSettings[0].UseControlPanel){
-			useControlPanel = controlPanelSettings[0].UseControlPanel
+			UseControlPanel = controlPanelSettings[0].UseControlPanel
+		}
+		if(controlPanelSettings[0].UseNotify){
+			UseNotify = controlPanelSettings[0].UseNotify
+		}
+
+		if(controlPanelSettings[0].UseCrudLogger){
+			UseCrudLogger = controlPanelSettings[0].UseCrudLogger
 		}
 
 	}
@@ -53,14 +64,22 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 		GetMessages:GetMessages,
 		GetRules:GetRules,
 	}
-
+	if(UseCrudLogger){
+		krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules, true)
+	} else {
+		krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules, false)
+	}
 	agent.Set(app.Echo)
 	puzzle.Set(app.Echo, app.ModuleName, app.GetGridMODEL)
-	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules)
-	notify.Set(app.Echo)
-	if(useControlPanel){
+	
+
+	if(UseControlPanel){
 		controlPanel.Set(app.Echo)
 	}
+	if(UseNotify){
+		notify.Set(app.Echo)
+	}
+
 
 
 

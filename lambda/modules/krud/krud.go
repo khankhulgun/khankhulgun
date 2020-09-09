@@ -9,23 +9,37 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string) {
+func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, UseCrudLogger bool) {
 	if config.Config.App.Migrate == "true"{
 		utils.AutoMigrateSeed()
 	}
 
 	g :=e.Group("/lambda/krud")
 	/* ROUTES */
+
+	if(UseCrudLogger){
+		g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate, krudMW.CrudLogger)
+		g.POST("/:schemaId/:action/:id", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionEdit, krudMW.CrudLogger)
+		g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete, krudMW.CrudLogger)
+	} else {
+		g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate)
+		g.POST("/:schemaId/:action/:id", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionEdit)
+		g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete)
+	}
+
+
+
+	/*
+	OTHER
+	*/
 	g.POST("/upload", handlers.Upload)
 	g.OPTIONS("/upload", handlers.Upload)
 	g.POST("/unique", handlers.CheckUnique)
 	g.POST("/check_current_password", handlers.CheckCurrentPassword,  agentMW.IsLoggedInCookie)
 	g.POST("/excel/:schemaId", handlers.ExportExcel(GetGridMODEL),  agentMW.IsLoggedInCookie)
-	g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate)
-	//g.POST("/:schemaId/:action", handlers.Crud, krudMW.PermissionCreate)
-	g.POST("/:schemaId/:action/:id", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionEdit)
-	g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete)
-
+	/*
+	PUBLIC CURDS
+	*/
 	p :=e.Group("/github.com/khankhulgun/khankhulgun/lambda/krud-public")
 	p.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules))
 }

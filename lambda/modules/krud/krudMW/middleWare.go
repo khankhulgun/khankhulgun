@@ -86,6 +86,7 @@ func PermissionDelete(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func GetPermission(c echo.Context) PermissionData {
+
 	page_id := c.QueryParam("page_id")
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)

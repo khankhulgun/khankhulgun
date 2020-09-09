@@ -13,7 +13,7 @@ func Set(e *echo.Echo) {
 		utils.AutoMigrateSeed()
 	}
 
-	g :=e.Group("/github.com/khankhulgun/khankhulgun/lambda/notify")
+	g :=e.Group("/lambda/notify")
 	/* ROUTES */
 	g.GET("/new/:user_id", handlers.GetNewNotifications, agentMW.IsLoggedInCookie)
 	g.GET("/all/:user_id", handlers.GetAllNotifications, agentMW.IsLoggedInCookie)
