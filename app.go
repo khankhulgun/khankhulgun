@@ -20,16 +20,39 @@ type App struct {
 	GetMODEL func(schema_id string) (string, interface{})
 	GetMessages func(schema_id string) map[string][]string
 	GetRules func(schema_id string) map[string][]string
-	UseControlPanel bool
+
 }
 
 func (app *App) Start() {
 	app.Echo.Logger.Fatal(app.Echo.Start(config.Config.App.Port))
 	defer DB.DB.Close()
 }
+type ControlPanelSettings struct {
+	UseControlPanel bool
+	ExtraStyles []string
+	ExtraScripts []string
+}
 
-func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, UseControlPanel bool) *App {
+var useControlPanel = true
+var extraStyles = []string{}
+var extraScripts = []string{}
 
+func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, controlPanelSettings ...*ControlPanelSettings) *App {
+
+
+
+	if(len(controlPanelSettings) >= 1){
+		if(controlPanelSettings[0].UseControlPanel){
+			useControlPanel = controlPanelSettings[0].UseControlPanel
+		}
+		if(len(controlPanelSettings[0].ExtraScripts) >= 1){
+			extraScripts = controlPanelSettings[0].ExtraScripts
+		}
+		if(len(controlPanelSettings[0].ExtraStyles) >= 1){
+			extraStyles = controlPanelSettings[0].ExtraStyles
+		}
+
+	}
 	app := &App{
 		Echo:echo.New(),
 		ModuleName:moduleName,
@@ -37,15 +60,14 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 		GetMODEL:GetMODEL,
 		GetMessages:GetMessages,
 		GetRules:GetRules,
-		UseControlPanel: UseControlPanel,
 	}
 
 	agent.Set(app.Echo)
 	puzzle.Set(app.Echo, app.ModuleName, app.GetGridMODEL)
 	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules)
 	notify.Set(app.Echo)
-	if(app.UseControlPanel){
-		controlPanel.Set(app.Echo)
+	if(useControlPanel){
+		controlPanel.Set(app.Echo, extraStyles, extraScripts)
 	}
 
 

@@ -57,49 +57,53 @@ func TestFCM(c echo.Context) error {
 		"status": true,
 	})
 }
-func Index(c echo.Context) error {
+
+func Index(extraStyles []string, extraScripts []string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		User := agentUtils.AuthUserObject(c)
 
 
-	User := agentUtils.AuthUserObject(c)
+		Role := agentModels.Role{}
+
+		DB.DB.Where("id = ?", User["role"]).Find(&Role)
+
+		Permissions_ := Permissions{}
+
+		json.Unmarshal([]byte(Role.Permissions), &Permissions_)
 
 
-	Role := agentModels.Role{}
-
-	DB.DB.Where("id = ?", User["role"]).Find(&Role)
-
-	Permissions_ := Permissions{}
-
-	json.Unmarshal([]byte(Role.Permissions), &Permissions_)
-
-
-	Menu := puzzleModels.VBSchema{}
-	DB.DB.Where("id = ?",Permissions_.MenuID).Find(&Menu)
-	MenuSchema := new(interface{})
-	json.Unmarshal([]byte(Menu.Schema), &MenuSchema)
-	Kruds := []krudModels.Krud{}
-	DB.DB.Where("deleted_at IS NULL").Find(&Kruds)
+		Menu := puzzleModels.VBSchema{}
+		DB.DB.Where("id = ?",Permissions_.MenuID).Find(&Menu)
+		MenuSchema := new(interface{})
+		json.Unmarshal([]byte(Menu.Schema), &MenuSchema)
+		Kruds := []krudModels.Krud{}
+		DB.DB.Where("deleted_at IS NULL").Find(&Kruds)
 
 
-	FirebaseConfig := config.Config.Notify.FirebaseConfig
+		FirebaseConfig := config.Config.Notify.FirebaseConfig
 
-	return c.Render(http.StatusOK, "control.html", map[string]interface{}{
-		"title":       config.Config.Title,
-		"favicon":     config.Config.Favicon,
-		"logo":     config.Config.Logo,
-		"logo_light":     config.Config.ControlPanel.LogoLight,
-		"logo_dark":     config.Config.ControlPanel.LogoDark,
-		"brandBtnUrl":     config.Config.ControlPanel.BrandBtnURL,
-		"permissions": Permissions_,
-		"menu":        MenuSchema,
-		"cruds":       Kruds,
-		"User":        User,
-		"data_form_custom_elements": config.Config.DataFormCustomElements,
-		"firebase_config":           FirebaseConfig,
-		"mix":                       tools.Mix,
+		return c.Render(http.StatusOK, "control.html", map[string]interface{}{
+			"title":       config.Config.Title,
+			"extraStyles":       extraStyles,
+			"extraScripts":       extraScripts,
+			"favicon":     config.Config.Favicon,
+			"logo":     config.Config.Logo,
+			"logo_light":     config.Config.ControlPanel.LogoLight,
+			"logo_dark":     config.Config.ControlPanel.LogoDark,
+			"brandBtnUrl":     config.Config.ControlPanel.BrandBtnURL,
+			"permissions": Permissions_,
+			"menu":        MenuSchema,
+			"cruds":       Kruds,
+			"User":        User,
+			"data_form_custom_elements": config.Config.DataFormCustomElements,
+			"firebase_config":           FirebaseConfig,
+			"mix":                       tools.Mix,
 
-	})
-
+		})
+	}
 }
+
 
 func Form(c echo.Context) error {
 
