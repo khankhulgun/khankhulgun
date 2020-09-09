@@ -29,13 +29,11 @@ func (app *App) Start() {
 }
 type ControlPanelSettings struct {
 	UseControlPanel bool
-	ExtraStyles []string
-	ExtraScripts []string
+
 }
 
 var useControlPanel = true
-var extraStyles = []string{}
-var extraScripts = []string{}
+
 
 func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, controlPanelSettings ...*ControlPanelSettings) *App {
 
@@ -44,12 +42,6 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 	if(len(controlPanelSettings) >= 1){
 		if(controlPanelSettings[0].UseControlPanel){
 			useControlPanel = controlPanelSettings[0].UseControlPanel
-		}
-		if(len(controlPanelSettings[0].ExtraScripts) >= 1){
-			extraScripts = controlPanelSettings[0].ExtraScripts
-		}
-		if(len(controlPanelSettings[0].ExtraStyles) >= 1){
-			extraStyles = controlPanelSettings[0].ExtraStyles
 		}
 
 	}
@@ -67,7 +59,7 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules)
 	notify.Set(app.Echo)
 	if(useControlPanel){
-		controlPanel.Set(app.Echo, extraStyles, extraScripts)
+		controlPanel.Set(app.Echo)
 	}
 
 

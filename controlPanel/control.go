@@ -9,7 +9,7 @@ import (
 
 )
 
-func Set(e *echo.Echo, extraStyles []string, extraScripts []string) {
+func Set(e *echo.Echo) {
 
 	if config.Config.App.Migrate == "true"{
 		//utils.AutoMigrateSeed()
@@ -22,7 +22,7 @@ func Set(e *echo.Echo, extraStyles []string, extraScripts []string) {
 	templates["form.html"] = template.Must(template.ParseFiles(AbsolutePath+"controlPanel/templates/form.html"))
 
 	/* ROUTES */
-	e.GET("/control", handlers.Index(extraStyles, extraScripts), agentMW.IsLoggedInCookie)
+	e.GET("/control", handlers.Index(), agentMW.IsLoggedInCookie)
 	e.GET("/form/:schema_id/:id", handlers.Form)
 	e.GET("/test-fcm", handlers.TestFCM, agentMW.IsLoggedInCookie)
 

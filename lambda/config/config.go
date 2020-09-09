@@ -27,6 +27,11 @@ type LambdaConfig struct {
 		LogoLight   string `json:"logoLight"`
 		LogoDark    string `json:"logoDark"`
 		BrandBtnURL string `json:"brandBtnUrl"`
+		ThemeMode string `json:"themeMode"`
+		PrimaryColor string `json:"primaryColor"`
+		ThemeColors []string `json:"themeColors"`
+		ExtraStyles []string `json:"extraStyles"`
+		ExtraScripts []string `json:"extraScripts"`
 	} `json:"controlPanel"`
 	Languages   []struct {
 		Label string `json:"label"`

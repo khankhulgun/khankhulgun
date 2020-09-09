@@ -58,7 +58,7 @@ func TestFCM(c echo.Context) error {
 	})
 }
 
-func Index(extraStyles []string, extraScripts []string) echo.HandlerFunc {
+func Index() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		User := agentUtils.AuthUserObject(c)
@@ -85,8 +85,11 @@ func Index(extraStyles []string, extraScripts []string) echo.HandlerFunc {
 
 		return c.Render(http.StatusOK, "control.html", map[string]interface{}{
 			"title":       config.Config.Title,
-			"extraStyles":       extraStyles,
-			"extraScripts":       extraScripts,
+			"extraStyles":       config.Config.ControlPanel.ExtraStyles,
+			"extraScripts":       config.Config.ControlPanel.ExtraScripts,
+			"primaryColor":       config.Config.ControlPanel.PrimaryColor,
+			"themeColors":       config.Config.ControlPanel.ThemeColors,
+			"themeMode":       config.Config.ControlPanel.ThemeMode,
 			"favicon":     config.Config.Favicon,
 			"logo":     config.Config.Logo,
 			"logo_light":     config.Config.ControlPanel.LogoLight,
