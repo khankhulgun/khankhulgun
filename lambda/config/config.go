@@ -23,6 +23,11 @@ type LambdaConfig struct {
 	AppURL      string `json:"app_url"`
 	HasLanguage bool   `json:"has_language"`
 	KrudPublic bool   `json:"krud_public"`
+	ControlPanel struct {
+		LogoLight   string `json:"logoLight"`
+		LogoDark    string `json:"logoDark"`
+		BrandBtnURL string `json:"brandBtnUrl"`
+	} `json:"controlPanel"`
 	Languages   []struct {
 		Label string `json:"label"`
 		Code  string `json:"code"`
