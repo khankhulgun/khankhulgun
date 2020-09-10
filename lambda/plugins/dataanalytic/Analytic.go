@@ -18,14 +18,16 @@ func AnalyticsData(c echo.Context) error {
 	var AnalyticRangeFilter []models.AnalyticRangeFilter
 	var analyticRowsColumns []models.AnalyticRowsColumn
 	var AnalyticRangeRowColumn []models.AnalyticRangeRowColumn
+	var AnalyticDateRange []models.AnalyticDateRange
 
-	fmt.Println(analytics)
+
 
 	DB.DB.Find(&analytics)
 	DB.DB.Find(&AnalyticFilter)
 	DB.DB.Find(&AnalyticRangeFilter)
 	DB.DB.Find(&analyticRowsColumns)
 	DB.DB.Find(&AnalyticRangeRowColumn)
+	DB.DB.Find(&AnalyticDateRange)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"analytics":          analytics,
@@ -33,6 +35,7 @@ func AnalyticsData(c echo.Context) error {
 		"range_filters":      AnalyticRangeFilter,
 		"rows_columns":       analyticRowsColumns,
 		"range_rows_columns": AnalyticRangeRowColumn,
+		"date_ranges": AnalyticDateRange,
 	})
 }
 
@@ -274,6 +277,18 @@ func AppendFilter(query *gorm.DB, r models.Reguest) *gorm.DB {
 	for _, filter := range r.RangeFilters {
 		if filter.Value[0] >= 1 || filter.Value[1] >= 1 {
 			query = query.Where("b."+filter.FilterField+" >= ? and b."+filter.FilterField+" <= ?", filter.Value[0], filter.Value[1])
+		}
+	}
+	for _, filter := range r.DateRanges {
+		if filter.Value[0] != "" || filter.Value[1]  != ""  {
+			if filter.Value[0] != "" && filter.Value[1]  != ""  {
+				query = query.Where("b."+filter.DateField+" BETWEEN ? AND ?", filter.Value[0], filter.Value[1])
+			} else if filter.Value[0] != "" && filter.Value[1]  == ""{
+				query = query.Where("b."+filter.DateField+" >= ?", filter.Value[0])
+			} else if filter.Value[0] == "" && filter.Value[1]  != ""{
+				query = query.Where("b."+filter.DateField+" <= ?", filter.Value[1])
+			}
+
 		}
 	}
 

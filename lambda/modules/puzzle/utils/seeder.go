@@ -21,6 +21,7 @@ func AutoMigrateSeed() {
 			&analyticModels.AnalyticRangeFilter{},
 			&analyticModels.AnalyticRowsColumn{},
 			&analyticModels.AnalyticRangeRowColumn{},
+			&analyticModels.AnalyticDateRange{},
 		)
 	} else {
 		DB.DB.AutoMigrate(
@@ -31,6 +32,7 @@ func AutoMigrateSeed() {
 			&analyticModels.AnalyticRangeFilter{},
 			&analyticModels.AnalyticRowsColumn{},
 			&analyticModels.AnalyticRangeRowColumn{},
+			&analyticModels.AnalyticDateRange{},
 		)
 	}
 

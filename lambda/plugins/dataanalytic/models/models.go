@@ -55,6 +55,16 @@ type AnalyticRangeFilter struct {
 func (a *AnalyticRangeFilter) TableName() string {
 	return "analytic_range_filter"
 }
+type AnalyticDateRange struct {
+	ID          int    `gorm:"column:id;primary_key" json:"id"`
+	AnalyticID  int `gorm:"column:analytic_id" json:"analytic_id"`
+	DateField    string    `gorm:"column:date_field" json:"date_field"`
+	Title       string `gorm:"column:title" json:"title"`
+}
+
+func (a *AnalyticDateRange) TableName() string {
+	return "analytic_date_filter"
+}
 
 type AnalyticRangeRowColumn struct {
 	AnalyticID         int    `gorm:"column:analytic_id" json:"analytic_id"`
@@ -100,4 +110,11 @@ type Reguest struct {
 		Title       string `json:"title"`
 		Value       []int  `json:"value"`
 	} `json:"range_filters"`
+	DateRanges   []struct {
+		ID         int           `json:"id"`
+		AnalyticID int           `json:"analytic_id"`
+		DateField  string        `json:"date_field"`
+		Title      string        `json:"title"`
+		Value      []interface{} `json:"value"`
+	} `json:"date_ranges"`
 }

@@ -3,11 +3,11 @@ package krudMW
 import (
 	"bytes"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/krud/models"
 	"github.com/labstack/echo/v4"
-	"github.com/khankhulgun/khankhulgun/DB"
-	"strconv"
 	"io/ioutil"
+	"strconv"
 )
 
 func CrudLogger(next echo.HandlerFunc) echo.HandlerFunc {
@@ -32,6 +32,9 @@ func CrudLogger(next echo.HandlerFunc) echo.HandlerFunc {
 			bodyBytes, _ = ioutil.ReadAll(req.Body)
 
 
+			if(action == "" && c.Path() == "/lambda/krud/delete/:schemaId/:id"){
+				action = "delete"
+			}
 
 			Log := models.CrudLog{
 				UserId: int64(userID),
