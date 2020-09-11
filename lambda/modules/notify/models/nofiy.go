@@ -74,3 +74,18 @@ type NotificationData struct {
 	Data            FCMData     `json:"data"`
 	Notification            FCMNotification     `json:"notification"`
 }
+type NotificationTarget struct {
+	ID        int64        `gorm:"column:id;primary_key" json:"id"`
+	Link      string     `gorm:"column:link" json:"link"`
+	Title     string     `gorm:"column:title" json:"title"`
+	Body      string     `gorm:"column:body" json:"body"`
+	SchemaId      int     `gorm:"column:schema_id" json:"schema_id"`
+	TargetRole      int     `gorm:"column:target_role" json:"target_role"`
+	Condition      string     `gorm:"column:condition" json:"condition"`
+	TargetActions      string     `gorm:"column:target_actions" json:"target_actions"`
+}
+
+//  TableName sets the insert table name for this struct type
+func (n *NotificationTarget) TableName() string {
+	return "notification_targets"
+}

@@ -3,20 +3,20 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
+	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
-	"github.com/labstack/echo/v4"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	"github.com/khankhulgun/khankhulgun/lambda/plugins/dataform"
 	"github.com/khankhulgun/khankhulgun/lambda/plugins/datagrid"
 	"github.com/khankhulgun/khankhulgun/lambda/plugins/datasource"
-	"net/http"
-	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/tools"
+	"github.com/labstack/echo/v4"
+	"net/http"
+	"regexp"
+	"strconv"
 )
-import "regexp"
 
 type vb_schema struct {
 	ID         int        `gorm:"column:id;primary_key" json:"id"`
@@ -61,9 +61,7 @@ func GetVB(c echo.Context) error {
 
 		match, _ := regexp.MatchString("_", id)
 
-
-
-		if match {
+		if(match){
 			VBSchema := models.VBSchemaAdmin{}
 
 			DB.DB.Where("id = ?", id).First(&VBSchema)
@@ -73,10 +71,10 @@ func GetVB(c echo.Context) error {
 				"data":   VBSchema,
 			})
 		} else {
+
 			VBSchema := models.VBSchema{}
 
 			DB.DB.Where("id = ?", id).First(&VBSchema)
-
 
 			if type_ == "form"{
 
@@ -92,6 +90,10 @@ func GetVB(c echo.Context) error {
 				"data":   VBSchema,
 			})
 		}
+
+
+
+
 
 	} else {
 

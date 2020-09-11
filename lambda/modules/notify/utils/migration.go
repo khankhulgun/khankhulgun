@@ -11,6 +11,7 @@ func AutoMigrateSeed() {
 	db.AutoMigrate(
 		&notifyModels.Notification{},
 		&notifyModels.NotificationStatus{},
+		&notifyModels.NotificationTarget{},
 	)
 
 }

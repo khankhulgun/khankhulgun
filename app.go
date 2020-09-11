@@ -64,11 +64,7 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 		GetMessages:GetMessages,
 		GetRules:GetRules,
 	}
-	if(UseCrudLogger){
-		krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules, true)
-	} else {
-		krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules, false)
-	}
+	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules, UseCrudLogger, UseNotify)
 	agent.Set(app.Echo)
 	puzzle.Set(app.Echo, app.ModuleName, app.GetGridMODEL)
 	
@@ -79,9 +75,6 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 	if(UseNotify){
 		notify.Set(app.Echo)
 	}
-
-
-
 
 	app.Echo.Use(middleware.Secure())
 

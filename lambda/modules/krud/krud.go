@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, UseCrudLogger bool) {
+func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, UseCrudLogger bool, UseNotify bool) {
 	if config.Config.App.Migrate == "true"{
 		utils.AutoMigrateSeed()
 	}
@@ -18,9 +18,15 @@ func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interfa
 	/* ROUTES */
 
 	if(UseCrudLogger){
-		g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate, krudMW.CrudLogger)
-		g.POST("/:schemaId/:action/:id", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionEdit, krudMW.CrudLogger)
-		g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete, krudMW.CrudLogger)
+		g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
+			return krudMW.CrudLogger(handlerFunc, UseNotify)
+		})
+		g.POST("/:schemaId/:action/:id", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionEdit, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
+			return krudMW.CrudLogger(handlerFunc, UseNotify)
+		})
+		g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
+			return krudMW.CrudLogger(handlerFunc, UseNotify)
+		})
 	} else {
 		g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate)
 		g.POST("/:schemaId/:action/:id", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionEdit)

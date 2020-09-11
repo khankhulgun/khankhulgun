@@ -27,7 +27,7 @@ type Permissions struct {
 
 func TestFCM(c echo.Context) error {
 
-	users := []int{2, 1}
+	users := []int{2}
 
 	FCMData := notifyModels.FCMData{
 		Title:"Нэр",
@@ -51,7 +51,7 @@ func TestFCM(c echo.Context) error {
 		Data:FCMData,
 		Notification:FCMNotification,
 	}
-	notify.CreateNotification(c, data)
+	notify.CreateNotification(data)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": true,

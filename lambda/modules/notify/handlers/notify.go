@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"github.com/labstack/echo/v4"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/notify/models"
@@ -35,7 +36,7 @@ func GetAllNotifications(c echo.Context) error {
 
 	user_id := c.Param("user_id")
 
-	DB.DB.Table("notification_status as s").Select("`n`.*, `u`.`first_name`, `u`.`login`, `s`.`id` as `sid`, `s`.`seen`").Joins("left join notifications as n on n.id = s.notif_id left join users as u on u.id = s.receiver_id").Where("receiver_id = ?", user_id).Order("n.created_at DESC").Find(&notifications)
+	DB.DB.Table("notification_status as s").Select("n.*, u.first_name, u.login, s.id as sid, s.seen").Joins("left join notifications as n on n.id = s.notif_id left join users as u on u.id = s.receiver_id").Where("receiver_id = ?", user_id).Order("n.created_at DESC").Find(&notifications)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"count": 0,
@@ -149,7 +150,7 @@ func Fcm(c echo.Context) error {
 }
 
 
-func CreateNotification(c echo.Context, data models.NotificationData) int64{
+func CreateNotification(data models.NotificationData) int64{
 
 	var Users []agentModels.User
 
@@ -182,7 +183,10 @@ func CreateNotification(c echo.Context, data models.NotificationData) int64{
 	DB.DB.NewRecord(notification)
 	DB.DB.Create(&notification)
 
-	data.Data.FirstName = "Системээс"
+	if(data.Data.FirstName == ""){
+		data.Data.FirstName = "Системээс"
+	}
+
 	data.Data.CreatedAt = notification.CreatedAt
 	data.Data.ID = notification.ID
 	SendNotification(tokens, data.Data, data.Notification)
@@ -229,7 +233,9 @@ func SendNotification(receivers []string, msg models.FCMData, notification model
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		// handle err
+		fmt.Println(err)
+		fmt.Println("FIREBASE ERROR")
 	}
+
 	defer resp.Body.Close()
 }

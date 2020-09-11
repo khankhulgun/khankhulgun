@@ -689,6 +689,9 @@ func WriteGridDataCaller(forms []models.VBSchema, moduleName string) {
 
  		case "menu_grid":
 			return new(grid.MenuGrid), new([]grid.MenuGrid), "vb_schemas", "Цэсний тохиргоо",new(grid.KrudGrid), "id"
+
+ 		case "notification_target_grid":
+			return new(grid.NotificationTarget), new([]grid.NotificationTarget), "notification_targets", "Зорилтод мэдэгдэл",new(grid.NotificationTarget), "id"
  		
 `)
 	if err != nil {
@@ -1071,6 +1074,9 @@ return "id", new(form.CrudFrom)
  case "analytic_form":
 return "id", new(form.AnalyticForm)
 
+ case "notification_target_form":
+return "id", new(form.NotificationTarget)
+
  case "menu_form":
 return "id", new(form.MenuForm)
 
@@ -1154,6 +1160,9 @@ func WriteValidationCaller(forms []models.VBSchema, moduleName string) {
 
 	case "analytic_form":
 		return validations.GetAnalyticFormRules()
+
+	case "notification_target_form":
+		return validations.GetNotificationTargetRules()
 
 	case "menu_form":
 		return validations.GetMenuFormRules()
@@ -1240,6 +1249,9 @@ func WriteValidationMessageCaller(forms []models.VBSchema, moduleName string) {
 
 	case "analytic_form":
 		return validations.GetAnalyticFormMessages()
+
+	case "notification_target_form":
+		return validations.GetNotificationTargetMessages()
 
 	case "menu_form":
 		return validations.GetMenuFormMessages()

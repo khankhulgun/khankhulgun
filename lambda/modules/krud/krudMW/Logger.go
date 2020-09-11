@@ -5,12 +5,13 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/krud/models"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/notify/handlers"
 	"github.com/labstack/echo/v4"
 	"io/ioutil"
 	"strconv"
 )
 
-func CrudLogger(next echo.HandlerFunc) echo.HandlerFunc {
+func CrudLogger(next echo.HandlerFunc, useNotify bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 
@@ -47,6 +48,12 @@ func CrudLogger(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			DB.DB.Create(&Log)
+
+			if(useNotify){
+				if(action == "store" || action == "update" || action == "delete"){
+					handlers.BuildNotification(bodyBytes, schemaId, action, int64(userID))
+				}
+			}
 
 			// restore body bytes
 			req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
