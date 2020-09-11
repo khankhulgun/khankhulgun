@@ -44,16 +44,15 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 
 
 	if(len(controlPanelSettings) >= 1){
-		if(controlPanelSettings[0].UseControlPanel){
-			UseControlPanel = controlPanelSettings[0].UseControlPanel
-		}
-		if(controlPanelSettings[0].UseNotify){
-			UseNotify = controlPanelSettings[0].UseNotify
-		}
 
-		if(controlPanelSettings[0].UseCrudLogger){
+			UseControlPanel = controlPanelSettings[0].UseControlPanel
+
+
+			UseNotify = controlPanelSettings[0].UseNotify
+
+
 			UseCrudLogger = controlPanelSettings[0].UseCrudLogger
-		}
+
 
 	}
 	app := &App{
