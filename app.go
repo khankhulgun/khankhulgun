@@ -69,7 +69,7 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 	
 
 	if(UseControlPanel){
-		controlPanel.Set(app.Echo)
+		controlPanel.Set(app.Echo, UseNotify)
 	}
 	if(UseNotify){
 		notify.Set(app.Echo)

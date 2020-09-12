@@ -75,12 +75,12 @@
 <script src="{{index .mix "/lambda2/krud.js"}}"></script>
 <script src="{{index .mix "/lambda2/agent.js"}}"></script>
 <script src="{{index .mix "/lambda2/analytic.js"}}"></script>
-<script src="{{index .mix "/lambda2/notification.js"}}"></script>
+{{ if .UseNotify }}
+    <script src="{{index .mix "/lambda2/notification.js"}}"></script>
+{{ end }}
 <script src="{{index .mix "/lambda2/page.js"}}"></script>
 <script src="{{index .mix "/lambda2/page-nav.js"}}"></script>
-
 <script src="{{index .mix "/control_panel/control.js"}}"></script>
 <script src="{{index .mix "/control_panel/moqup_view.js"}}"></script>
-
 </body>
 </html>

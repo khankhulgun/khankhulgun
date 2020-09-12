@@ -58,7 +58,7 @@ func TestFCM(c echo.Context) error {
 	})
 }
 
-func Index() echo.HandlerFunc {
+func Index(UseNotify bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		User := agentUtils.AuthUserObject(c)
@@ -84,6 +84,7 @@ func Index() echo.HandlerFunc {
 		FirebaseConfig := config.Config.Notify.FirebaseConfig
 
 		return c.Render(http.StatusOK, "control.html", map[string]interface{}{
+			"UseNotify":       UseNotify,
 			"title":       config.Config.Title,
 			"extraStyles":       config.Config.ControlPanel.ExtraStyles,
 			"extraScripts":       config.Config.ControlPanel.ExtraScripts,
