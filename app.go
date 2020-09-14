@@ -35,7 +35,7 @@ type Settings struct {
 }
 
 var UseControlPanel = true
-var UseNotify = true
+var UseNotify = false
 var UseCrudLogger = false
 
 
