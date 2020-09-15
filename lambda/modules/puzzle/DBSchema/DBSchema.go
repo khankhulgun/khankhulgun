@@ -143,6 +143,7 @@ type Formula struct {
 	} `json:"targets"`
 	Template string `json:"template"`
 	Form     string `json:"form"`
+	Source     string `json:"source"`
 }
 type SCHEMAGRID struct {
 	Model          string   `json:"model"`
