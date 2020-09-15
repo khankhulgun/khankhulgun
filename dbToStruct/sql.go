@@ -246,7 +246,7 @@ func sqlTypeToGoType(mysqlType string, nullable bool, gureguTypes bool) string {
 			return sqlNullFloat
 		}
 		return golangFloat64
-	case "float":
+	case "float", "real":
 		if nullable {
 			if gureguTypes {
 				return gureguNullFloat
