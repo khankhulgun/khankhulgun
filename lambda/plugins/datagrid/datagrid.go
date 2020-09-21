@@ -44,7 +44,7 @@ func Exec(c echo.Context, schemaId string, action string, id string, GetGridMODE
 }
 func DeleteData(c echo.Context, GridModel interface{},  MainTableModel interface{}, table string, id string, Identity string) error {
 
-	fmt.Println(Identity, id, "Identity, id")
+	//fmt.Println(Identity, id, "Identity, id")
 	err := DB.DB.Where(Identity+" = ?", id).Delete(MainTableModel).Error
 
 	if err != nil {
@@ -355,7 +355,28 @@ func Filter(c echo.Context, GridModel interface{}, query *gorm.DB) *gorm.DB {
 						}
 
 					default:
-						query = query.Where("LOWER("+k+") LIKE ?", "%"+strings.ToLower(fmt.Sprintf("%v", v))+"%")
+						switch vtype := v.(type) {
+						case map[string]interface{}:
+							fmt.Println(vtype)
+							vmap := v.(map[string]interface{})
+							switch vmap["type"] {
+							case "contains":
+								query = query.Where("LOWER("+k+") LIKE ?", "%"+strings.ToLower(fmt.Sprintf("%v", v))+"%")
+							case "equals":
+								query = query.Where(k+" = ?", fmt.Sprintf("%v", vmap["filter"]))
+							case "lessThan":
+								query = query.Where(k+" <= ?", fmt.Sprintf("%v", vmap["filter"]))
+							case "greaterThan":
+								query = query.Where(k+" >= ?", fmt.Sprintf("%v", vmap["filter"]))
+							case "notContains":
+								query = query.Where(k+" != ?", fmt.Sprintf("%v", vmap["filter"]))
+							default:
+								query = query.Where("LOWER("+k+") LIKE ?", "%"+strings.ToLower(fmt.Sprintf("%v", v))+"%")
+							}
+						default:
+							query = query.Where("LOWER("+k+") LIKE ?", "%"+strings.ToLower(fmt.Sprintf("%v", v))+"%")
+						}
+
 					}
 				}
 			}
