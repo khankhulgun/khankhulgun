@@ -43,8 +43,8 @@ func Set(e *echo.Echo, moduleName string, GetGridMODEL func(schema_id string) (i
 	g.POST("/puzzle/grid/:action/:schemaId", handlers.GridVB(GetGridMODEL), agentMW.IsLoggedInCookie)
 
 	//Get From Options
-	//g.POST("/puzzle/get_options", handlers.GetOptions, agentMW.IsLoggedInCookie)
-	g.POST("/puzzle/get_options", handlers.GetOptions)
+	g.POST("/puzzle/get_options", handlers.GetOptions, agentMW.IsLoggedInCookie)
+	//g.POST("/puzzle/get_options", handlers.GetOptions)
 
 	//Roles
 	g.GET("/puzzle/roles-menus", handlers.GetRolesMenus, agentMW.IsLoggedInCookie, agentMW.IsAdmin)
