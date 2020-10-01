@@ -18,6 +18,10 @@ func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interfa
 	/* ROUTES */
 
 	if(UseCrudLogger){
+
+		g.POST("/update-row/:schemaId", handlers.UpdateRow(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
+			return krudMW.CrudLogger(handlerFunc, UseNotify)
+		})
 		g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 			return krudMW.CrudLogger(handlerFunc, UseNotify)
 		})
@@ -27,7 +31,9 @@ func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interfa
 		g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 			return krudMW.CrudLogger(handlerFunc, UseNotify)
 		})
+
 	} else {
+		g.POST("/update-row/:schemaId", handlers.UpdateRow(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionCreate)
 		g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate)
 		g.POST("/:schemaId/:action/:id", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionEdit)
 		g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete)

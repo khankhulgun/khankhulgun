@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/khankhulgun/khankhulgun/lambda/plugins/datagrid/model"
 	"io/ioutil"
 	"net/http"
 	"unicode/utf8"
@@ -37,6 +38,8 @@ func Exec(c echo.Context, schemaId string, action string, id string, GetGridMODE
 		return DeleteData(c, GridModel, MainTableModel, table, id, Identity)
 	case "excel":
 		return exportExcel(c, GridModel, GridModelArray, table, name)
+	case "update-row":
+		return UpdateRow(c, GridModel, MainTableModel, table, id, Identity)
 	}
 	return c.JSON(http.StatusBadRequest, map[string]string{
 		"status": "false",
@@ -58,6 +61,27 @@ func DeleteData(c echo.Context, GridModel interface{},  MainTableModel interface
 			"status": "true",
 		})
 	}
+}
+
+func UpdateRow(c echo.Context, GridModel interface{},  MainTableModel interface{}, table string, id string, Identity string) error {
+
+	RowUpdateData := new(model.RowUpdateData)
+
+	if err := c.Bind(RowUpdateData); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"status": "false",
+		})
+	}
+	if(len(RowUpdateData.Ids) >= 1 && RowUpdateData.Model != "" && RowUpdateData.Value >= 0){
+		for _, id_ := range RowUpdateData.Ids{
+
+			DB.DB.Model(MainTableModel).Where(Identity+" = ?", id_).Update(RowUpdateData.Model, RowUpdateData.Value)
+		}
+
+	}
+		return c.JSON(http.StatusOK, map[string]string{
+			"status": "true",
+		})
 }
 func trim(s string, length int) string {
 	var size, x int
@@ -201,8 +225,6 @@ func fetchData(c echo.Context, GridModel interface{}, GridModelArray interface{}
 }
 
 func Aggergation(c echo.Context, GridModel interface{}, GridModelArray interface{}, table string) error {
-
-
 
 	//GetAggregations := reflect.ValueOf(GridModel).MethodByName("GetAggregations")
 	//aggregationsRes := GetAggregations.Call([]reflect.Value{})

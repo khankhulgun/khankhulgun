@@ -624,7 +624,6 @@ type RalationOption struct {
 
 func Options(c echo.Context) error {
 	r := new(RalationOption)
-	fmt.Println(c)
 	if err := c.Bind(r); err != nil {
 		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, map[string]string{

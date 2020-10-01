@@ -31,6 +31,15 @@ func CheckCurrentPassword(c echo.Context) error {
 	return utils.CheckCurrentPassword(c)
 }
 
+func UpdateRow(GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string)) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		schemaId := c.Param("schemaId")
+
+
+		return datagrid.Exec(c, schemaId, "update-row", "", GetGridMODEL)
+	}
+}
+
 func Delete(GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string)) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		schemaId := c.Param("schemaId")

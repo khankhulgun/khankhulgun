@@ -21,3 +21,5 @@ func (k *KrudGrid) TableName() string {
 func (v *KrudGrid) GetCondition() string {
 	return ""
 }
+
+
