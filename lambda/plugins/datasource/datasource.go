@@ -16,6 +16,5 @@ func CreateView(viewName string, schema string) error{
 	DeleteView("ds_"+viewName)
 	query := "CREATE VIEW ds_"+viewName+" as "+schemaData["query"].(string)
 	err := DB.DB.Exec(query).Error
-
 	return err
 }

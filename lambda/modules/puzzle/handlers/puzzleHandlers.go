@@ -156,10 +156,18 @@ func SaveVB(modelName string) echo.HandlerFunc {
 				})
 			} else {
 
-				afterStatus := AfterSave(vb, type_)
-				return c.JSON(http.StatusOK, map[string]interface{}{
-					"status": afterStatus,
-				})
+				error := AfterSave(vb, type_)
+
+				if(error != nil){
+					return c.JSON(http.StatusOK, map[string]interface{}{
+						"status": false,
+						"error":error.Error(),
+					})
+				} else {
+					return c.JSON(http.StatusOK, map[string]interface{}{
+						"status": true,
+					})
+				}
 			}
 
 		} else {
@@ -191,6 +199,7 @@ func SaveVB(modelName string) echo.HandlerFunc {
 				})
 			} else {
 				error := AfterSave(vb, type_)
+
 				if(error != nil){
 					return c.JSON(http.StatusOK, map[string]interface{}{
 						"status": false,
