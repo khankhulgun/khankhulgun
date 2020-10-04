@@ -190,10 +190,18 @@ func SaveVB(modelName string) echo.HandlerFunc {
 					"status": "false",
 				})
 			} else {
-				afterStatus := AfterSave(vb, type_)
-				return c.JSON(http.StatusOK, map[string]interface{}{
-					"status": afterStatus,
-				})
+				error := AfterSave(vb, type_)
+				if(error != nil){
+					return c.JSON(http.StatusOK, map[string]interface{}{
+						"status": false,
+						"error":error.Error(),
+					})
+				} else {
+					return c.JSON(http.StatusOK, map[string]interface{}{
+						"status": true,
+					})
+				}
+
 			}
 
 		}
@@ -253,13 +261,13 @@ func BeforeSave(id uint64, type_ string){
 	}
 
 }
-func AfterSave(vb models.VBSchema, type_ string) bool{
+func AfterSave(vb models.VBSchema, type_ string) error{
 
 	if type_ == "datasource"{
 		return datasource.CreateView(vb.Name, vb.Schema)
 	}
 
-	return true
+	return nil
 
 }
 

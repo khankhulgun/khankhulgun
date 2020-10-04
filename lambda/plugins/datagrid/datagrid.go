@@ -70,6 +70,7 @@ func UpdateRow(c echo.Context, GridModel interface{},  MainTableModel interface{
 	if err := c.Bind(RowUpdateData); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"status": "false",
+			"error": err.Error(),
 		})
 	}
 	if(len(RowUpdateData.Ids) >= 1 && RowUpdateData.Model != "" && RowUpdateData.Value >= 0){
