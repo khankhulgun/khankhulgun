@@ -56,7 +56,7 @@ func init() {
 				panic("failed to connect database")
 			}
 
-			dbConnection.LogMode(true)
+			dbConnection.LogMode(false)
 
 			DB = dbConnection
 		}
