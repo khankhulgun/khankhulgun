@@ -692,8 +692,6 @@ func OptionsData(DB *sql.DB, relation Ralation_, c echo.Context) []map[string]in
 				userDataFilter := tableField + " = '" + userFieldValue + "'"
 
 				if userFieldValue != "" && userFieldValue != "0" {
-					fmt.Println(userFieldValue, "userFieldValue")
-
 					if where_value == "" {
 						where_value = "WHERE " + userDataFilter
 					} else {
