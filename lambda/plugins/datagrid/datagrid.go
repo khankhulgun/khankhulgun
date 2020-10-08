@@ -379,7 +379,7 @@ func Filter(c echo.Context, GridModel interface{}, query *gorm.DB) *gorm.DB {
 					default:
 						switch vtype := v.(type) {
 						case map[string]interface{}:
-
+							fmt.Println(vtype)
 							vmap := v.(map[string]interface{})
 							switch vmap["type"] {
 							case "contains":

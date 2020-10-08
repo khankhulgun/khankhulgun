@@ -133,7 +133,7 @@ func GenerateOnlyStruct(columnTypes map[string]map[string]string, tableName stri
 	}
 	formatted, err := format.Source([]byte(src))
 	if err != nil {
-
+		fmt.Println(time_found)
 		err = fmt.Errorf("error formatting: %s, was formatting\n%s", err, src)
 	}
 	return formatted, err
