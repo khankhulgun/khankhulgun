@@ -411,10 +411,10 @@ func Store(c echo.Context, FromModel interface{}, schemaId string, id string, ac
 		err := DB.DB.Save(Model).Error
 		if err != nil {
 
-			fmt.Println(err)
 
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"status": false,
+				"error": err.Error(),
 			})
 		} else {
 
@@ -433,22 +433,20 @@ func Store(c echo.Context, FromModel interface{}, schemaId string, id string, ac
 
 		if err != nil {
 
-			fmt.Println(err)
+
 
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"status": false,
+				"error": err.Error(),
 			})
 		} else {
 
 			saveNestedSubItem(Model, *dataJson)
 
-
 			var formInterface map[string]interface{}
 			inrec, _ := json.Marshal(Model)
 			json.Unmarshal(inrec, &formInterface)
-
 			data := callTrigger("afterInsert", Model, *dataJson, fmt.Sprintf("%v", formInterface[Identity]))
-
 			return c.JSON(http.StatusOK, map[string]interface{}{
 				"status": true,
 				"data":   data,
