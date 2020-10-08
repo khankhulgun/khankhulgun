@@ -40,9 +40,9 @@ func PermissionEdit(next echo.HandlerFunc) echo.HandlerFunc {
 			if editPermission.U {
 				return next(c)
 			} else {
-				return c.JSON(http.StatusBadRequest, map[string]string{
-					"message":  "No Permission",
-					"status": "false",
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"error":  "Засах эрх олгогдоогүй байна",
+					"status": false,
 				})
 			}
 		}
@@ -57,9 +57,9 @@ func PermissionCreate(next echo.HandlerFunc) echo.HandlerFunc {
 			if editPermission.C {
 				return next(c)
 			} else {
-				return c.JSON(http.StatusBadRequest, map[string]string{
-					"message":  "No Permission",
-					"status": "false",
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"error":  "Нэмэх эрх олгогдоогүй байна",
+					"status": false,
 				})
 			}
 		}
@@ -75,9 +75,9 @@ func PermissionDelete(next echo.HandlerFunc) echo.HandlerFunc {
 			if editPermission.D {
 				return next(c)
 			} else {
-				return c.JSON(http.StatusBadRequest, map[string]string{
-					"message":  "No Permission",
-					"status": "false",
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"error":  "Устгах эрх олгогдоогүй байна",
+					"status": false,
 				})
 			}
 		}
