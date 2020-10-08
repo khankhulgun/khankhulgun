@@ -160,7 +160,7 @@ func Upload(c echo.Context) error {
 		}
 		fileType = "audios"
 	}
-	fmt.Println(fileType)
+
 
 	//mimeType, _, err  := mimetype.DetectReader(srcMime)
 

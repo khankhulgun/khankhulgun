@@ -1,11 +1,10 @@
 package utils
 
 import (
-	"fmt"
-	"github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
-	"github.com/labstack/echo/v4"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/khankhulgun/khankhulgun/DB"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
@@ -19,12 +18,9 @@ func AuthUser(c echo.Context) *models.User {
 
 	User := models.User{}
 
-	err := DB.DB.Where("id = ?",Id).First(&User).Error
+	DB.DB.Where("id = ?",Id).First(&User)
 
-	if err != nil{
 
-		fmt.Println("USER NOT FOUND")
-	}
 
 	//User.Password = ""
 	return &User

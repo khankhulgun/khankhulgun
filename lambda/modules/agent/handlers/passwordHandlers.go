@@ -1,18 +1,17 @@
 package handlers
 
 import (
-	"fmt"
-	"net/http"
-	"github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
+	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
+	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
+	"github.com/khankhulgun/khankhulgun/lambda/plugins/mailer"
+	"github.com/labstack/echo/v4"
+	"math/rand"
+	"net/http"
 	"reflect"
 	"strings"
 	"time"
-	"math/rand"
-	"github.com/khankhulgun/khankhulgun/lambda/plugins/mailer"
-	"github.com/labstack/echo/v4"
-	"github.com/khankhulgun/khankhulgun/DB"
-	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
 )
 
 type mailPost struct {
@@ -31,10 +30,10 @@ func SendForgotMail(c echo.Context) error {
 
 	data := new(mailPost)
 	if err := c.Bind(data); err != nil {
-		fmt.Println(err)
+
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status": false,
-			"error": "Post data error ",
+			"error": err.Error(),
 			"msg": "Post data error ",
 		})
 	}
@@ -113,10 +112,10 @@ func PasswordReset(c echo.Context) error {
 
 	data := new(passwordResetPost)
 	if err := c.Bind(data); err != nil {
-		fmt.Println(err)
+
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status": false,
-			"error": "Post data error ",
+			"error": err.Error(),
 			"msg": "Post data error ",
 		})
 	}

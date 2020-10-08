@@ -1,12 +1,11 @@
 package handlers
 
 import (
-	"fmt"
-	"strconv"
-	"github.com/labstack/echo/v4"
-	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
-	"net/http"
 	"github.com/khankhulgun/khankhulgun/DB"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
+	"github.com/labstack/echo/v4"
+	"net/http"
+	"strconv"
 )
 
 func CountData(c echo.Context) (err error) {
@@ -137,7 +136,7 @@ func GetTableData(Table string, Columns string, Condition string)[]map[string]in
 		filter = " WHERE "+Condition
 	}
 
-	fmt.Println("SELECT "+Columns+"  FROM " + Table + filter)
+	//fmt.Println("SELECT "+Columns+"  FROM " + Table + filter)
 	rows, _ := DB.DB.DB().Query("SELECT "+Columns+"  FROM " + Table + filter)
 
 	/*start*/
@@ -172,7 +171,7 @@ func GetTableData(Table string, Columns string, Condition string)[]map[string]in
 				v, error := strconv.ParseInt(string(b), 10, 64)
 				if error != nil {
 					stringValue := string(b)
-					fmt.Println(stringValue)
+				//	fmt.Println(stringValue)
 
 					myMap[col] = stringValue
 				} else {

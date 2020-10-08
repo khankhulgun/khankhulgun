@@ -131,7 +131,6 @@ func exportExcel(c echo.Context, GridModel interface{}, GridModelArray interface
 	columnsPre := GetColumns.Call([]reflect.Value{})
 	columns := columnsPre[0].Interface().(map[int]map[string]string)
 
-	fmt.Println(columns)
 
 	keys := make([]int, 0, len(columns))
 	for k := range columns {
@@ -380,7 +379,7 @@ func Filter(c echo.Context, GridModel interface{}, query *gorm.DB) *gorm.DB {
 					default:
 						switch vtype := v.(type) {
 						case map[string]interface{}:
-							fmt.Println(vtype)
+
 							vmap := v.(map[string]interface{})
 							switch vmap["type"] {
 							case "contains":

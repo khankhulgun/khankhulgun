@@ -2,16 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/labstack/echo/v4"
+	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
-	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
-	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
 	agentModels "github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
 	krudModels "github.com/khankhulgun/khankhulgun/lambda/modules/krud/models"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
+	"github.com/labstack/echo/v4"
 	"net/http"
-	"github.com/khankhulgun/khankhulgun/DB"
-
 )
 
 func GetRolesMenus(c echo.Context) error {
@@ -70,13 +68,14 @@ func SaveRole(c echo.Context) error {
 	err := DB.DB.Save(&role_).Error
 
 	if err != nil {
-		fmt.Println(err)
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status": "false",
+
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
+			"error":err.Error(),
 		})
 	} else {
-		return c.JSON(http.StatusOK, map[string]string{
-			"status": "true",
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status": true,
 		})
 	}
 }
@@ -86,9 +85,10 @@ func CreateRole(c echo.Context) error {
 	role_ := new(RoleNew)
 
 	if err := c.Bind(role_); err != nil {
-		fmt.Println(err)
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status": "false",
+
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
+			"errer": err.Error(),
 		})
 	}
 
@@ -100,15 +100,13 @@ func CreateRole(c echo.Context) error {
 	DB.DB.NewRecord(role)
 	err := DB.DB.Create(&role).Error
 	if err != nil {
-
-		fmt.Println(err)
-
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status": "false",
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
+			"error": err.Error(),
 		})
 	} else {
-		return c.JSON(http.StatusOK, map[string]string{
-			"status": "true",
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status": true,
 		})
 	}
 }
@@ -118,9 +116,9 @@ func UpdateRole(c echo.Context) error {
 	role_ := new(RoleNew)
 
 	if err := c.Bind(role_); err != nil {
-		fmt.Println(err)
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status": "false",
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
+			"error": err.Error(),
 		})
 	}
 
@@ -134,10 +132,9 @@ func UpdateRole(c echo.Context) error {
 	err := DB.DB.Save(&role).Error
 	if err != nil {
 
-		fmt.Println(err)
-
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status": "false",
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
+			"error": err.Error(),
 		})
 	} else {
 		return c.JSON(http.StatusOK, map[string]string{

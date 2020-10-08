@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
@@ -313,9 +312,10 @@ func GetOptions(c echo.Context) error {
 
 	r := new(dataform.Relations)
 	if err := c.Bind(r); err != nil {
-		fmt.Println(err)
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status": "false",
+
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
+			"error": err.Error(),
 		})
 	}
 	optionsData := map[string][]map[string]interface{}{}

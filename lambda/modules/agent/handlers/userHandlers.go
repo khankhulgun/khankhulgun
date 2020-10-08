@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/tools"
-	"net/http"
 	"github.com/labstack/echo/v4"
+	"net/http"
 	"strconv"
 
 	agentModels "github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
@@ -24,7 +22,6 @@ func GetUsers(c echo.Context) error {
 
 	query := DB.DB.Table("users").Order(sort+" "+direction)
 
-	fmt.Println(role)
 	if role != "all"{
 		query = query.Where("role = ?", role)
 	}
@@ -83,7 +80,6 @@ func GetDeletedUsers(c echo.Context) error {
 
 	query := DB.DB.Table("users").Order(sort+" "+direction)
 
-	fmt.Println(role)
 	if role != "all"{
 		query = query.Where("role = ?", role)
 	}
