@@ -22,7 +22,9 @@ func init() {
 				panic("failed to connect database")
 			}
 
-			//dbConnection.LogMode(true)
+			if(config.Config.Database.Debug){
+				dbConnection.LogMode(true)
+			}
 			DB = dbConnection
 
 
@@ -38,7 +40,9 @@ func init() {
 				panic("failed to connect database")
 			}
 
-			//dbConnection.LogMode(true)
+			if(config.Config.Database.Debug){
+				dbConnection.LogMode(true)
+			}
 			DB = dbConnection
 
 
@@ -56,8 +60,9 @@ func init() {
 				panic("failed to connect database")
 			}
 
-			dbConnection.LogMode(false)
-
+			if(config.Config.Database.Debug){
+				dbConnection.LogMode(true)
+			}
 			DB = dbConnection
 		}
 

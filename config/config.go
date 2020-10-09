@@ -41,6 +41,7 @@ type database struct {
 	Database string
 	User     string
 	Password string
+	Debug bool
 }
 
 type app struct {
