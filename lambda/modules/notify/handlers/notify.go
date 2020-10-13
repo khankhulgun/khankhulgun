@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"github.com/labstack/echo/v4"
-	"github.com/khankhulgun/khankhulgun/lambda/modules/notify/models"
+	"github.com/khankhulgun/khankhulgun/DB"
+	"github.com/khankhulgun/khankhulgun/lambda/config"
 	agentModels "github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/notify/models"
+	"github.com/labstack/echo/v4"
+	"net/http"
 	"time"
-	"github.com/khankhulgun/khankhulgun/lambda/config"
-	"github.com/khankhulgun/khankhulgun/DB"
-
+	//"io/ioutil"
 )
 
 func GetNewNotifications(c echo.Context) error {
@@ -235,6 +235,13 @@ func SendNotification(receivers []string, msg models.FCMData, notification model
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println("FIREBASE ERROR")
+	} else {
+		//fmt.Println("FIREBASE RESPONSE")
+		//fmt.Println(resp.Body)
+		//
+		//bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		//
+		//fmt.Println(string(bodyBytes))
 	}
 
 	defer resp.Body.Close()
