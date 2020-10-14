@@ -122,7 +122,7 @@ func Upload(c echo.Context) error {
 
 	if ext == "dwg" || ext == "pdf" || ext == "swf" || ext == "doc" || ext == "docx" || ext == "csv" || ext == "xls" || ext == "xlsx" || ext == "ppt" || ext == "pptx" {
 		rules = govalidator.MapData{
-			"file:file": []string{"ext:xls,xlsx,doc,docx,pdf,ppt,pptx,csv,XLS,XLSX,DOC,DOCX,PDF,PPT,PPTX,CSV", "size:4000000",  "required"},
+			"file:file": []string{"ext:xls,xlsx,doc,docx,pdf,ppt,pptx,csv,XLS,XLSX,DOC,DOCX,PDF,PPT,PPTX,CSV", "size:8000000",  "required"},
 		}
 		mimeTypes = []string{
 			"application/acad",
