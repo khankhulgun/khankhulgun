@@ -182,11 +182,31 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 							saveData, _ := json.Marshal(subD)
 							json.Unmarshal(saveData, &subForm)
 
-							if int(subD[subIdentity].(float64)) <= 0 {
-							fmt.Println("fixed")
+
+							creareNewRow := true
+
+
+							switch vtype := subD[subIdentity].(type) {
+							case int:
+								if(subD[subIdentity].(int) >= 1){
+									creareNewRow = false
+								}
+							case float64:
+								if(subD[subIdentity].(float64) >= 1){
+									creareNewRow = false
+								}
+							case float32:
+								if(subD[subIdentity].(float32) >= 1){
+									creareNewRow = false
+								}
+							case int64:
+								if(subD[subIdentity].(int64) >= 1){
+									creareNewRow = false
+								}
+								fmt.Println(vtype)
 							}
 
-							if int(subD[subIdentity].(float64)) >= 1 {
+							if (!creareNewRow){
 
 
 								err := DB.DB.Save(subForm).Error
