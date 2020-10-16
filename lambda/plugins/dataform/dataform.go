@@ -186,25 +186,33 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 							creareNewRow := true
 
 
-							switch vtype := subD[subIdentity].(type) {
+							switch vtype := subIdentityValue.(type) {
 							case int:
-								if(subD[subIdentity].(int) >= 1){
+								if(subIdentityValue.(int) >= 1){
 									creareNewRow = false
+
 								}
 							case float64:
-								if(subD[subIdentity].(float64) >= 1){
+								if(subIdentityValue.(float64) >= 1){
 									creareNewRow = false
+
 								}
 							case float32:
-								if(subD[subIdentity].(float32) >= 1){
+								if(subIdentityValue.(float32) >= 1){
 									creareNewRow = false
+
 								}
 							case int64:
-								if(subD[subIdentity].(int64) >= 1){
+
+								if(subIdentityValue.(int64) >= 1){
 									creareNewRow = false
+
 								}
+							default:
+
 								fmt.Println(vtype)
 							}
+
 
 							if (!creareNewRow){
 
@@ -225,8 +233,8 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 								if err == nil {
 
 									callTrigger("afterInsert", subForm, subD, "")
-
 									saveNestedSubItem(subForm, subD)
+
 								}
 
 							}
