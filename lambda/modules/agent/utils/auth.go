@@ -27,8 +27,8 @@ func AuthUser(c echo.Context) *models.User {
 }
 
 func AuthUserObject(c echo.Context) map[string]interface{} {
-	user := c.Get("user").(*jwt.Token)
 
+	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
 	Id := claims["id"]

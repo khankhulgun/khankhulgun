@@ -182,7 +182,7 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 							saveData, _ := json.Marshal(subD)
 							json.Unmarshal(saveData, &subForm)
 
-							if subIdentityValue != nil {
+							if subIdentityValue != 0 && subIdentityValue != nil {
 
 								err := DB.DB.Save(subForm).Error
 
