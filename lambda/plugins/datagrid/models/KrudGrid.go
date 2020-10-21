@@ -26,7 +26,6 @@ func (k *KrudGrid) GetFilters() map[string]string {
 	filters := map[string]string{
 
 	}
-
 	return filters
 }
 func (k *KrudGrid) GetColumns() map[int]map[string]string {
@@ -34,7 +33,6 @@ func (k *KrudGrid) GetColumns() map[int]map[string]string {
 	columns := make(map[int]map[string]string)
 
 	columns[1] = map[string]string{"column": "title", "label": "Гарчиг"}
-
 
 	return columns
 }
