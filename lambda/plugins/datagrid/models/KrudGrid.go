@@ -36,7 +36,6 @@ func (k *KrudGrid) GetColumns() map[int]map[string]string {
 	columns[1] = map[string]string{"column": "title", "label": "Гарчиг"}
 
 
-
 	return columns
 }
 func (k *KrudGrid) GetAggergations() string {
