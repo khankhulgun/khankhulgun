@@ -2,6 +2,16 @@ package models
 
 import "time"
 
+
+type UserRoles struct {
+	ID        uint64       `gorm:"column:id;primary_key" json:"id"`
+	DisplayName      string    `gorm:"column:display_name" json:"display_name"`
+
+}
+
+func (v *UserRoles) TableName() string {
+	return "roles"
+}
 type VBSchema struct {
 	ID        uint64       `gorm:"column:id;primary_key" json:"id"`
 	Name      string    `gorm:"column:name" json:"name"`
@@ -11,7 +21,6 @@ type VBSchema struct {
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at"`
 }
 
-//  TableName sets the insert table name for this struct type
 func (v *VBSchema) TableName() string {
 	return "vb_schemas"
 }

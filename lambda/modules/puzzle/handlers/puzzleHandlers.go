@@ -27,8 +27,10 @@ func Index(c echo.Context) error {
 	dbSchema := DBSchema.GetDBSchema()
 
 	gridList := []models.VBSchema{}
+	userRoles := []models.UserRoles{}
 
 	DB.DB.Where("type = ?", "grid").Find(&gridList)
+	DB.DB.Find(&userRoles)
 
 	//gridList, err := models.VBSchemas(qm.Where("type = ?", "grid")).All(context.Background(), DB)
 	//dieIF(err)
@@ -44,6 +46,7 @@ func Index(c echo.Context) error {
 		"gridList":                  gridList,
 		"User":                      User,
 		"user_fields":               config.Config.UserDataFields,
+		"user_roles":               userRoles,
 		"data_form_custom_elements": config.Config.DataFormCustomElements,
 		"mix":                       tools.Mix,
 	})
