@@ -159,7 +159,7 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 					json.Unmarshal(parentDataPre, &parentData)
 					parentId := parentData[parentIdentity]
 
-					//DB.DB.Where(connectionField+" = ?", parentId).Delete(subForm)
+					DB.DB.Where(connectionField+" = ?", parentId).Delete(subForm)
 					currentData := reflect.ValueOf(subData).Interface().([]interface{})
 
 					//fmt.Println(table)
@@ -182,8 +182,15 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 							saveData, _ := json.Marshal(subD)
 							json.Unmarshal(saveData, &subForm)
 
+							err := DB.DB.Save(subForm).Error
 
-							creareNewRow := true
+							if err == nil {
+								callTrigger("afterUpdate", subForm, subD, "")
+
+								saveNestedSubItem(subForm, subD)
+							}
+
+							/*creareNewRow := true
 
 
 							switch vtype := subIdentityValue.(type) {
@@ -237,7 +244,7 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 
 								}
 
-							}
+							}*/
 
 						}
 					}
