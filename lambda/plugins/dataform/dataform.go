@@ -809,11 +809,17 @@ func OptionsData(DB *sql.DB, relation Ralation_, c echo.Context) []map[string]in
 func GetTableData(query string)[]map[string]interface{}  {
 	data := []map[string]interface{}{}
 
-	rows, _ := DB.DB.DB().Query(query)
+	rows, err := DB.DB.DB().Query(query)
 
+	if(err != nil){
+		fmt.Println(err.Error())
+	
+		return data
+	}
 	/*start*/
 
 	columns, _ := rows.Columns()
+	
 	count := len(columns)
 	values := make([]interface{}, count)
 	valuePtrs := make([]interface{}, count)

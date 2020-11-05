@@ -20,7 +20,7 @@ func Set(e *echo.Echo) {
 	/* REGISTER VIEWS */
 	AbsolutePath := config.AbsolutePath()
 	templates["login.html"] = template.Must(template.ParseFiles(AbsolutePath+"lambda/modules/agent/templates/login.html"))
-	//templates["agentForgot.html"] = template.Must(template.ParseFiles("github.com/khankhulgun/khankhulgun/lambda/modules/agent/templates/email/forgot.html"))
+	templates["agentForgot.html"] = template.Must(template.ParseFiles(AbsolutePath+"lambda/modules/agent/templates/email/forgot.html"))
 
 	/* ROUTES */
 	a :=e.Group("/auth")
