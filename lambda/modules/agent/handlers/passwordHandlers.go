@@ -80,7 +80,7 @@ func SendForgotMail(c echo.Context) error {
 
 
 	mail := mailer.NewRequest([]string{data.Email}, StaticWords["passwordResetCode"].(string))
-	mailSent := mail.Send("github.com/khankhulgun/khankhulgun/lambda/modules/agent/templates/email/forgot.html", map[string]string{
+	mailSent := mail.Send("agentForgot.html", map[string]string{
 		"keyword":           tokenPre,
 		"passwordReset":     StaticWords["passwordReset"].(string),
 		"passwordResetCode": StaticWords["passwordResetCode"].(string),
