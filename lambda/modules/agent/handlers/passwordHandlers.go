@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
+	mainConfig "github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
 	"github.com/khankhulgun/khankhulgun/lambda/plugins/mailer"
@@ -77,10 +78,10 @@ func SendForgotMail(c echo.Context) error {
 	DB.DB.NewRecord(pReset)
 	DB.DB.Create(pReset)
 
-
+	AbsolutePath := mainConfig.AbsolutePath()
 
 	mail := mailer.NewRequest([]string{data.Email}, StaticWords["passwordResetCode"].(string))
-	mailSent := mail.Send("agentForgot.html", map[string]string{
+	mailSent := mail.Send(AbsolutePath+"lambda/modules/agent/templates/email/forgot.html", map[string]string{
 		"keyword":           tokenPre,
 		"passwordReset":     StaticWords["passwordReset"].(string),
 		"passwordResetCode": StaticWords["passwordResetCode"].(string),
