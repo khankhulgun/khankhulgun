@@ -175,14 +175,19 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 
 							subD[connectionField] = parentId
 
-							if subIdentityValue == nil {
+							if subIdentityValue == nil || config.Config.Database.Connection == "mssql"{
 								subD[subIdentity] = 0
 							}
+
+
 
 							saveData, _ := json.Marshal(subD)
 							json.Unmarshal(saveData, &subForm)
 
-							err := DB.DB.Save(subForm).Error
+							DB.DB.NewRecord(subForm)
+							err := DB.DB.Create(subForm).Error
+
+							//err := DB.DB.Save(subForm).Error
 
 							if err == nil {
 								callTrigger("afterUpdate", subForm, subD, "")
