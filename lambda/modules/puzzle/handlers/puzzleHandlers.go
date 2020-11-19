@@ -54,6 +54,14 @@ func Index(c echo.Context) error {
 
 }
 
+
+func GetTableSchema(c echo.Context) error {
+	table := c.Param("table")
+	tableMetas := DBSchema.TableMetas(table)
+	return c.JSON(http.StatusOK, tableMetas)
+
+}
+
 func GetVB(c echo.Context) error {
 
 	type_ := c.Param("type")
