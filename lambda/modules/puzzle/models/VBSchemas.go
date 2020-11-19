@@ -32,7 +32,7 @@ func (v *VBSchema) TableName() string {
 	return "vb_schemas"
 }
 
-func (v *VBSchema) VBSchemaList() string {
+func (v *VBSchemaList) TableName() string {
 	return "vb_schemas"
 }
 
