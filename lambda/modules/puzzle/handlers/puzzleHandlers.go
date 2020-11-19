@@ -188,9 +188,11 @@ func SaveVB(modelName string) echo.HandlerFunc {
 
 			if type_ == "form" {
 				//WriteModelData(vb.ID)
-				WriteModelData(modelName)
+				//WriteModelData(modelName)
+				WriteModelDataById(modelName, vb.ID)
 			} else if type_ == "grid" {
-				WriteGridModel(modelName)
+				WriteGridModelById(modelName, vb.ID)
+				//WriteGridModel(modelName)
 			}
 
 
@@ -302,8 +304,23 @@ func WriteGridModel(modelName string) {
 	DBSchema.WriteGridDataCaller(VBSchemas, modelName)
 
 }
+func WriteGridModelById(modelName string, id uint64) {
+
+	VBSchemas := []models.VBSchema{}
+	DB.DB.Where("type = ? AND id = ?", "grid", id).Find(&VBSchemas)
+	DBSchema.WriteGridModel(VBSchemas)
+	DBSchema.WriteGridDataCaller(VBSchemas, modelName)
+
+}
 
 /*FROM*/
+func WriteModelDataById(modelName string, id uint64) {
+	VBSchemas := []models.VBSchema{}
+	DB.DB.Where("type = ? AND id = ?", "form", id).Find(&VBSchemas)
+	DBSchema.WriteFormModel(VBSchemas)
+	DBSchema.WriteModelCaller(VBSchemas, modelName)
+	DBSchema.WriteValidationCaller(VBSchemas, modelName)
+}
 func WriteModelData(modelName string) {
 	VBSchemas := []models.VBSchema{}
 	DB.DB.Where("type = ?", "form").Find(&VBSchemas)
