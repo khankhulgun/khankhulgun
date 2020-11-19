@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
@@ -145,9 +146,11 @@ func SaveVB(modelName string) echo.HandlerFunc {
 
 			if type_ == "form" {
 				//WriteModelData(id_)
-				WriteModelData(modelName)
+				//WriteModelData(modelName)
+				WriteModelDataById(modelName, vb.ID)
 			} else if type_ == "grid" {
-				WriteGridModel(modelName)
+				//WriteGridModel(modelName)
+				WriteGridModelById(modelName, vb.ID)
 			}
 
 			if err != nil {
@@ -317,6 +320,7 @@ func WriteGridModelById(modelName string, id uint64) {
 func WriteModelDataById(modelName string, id uint64) {
 	VBSchemas := []models.VBSchema{}
 	DB.DB.Where("type = ? AND id = ?", "form", id).Find(&VBSchemas)
+	fmt.Println(len(VBSchemas))
 	DBSchema.WriteFormModel(VBSchemas)
 	DBSchema.WriteModelCaller(VBSchemas, modelName)
 	DBSchema.WriteValidationCaller(VBSchemas, modelName)
