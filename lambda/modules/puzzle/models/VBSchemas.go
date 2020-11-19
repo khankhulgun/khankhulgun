@@ -32,6 +32,10 @@ func (v *VBSchema) TableName() string {
 	return "vb_schemas"
 }
 
+func (v *VBSchema) VBSchemaList() string {
+	return "vb_schemas"
+}
+
 type VBSchemaMSSQL struct {
 	ID        uint64       `gorm:"column:id;primary_key" json:"id"`
 	Name      string    `gorm:"column:name" json:"name"`
