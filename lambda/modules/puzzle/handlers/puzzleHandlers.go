@@ -113,13 +113,13 @@ func GetVB(c echo.Context) error {
 		DB.DB.Where("type = ?", type_).Find(&VBSchemas)
 
 		return c.JSON(http.StatusOK, map[string]interface{}{
-			"status": "true",
+			"status": true,
 			"data":   VBSchemas,
 		})
 	}
 
-	return c.JSON(http.StatusBadRequest, map[string]string{
-		"status": "false",
+	return c.JSON(http.StatusBadRequest, map[string]interface{}{
+		"status": false,
 	})
 
 }
@@ -131,8 +131,8 @@ func SaveVB(modelName string) echo.HandlerFunc {
 
 		vbs := new(vb_schema)
 		if err := c.Bind(vbs); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"status": "false",
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"status": false,
 				"error": err.Error(),
 			})
 		}
@@ -163,8 +163,8 @@ func SaveVB(modelName string) echo.HandlerFunc {
 
 			if err != nil {
 
-				return c.JSON(http.StatusBadRequest, map[string]string{
-					"status": "false",
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"status": false,
 					"error": err.Error(),
 				})
 			} else {
@@ -230,8 +230,8 @@ func SaveVB(modelName string) echo.HandlerFunc {
 
 		}
 
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status": "false",
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status": false,
 		})
 	}
 }
