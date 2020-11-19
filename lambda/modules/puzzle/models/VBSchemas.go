@@ -12,6 +12,13 @@ type UserRoles struct {
 func (v *UserRoles) TableName() string {
 	return "roles"
 }
+type VBSchemaList struct {
+	ID        uint64       `gorm:"column:id;primary_key" json:"id"`
+	Name      string    `gorm:"column:name" json:"name"`
+	Type      string    `gorm:"column:type" json:"type"`
+	CreatedAt time.Time `gorm:"column:created_at" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at"`
+}
 type VBSchema struct {
 	ID        uint64       `gorm:"column:id;primary_key" json:"id"`
 	Name      string    `gorm:"column:name" json:"name"`

@@ -108,7 +108,7 @@ func GetVB(c echo.Context) error {
 
 	} else {
 
-		VBSchemas := []models.VBSchema{}
+		VBSchemas := []models.VBSchemaList{}
 
 		DB.DB.Where("type = ?", type_).Find(&VBSchemas)
 
