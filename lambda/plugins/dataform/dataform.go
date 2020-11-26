@@ -181,8 +181,11 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 
 
 
+
 							saveData, _ := json.Marshal(subD)
+							fmt.Println(string(saveData))
 							json.Unmarshal(saveData, &subForm)
+							fmt.Println(subForm)
 
 							DB.DB.NewRecord(subForm)
 							err := DB.DB.Create(subForm).Error

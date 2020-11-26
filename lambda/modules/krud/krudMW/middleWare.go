@@ -34,17 +34,31 @@ type Permissions struct {
 func PermissionEdit(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		page_id := c.QueryParam("page_id")
+		action := c.QueryParam("action")
 		if page_id != "" {
 			editPermission := GetPermission(c)
 
-			if editPermission.U {
-				return next(c)
-			} else {
-				return c.JSON(http.StatusBadRequest, map[string]interface{}{
-					"error":  "Засах эрх олгогдоогүй байна",
-					"status": false,
-				})
+			if(action == "edit"){
+				if editPermission.R {
+					return next(c)
+				} else {
+					return c.JSON(http.StatusBadRequest, map[string]interface{}{
+						"error":  "Засах эрх олгогдоогүй байна",
+						"status": false,
+					})
+				}
 			}
+			if(action == "update"){
+				if editPermission.U {
+					return next(c)
+				} else {
+					return c.JSON(http.StatusBadRequest, map[string]interface{}{
+						"error":  "Засах эрх олгогдоогүй байна",
+						"status": false,
+					})
+				}
+			}
+
 		}
 		return next(c)
 	}
