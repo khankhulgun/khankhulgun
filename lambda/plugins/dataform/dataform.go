@@ -63,9 +63,16 @@ func Edit(c echo.Context, Model interface{}, schemaId string, id string, Identit
 			for _, Sub := range SubForms {
 
 				connectionField := Sub["connection_field"].(string)
+				tableTypeColumn := Sub["tableTypeColumn"].(string)
+				tableTypeValue := Sub["tableTypeValue"].(string)
 				subTable := Sub["table"].(string)
 
-				DB.DB.Where(connectionField+" = ?", id).Find(Sub["subForm"])
+				if(tableTypeColumn != "" && tableTypeValue != ""){
+					DB.DB.Where(connectionField+" = ? AND "+tableTypeColumn+" = ?", id, tableTypeValue).Find(Sub["subForm"])
+				} else {
+					DB.DB.Where(connectionField+" = ?", id).Find(Sub["subForm"])
+				}
+
 
 				dataSub := []map[string]interface{}{}
 				subData, _ := json.Marshal(Sub["subForm"])
@@ -88,8 +95,15 @@ func Edit(c echo.Context, Model interface{}, schemaId string, id string, Identit
 						for _, Sub2 := range SubForms2 {
 
 							connectionField2 := Sub2["connection_field"].(string)
+							tableTypeColumn := Sub2["tableTypeColumn"].(string)
+							tableTypeValue := Sub2["tableTypeValue"].(string)
 							subTable2 := Sub2["table"].(string)
-							DB.DB.Where(connectionField2+" = ?", parentId).Find(Sub2["subForm"])
+							if(tableTypeColumn != "" && tableTypeValue != ""){
+								DB.DB.Where(connectionField+" = ? AND "+tableTypeColumn+" = ?", id, tableTypeValue).Find(Sub2["subForm"])
+							} else {
+								DB.DB.Where(connectionField2+" = ?", parentId).Find(Sub2["subForm"])
+							}
+
 							sData[subTable2] = Sub2["subForm"]
 
 						}
@@ -149,6 +163,8 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 				parentIdentity := Sub["parentIdentity"].(string)
 				subIdentity := Sub["subIdentity"].(string)
 				connectionField := Sub["connection_field"].(string)
+				tableTypeColumn := Sub["tableTypeColumn"].(string)
+				tableTypeValue := Sub["tableTypeValue"].(string)
 				subForm := Sub["subFormModel"]
 				subData := data[table]
 
@@ -159,7 +175,12 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 					json.Unmarshal(parentDataPre, &parentData)
 					parentId := parentData[parentIdentity]
 
-					DB.DB.Where(connectionField+" = ?", parentId).Delete(subForm)
+					if(tableTypeColumn != "" && tableTypeValue != ""){
+						DB.DB.Where(connectionField+" = ? AND "+tableTypeColumn+" = ?", parentId, tableTypeValue).Delete(subForm)
+					} else {
+						DB.DB.Where(connectionField+" = ?", parentId).Delete(subForm)
+					}
+
 					currentData := reflect.ValueOf(subData).Interface().([]interface{})
 
 					//fmt.Println(table)
@@ -174,6 +195,15 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 							subIdentityValue := subD[subIdentity]
 
 							subD[connectionField] = parentId
+							if(tableTypeColumn != "" && tableTypeValue != ""){
+								if(IsInt(tableTypeValue)){
+									intVar, _ := strconv.Atoi(tableTypeValue)
+									subD[tableTypeColumn] = intVar
+								} else {
+									subD[tableTypeColumn] = tableTypeValue
+								}
+
+							}
 
 							if subIdentityValue == nil || config.Config.Database.Connection == "mssql"{
 								subD[subIdentity] = 0
@@ -259,7 +289,23 @@ func saveNestedSubItem(ParentModel interface{}, data map[string]interface{}) {
 	}
 
 }
+func IsInt(s string) bool {
+	l := len(s)
+	if strings.HasPrefix(s, "-") {
+		l = l - 1
+		s = s[1:]
+	}
 
+	reg := fmt.Sprintf("\\d{%d}", l)
+
+	rs, err := regexp.MatchString(reg, s)
+
+	if err != nil {
+		return false
+	}
+
+	return rs
+}
 func DataClear(c echo.Context, Model interface{}, action string, id string, rules map[string][]string) (interface{}, *map[string]interface{}, map[string][]string) {
 	filterRaw, _ := ioutil.ReadAll(c.Request().Body)
 

@@ -47,9 +47,6 @@ type FormItem struct {
 	PlaceHolder string      `json:"placeHolder"`
 	Hidden      bool        `json:"hidden"`
 	Disabled    bool        `json:"disabled"`
-	DisableCreate    bool        `json:"disableCreate"`
-	DisableDelete    bool        `json:"disableDelete"`
-	ShowRowNumber    bool        `json:"showRowNumber"`
 	Default     interface{} `json:"default"`
 	Prefix      string      `json:"prefix"`
 	Ifshowhide  string      `json:"ifshowhide"`
@@ -108,6 +105,12 @@ type FormItem struct {
 	FormId      uint64      `json:"formId"`
 	FormType    string `json:"formType"`
 	MinHeight    string `json:"min_height"`
+	DisableDelete    bool `json:"disableDelete"`
+	DisableCreate    bool `json:"disableCreate"`
+	ShowRowNumber    bool `json:"showRowNumber"`
+	UseTableType    bool `json:"useTableType"`
+	TableTypeColumn    string `json:"tableTypeColumn"`
+	TableTypeValue    string `json:"tableTypeValue"`
 	Schema        []FormItem `json:"schema"`
 
 }
@@ -839,6 +842,8 @@ func WriteFormModel(grids []models.VBSchema) {
 					subForm := subAlis+modelAlias+strconv.FormatUint(vb.ID, 10)
 					subFormBody, err := f.WriteString(`
 							"connection_field":"`+field.Parent+`",
+							"tableTypeColumn":"`+field.TableTypeColumn+`",
+							"tableTypeValue":"`+field.TableTypeValue+`",
 							"table":"`+field.Model+`",
 							"parentIdentity":"`+schema.Identity+`",
 							"subIdentity":"`+field.Identity+`",
@@ -870,6 +875,8 @@ func WriteFormModel(grids []models.VBSchema) {
 					//subForm := subAlis+modelAlias+strconv.FormatUint(vb.ID, 10)
 					subFormBody, err := f.WriteString(`
 							"connection_field":"`+field.Parent+`",
+							"tableTypeColumn":"`+field.TableTypeColumn+`",
+							"tableTypeValue":"`+field.TableTypeValue+`",
 							"table":"`+field.Model+`",
 							"parentIdentity":"`+schema.Identity+`",
 							"subIdentity":"`+field.Identity+`",
