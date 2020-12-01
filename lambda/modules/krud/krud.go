@@ -15,6 +15,7 @@ func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interfa
 	}
 
 	g :=e.Group("/lambda/krud")
+	public :=e.Group("/lambda/krud-public")
 	/* ROUTES */
 
 	if(UseCrudLogger){
@@ -39,6 +40,7 @@ func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interfa
 		g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete)
 	}
 
+	public.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules))
 
 
 	/*

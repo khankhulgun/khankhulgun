@@ -45,7 +45,7 @@ func Set(e *echo.Echo, moduleName string, GetGridMODEL func(schema_id string) (i
 
 	//Get From Options
 	g.POST("/puzzle/get_options", handlers.GetOptions, agentMW.IsLoggedInCookie)
-	g.POST("/puzzle/get_options_public", handlers.GetOptions)
+	g.POST("/puzzle/get_options-public", handlers.GetOptions)
 
 	//Roles
 	g.GET("/puzzle/roles-menus", handlers.GetRolesMenus, agentMW.IsLoggedInCookie, agentMW.IsAdmin)
