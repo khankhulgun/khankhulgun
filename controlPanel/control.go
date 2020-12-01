@@ -24,6 +24,7 @@ func Set(e *echo.Echo, UseNotify bool) {
 	/* ROUTES */
 	e.GET("/control", handlers.Index(UseNotify), agentMW.IsLoggedInCookie)
 	e.GET("/form/:schema_id/:id", handlers.Form)
+	e.GET("/form/:schema_id", handlers.FormAdd)
 	e.GET("/test-fcm", handlers.TestFCM, agentMW.IsLoggedInCookie)
 
 
