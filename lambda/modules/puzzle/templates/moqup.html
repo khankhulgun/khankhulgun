@@ -4,8 +4,8 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="csrf-token" content="">
     <title>{{.title}}</title>
+    <meta name="csrf-token" content={{index .csrfToken}}>
     <link href="{{.favicon}}" rel="icon"/>
     <link rel="stylesheet" href="/control_panel/fonts/roboto/roboto.css?family=Roboto:400,300,100,100italic,300italic,400italic,700,700italic">
     <link rel="stylesheet" href="{{index .mix "/lambda2/vendor.css"}}">

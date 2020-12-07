@@ -4,7 +4,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="csrf-token" content="">
+    <meta name="csrf-token" content={{index .csrfToken}}>
     <title>{{index . "title"}}</title>
     <link href="{{.favicon}}" rel="icon"/>
     <link rel="stylesheet" href="/lambda2/fonts/roboto/roboto.css?family=Roboto:400,300,100,100italic,300italic,400italic,700,700italic">
@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{{index .mix "/lambda2/chart.css"}}">
     <link rel="stylesheet" href="{{index .mix "/lambda2/agent.css"}}">
     <link rel="stylesheet" href="{{index .mix "/lambda2/puzzle.css"}}">
+
 
 </head>
 <body>

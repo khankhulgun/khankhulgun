@@ -6,6 +6,7 @@ import (
 	notifyModels "github.com/khankhulgun/khankhulgun/lambda/modules/notify/models"
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
 	"github.com/khankhulgun/khankhulgun/tools"
@@ -82,7 +83,7 @@ func Index(UseNotify bool) echo.HandlerFunc {
 
 
 		FirebaseConfig := config.Config.Notify.FirebaseConfig
-
+		csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
 		return c.Render(http.StatusOK, "control.html", map[string]interface{}{
 			"UseNotify":       UseNotify,
 			"title":       config.Config.Title,
@@ -103,6 +104,7 @@ func Index(UseNotify bool) echo.HandlerFunc {
 			"data_form_custom_elements": config.Config.DataFormCustomElements,
 			"firebase_config":           FirebaseConfig,
 			"mix":                       tools.Mix,
+			"csrfToken":                       csrfToken,
 
 		})
 	}
@@ -111,7 +113,7 @@ func Index(UseNotify bool) echo.HandlerFunc {
 
 func Form(c echo.Context) error {
 
-
+	csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
 
 	schema_id := c.Param("schema_id")
 	id := c.Param("id")
@@ -123,6 +125,7 @@ func Form(c echo.Context) error {
 		"schema_id":                       schema_id,
 		"data_form_custom_elements": config.Config.DataFormCustomElements,
 		"id":                       id,
+		"csrfToken":                       csrfToken,
 	})
 
 }

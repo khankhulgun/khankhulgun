@@ -13,6 +13,7 @@ import (
 	"github.com/khankhulgun/khankhulgun/lambda/plugins/datasource"
 	"github.com/khankhulgun/khankhulgun/tools"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -38,6 +39,7 @@ func Index(c echo.Context) error {
 
 	User := agentUtils.AuthUserObject(c)
 
+	csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
 	return c.Render(http.StatusOK, "puzzle.html", map[string]interface{}{
 		"title":                     config.Config.Title,
 		"favicon":                     config.Config.Favicon,
@@ -50,6 +52,7 @@ func Index(c echo.Context) error {
 		"user_roles":               userRoles,
 		"data_form_custom_elements": config.Config.DataFormCustomElements,
 		"mix":                       tools.Mix,
+		"csrfToken":                       csrfToken,
 	})
 
 }

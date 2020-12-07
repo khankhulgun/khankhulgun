@@ -64,6 +64,7 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 	}
 
 	app.Echo.Use(middleware.Secure())
+	app.Echo.Use(middleware.CSRF())
 
 	//CORS
 	app.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{

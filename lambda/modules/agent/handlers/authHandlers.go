@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	config2 "github.com/khankhulgun/khankhulgun/config"
+	"github.com/labstack/echo/v4/middleware"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/khankhulgun/khankhulgun/DB"
@@ -118,12 +119,13 @@ func Logout() echo.HandlerFunc {
 
 
 func LoginPage(c echo.Context) error {
-
+	csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
 	return c.Render(http.StatusOK, "login.html", map[string]interface{}{
 		"title":         config.Config.Title,
 		"favicon":       config.Config.Favicon,
 		"lambda_config": config.Config,
 		"mix":           tools.Mix,
+		"csrfToken":           csrfToken,
 	})
 }
 
