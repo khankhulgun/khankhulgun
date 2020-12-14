@@ -100,6 +100,7 @@ func Index(UseNotify bool) echo.HandlerFunc {
 			"permissions": Permissions_,
 			"menu":        MenuSchema,
 			"cruds":       Kruds,
+			"withCrudLog":        config.Config.WithCrudLog,
 			"User":        User,
 			"data_form_custom_elements": config.Config.DataFormCustomElements,
 			"firebase_config":           FirebaseConfig,

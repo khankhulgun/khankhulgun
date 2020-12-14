@@ -22,6 +22,7 @@ type LambdaConfig struct {
 	SuperURL    string `json:"super_url"`
 	AppURL      string `json:"app_url"`
 	HasLanguage bool   `json:"has_language"`
+	WithCrudLog bool   `json:"withCrudLog"`
 	KrudPublic bool   `json:"krud_public"`
 	ControlPanel struct {
 		LogoLight   string `json:"logoLight"`

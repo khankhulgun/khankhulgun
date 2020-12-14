@@ -38,6 +38,7 @@ func Exec(c echo.Context, schemaId string, action string, id string, GetMODEL fu
 		return Options(c)
 	}
 
+
 	return c.JSON(http.StatusBadRequest, map[string]string{
 		"status": "false",
 	})
@@ -511,6 +512,8 @@ func Store(c echo.Context, FromModel interface{}, schemaId string, id string, ac
 
 			data := callTrigger("afterUpdate", Model, *dataJson, id)
 
+
+
 			return c.JSON(http.StatusOK, map[string]interface{}{
 				"status": true,
 				"data":   data,
@@ -536,6 +539,10 @@ func Store(c echo.Context, FromModel interface{}, schemaId string, id string, ac
 			inrec, _ := json.Marshal(Model)
 			json.Unmarshal(inrec, &formInterface)
 			data := callTrigger("afterInsert", Model, *dataJson, fmt.Sprintf("%v", formInterface[Identity]))
+
+			data[Identity] = formInterface[Identity]
+
+
 			return c.JSON(http.StatusOK, map[string]interface{}{
 				"status": true,
 				"data":   data,

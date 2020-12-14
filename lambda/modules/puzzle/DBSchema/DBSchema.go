@@ -688,6 +688,9 @@ func WriteGridDataCaller(forms []models.VBSchema, moduleName string) {
 		case "crud_grid":
 			return new(grid.KrudGrid), new([]grid.KrudGrid), "krud", "Крүд тохиргоо",new(grid.KrudGrid), "id"
 
+		case "crud_log":
+			return new(grid.CrudLog), new([]grid.CrudLog), "ds_crud_log", "Систем лог", new(grid.MainTableCrudLog), "id"
+
 		case "analytic_grid":
 			return new(grid.AnalyticGrid), new([]grid.AnalyticGrid), "analytic", "АНАЛИЗ", new(grid.AnalyticGrid), "id"
 
