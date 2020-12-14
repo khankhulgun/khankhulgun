@@ -77,7 +77,7 @@ func CrudLogger(next echo.HandlerFunc, useNotify bool) echo.HandlerFunc {
 			//req.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
 				c.Response().After(func() {
-					Response, _ := json.Marshal(c.Response())
+					Response, _ := json.Marshal(&c.Response().Writer)
 					fmt.Println(string(Response))
 
 				})
