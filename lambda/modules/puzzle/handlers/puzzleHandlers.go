@@ -13,7 +13,6 @@ import (
 	"github.com/khankhulgun/khankhulgun/lambda/plugins/datasource"
 	"github.com/khankhulgun/khankhulgun/tools"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -39,7 +38,8 @@ func Index(c echo.Context) error {
 
 	User := agentUtils.AuthUserObject(c)
 
-	csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+	//csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+	csrfToken := ""
 	return c.Render(http.StatusOK, "puzzle.html", map[string]interface{}{
 		"title":                     config.Config.Title,
 		"favicon":                     config.Config.Favicon,
@@ -81,7 +81,7 @@ func GetVB(c echo.Context) error {
 			DB.DB.Where("id = ?", id).First(&VBSchema)
 
 			return c.JSON(http.StatusOK, map[string]interface{}{
-				"status": "true",
+				"status": true,
 				"data":   VBSchema,
 			})
 		} else {
@@ -100,7 +100,7 @@ func GetVB(c echo.Context) error {
 			}
 
 			return c.JSON(http.StatusOK, map[string]interface{}{
-				"status": "true",
+				"status": true,
 				"data":   VBSchema,
 			})
 		}

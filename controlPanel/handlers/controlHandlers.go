@@ -2,18 +2,17 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/khankhulgun/khankhulgun/DB"
+	"github.com/khankhulgun/khankhulgun/lambda/config"
+	agentModels "github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
+	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
+	krudModels "github.com/khankhulgun/khankhulgun/lambda/modules/krud/models"
 	notify "github.com/khankhulgun/khankhulgun/lambda/modules/notify/handlers"
 	notifyModels "github.com/khankhulgun/khankhulgun/lambda/modules/notify/models"
-	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"net/http"
-	"github.com/khankhulgun/khankhulgun/lambda/config"
-	"github.com/khankhulgun/khankhulgun/tools"
-	"github.com/khankhulgun/khankhulgun/DB"
-	agentModels "github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
-	krudModels "github.com/khankhulgun/khankhulgun/lambda/modules/krud/models"
 	puzzleModels "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
+	"github.com/khankhulgun/khankhulgun/tools"
+	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 
@@ -83,7 +82,8 @@ func Index(UseNotify bool) echo.HandlerFunc {
 
 
 		FirebaseConfig := config.Config.Notify.FirebaseConfig
-		csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+		//csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+		csrfToken := ""
 		return c.Render(http.StatusOK, "control.html", map[string]interface{}{
 			"UseNotify":       UseNotify,
 			"title":       config.Config.Title,
@@ -114,8 +114,8 @@ func Index(UseNotify bool) echo.HandlerFunc {
 
 func Form(c echo.Context) error {
 
-	csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
-
+	//csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+	csrfToken := ""
 	schema_id := c.Param("schema_id")
 	id := c.Param("id")
 

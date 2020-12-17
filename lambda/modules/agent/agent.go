@@ -26,8 +26,8 @@ func Set(e *echo.Echo) {
 	a :=e.Group("/auth")
 	a.GET("/", handlers.LoginPage)
 	a.GET("/login", handlers.LoginPage)
-	a.POST("/login", handlers.Login())
-	a.POST("/logout", handlers.Logout())
+	a.POST("/login", handlers.Login)
+	a.POST("/logout", handlers.Logout)
 
 	/*PASSWORD RESET*/
 	a.POST("/send-forgot-mail", handlers.SendForgotMail)

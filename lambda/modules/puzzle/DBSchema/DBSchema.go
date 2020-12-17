@@ -31,7 +31,7 @@ type TableMeta struct {
 type VBSCHEMA struct {
 	TableList []string               `json:"tableList"`
 	ViewList  []string               `json:"viewList"`
-	//TableMeta map[string][]TableMeta `json:"tableMeta"`
+	TableMeta map[string][]TableMeta `json:"tableMeta"`
 }
 type FormItem struct {
 	Model       string      `json:"model"`
@@ -268,24 +268,24 @@ func DBConnection() *sql.DB {
 func GetDBSchema() VBSCHEMA {
 	tables := Tables()
 
-	//table_metas := make(map[string][]TableMeta, 0)
+	table_metas := make(map[string][]TableMeta, 0)
 
 
 
-	//for _, table := range tables["tables"] {
-	//	table_metas_ := TableMetas(table)
-	//	table_metas[table] = table_metas_
-	//}
+	for _, table := range tables["tables"] {
+		table_metas_ := TableMetas(table)
+		table_metas[table] = table_metas_
+	}
 
-	//for _, table := range tables["views"] {
-	//	table_metas_ := TableMetas(table)
-	//	table_metas[table] = table_metas_
-	//}
+	for _, table := range tables["views"] {
+		table_metas_ := TableMetas(table)
+		table_metas[table] = table_metas_
+	}
 
 	vb_schemas := VBSCHEMA{
 		tables["tables"],
 		tables["views"],
-		//table_metas,
+		table_metas,
 	}
 
 	return vb_schemas

@@ -16,10 +16,10 @@ import (
 type App struct {
 	Echo         *echo.Echo
 	ModuleName   string
-	GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string)
-	GetMODEL     func(schema_id string) (string, interface{})
-	GetMessages  func(schema_id string) map[string][]string
-	GetRules     func(schema_id string) map[string][]string
+	GetGridMODEL func(schemaId string) (interface{}, interface{}, string, string, interface{}, string)
+	GetMODEL     func(schemaId string) (string, interface{})
+	GetMessages  func(schemaId string) map[string][]string
+	GetRules     func(schemaId string) map[string][]string
 }
 
 func (app *App) Start() {
@@ -37,7 +37,7 @@ var UseControlPanel = true
 var UseNotify = false
 var UseCrudLogger = false
 
-func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, controlPanelSettings ...*Settings) *App {
+func New(moduleName string, GetGridMODEL func(schemaId string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schemaId string) (string, interface{}), GetMessages func(schemaId string) map[string][]string, GetRules func(schemaId string) map[string][]string, controlPanelSettings ...*Settings) *App {
 
 	if len(controlPanelSettings) >= 1 {
 		UseControlPanel = controlPanelSettings[0].UseControlPanel
@@ -51,7 +51,19 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 		GetMODEL:     GetMODEL,
 		GetMessages:  GetMessages,
 		GetRules:     GetRules,
-	}
+		}
+	app.Echo.Use(middleware.Secure())
+	//app.Echo.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+	//	TokenLookup: "header:X-XSRF-TOKEN",
+	//}))
+	//CORS
+	app.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"*", "http://localhost:*"},
+		AllowCredentials: true,
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, "X-Requested-With", "x-requested-with"},
+		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS},
+	}))
+
 	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules, UseCrudLogger, UseNotify)
 	agent.Set(app.Echo)
 	puzzle.Set(app.Echo, app.ModuleName, app.GetGridMODEL)
@@ -63,16 +75,7 @@ func New(moduleName string, GetGridMODEL func(schema_id string) (interface{}, in
 		notify.Set(app.Echo)
 	}
 
-	app.Echo.Use(middleware.Secure())
-	app.Echo.Use(middleware.CSRF())
 
-	//CORS
-	app.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*", "http://localhost:*"},
-		AllowCredentials: true,
-		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, "X-Requested-With", "x-requested-with"},
-		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS},
-	}))
 
 	app.Echo.Static("/", "public")
 

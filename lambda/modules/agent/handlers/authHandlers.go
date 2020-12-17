@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	config2 "github.com/khankhulgun/khankhulgun/config"
-	"github.com/labstack/echo/v4/middleware"
-
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/khankhulgun/khankhulgun/DB"
+	config2 "github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/agent/models"
 	agentUtils "github.com/khankhulgun/khankhulgun/lambda/modules/agent/utils"
@@ -22,110 +20,104 @@ type User struct {
 }
 type UserData struct {
 	Id    int64
-	Login    string
-	Role int64
+	Login string
+	Role  int64
 }
 type jwtClaims struct {
-	Id  int64 `json:"id"`
-	Login string   `json:"login"`
-	Role int64   `json:"role"`
+	Id    int64  `json:"id"`
+	Login string `json:"login"`
+	Role  int64  `json:"role"`
 	jwt.StandardClaims
 }
-func Login() echo.HandlerFunc {
-	return func(c echo.Context) error {
 
-		u := new(User)
-		if err := c.Bind(u); err != nil {
-			return c.JSON(http.StatusUnauthorized, models.Unauthorized{
-				Error:  "Username & password required",
-				Status: false,
-			})
-		}
+func Login(c echo.Context) error {
 
-		foundUser := agentUtils.AuthUserObjectByLogin(u.Login)
+	u := new(User)
+	if err := c.Bind(u); err != nil {
+		return c.JSON(http.StatusUnauthorized, models.Unauthorized{
+			Error:  "Username & password required",
+			Status: false,
+		})
+	}
 
-		if len(foundUser) == 0{
+	foundUser := agentUtils.AuthUserObjectByLogin(u.Login)
 
-			return c.JSON(http.StatusUnauthorized, models.Unauthorized{
-				Error:  "User not found",
-				Status: false,
-			})
-
-		}
-
-
-		//password, err := Hash(u.Password)
-		//password_check1 := IsSame(password, foundUser.Password)
-		if agentUtils.IsSame(u.Password, foundUser["password"].(string)) {
-
-			// create jwt token
-			token, err := createJwtToken(UserData{Id:foundUser["id"].(int64),Login:foundUser["login"].(string), Role:foundUser["role"].(int64)})
-			if err != nil {
-				//log.Println("Error Creating JWT token", err)
-				return c.JSON(http.StatusUnauthorized, models.Unauthorized{
-					Error:  "Unauthorized",
-					Status: false,
-				})
-			}
-
-			cookie := new(http.Cookie)
-			cookie.Name = "token"
-			cookie.Path = "/"
-			cookie.Value = token
-			cookie.Expires = time.Now().Add(time.Hour* time.Duration(config2.Config.JWT.Ttl))
-
-
-			delete(foundUser, "password")
-
-			foundUser["jwt"] = token
-
-			c.SetCookie(cookie)
-			return c.JSON(http.StatusOK, models.LoginData{
-				Token:  token,
-				Path:   checkRole(foundUser["role"].(int64)),
-				Status: true,
-				Data:  foundUser,
-			})
-		}
+	if len(foundUser) == 0 {
 
 		return c.JSON(http.StatusUnauthorized, models.Unauthorized{
-			Error:  "Unauthorized",
+			Error:  "User not found",
 			Status: false,
 		})
 
 	}
-}
 
-func Logout() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	//password, err := Hash(u.Password)
+	//password_check1 := IsSame(password, foundUser.Password)
+	if agentUtils.IsSame(u.Password, foundUser["password"].(string)) {
 
-			cookie := new(http.Cookie)
-			cookie.Name = "token"
-			cookie.Path = "/"
-			cookie.Value = ""
-			cookie.Expires = time.Now()
-
-			c.SetCookie(cookie)
-			return c.JSON(http.StatusOK, map[string]string{
-				"status": "true",
-				"data":   "",
-				"path":   "auth/login",
-				"token":  "",
+		// create jwt token
+		token, err := createJwtToken(UserData{Id: foundUser["id"].(int64), Login: foundUser["login"].(string), Role: foundUser["role"].(int64)})
+		if err != nil {
+			//log.Println("Error Creating JWT token", err)
+			return c.JSON(http.StatusUnauthorized, models.Unauthorized{
+				Error:  "Unauthorized",
+				Status: false,
 			})
 		}
 
+		cookie := new(http.Cookie)
+		cookie.Name = "token"
+		cookie.Path = "/"
+		cookie.Value = token
+		cookie.Expires = time.Now().Add(time.Hour * time.Duration(config2.Config.JWT.Ttl))
+
+		delete(foundUser, "password")
+
+		foundUser["jwt"] = token
+
+		c.SetCookie(cookie)
+		return c.JSON(http.StatusOK, models.LoginData{
+			Token:  token,
+			Path:   checkRole(foundUser["role"].(int64)),
+			Status: true,
+			Data:   foundUser,
+		})
+	}
+
+	return c.JSON(http.StatusUnauthorized, models.Unauthorized{
+		Error:  "Unauthorized",
+		Status: false,
+	})
 
 }
 
+func Logout(c echo.Context) error {
+
+	cookie := new(http.Cookie)
+	cookie.Name = "token"
+	cookie.Path = "/"
+	cookie.Value = ""
+	cookie.Expires = time.Now()
+
+	c.SetCookie(cookie)
+	return c.JSON(http.StatusOK, map[string]string{
+		"status": "true",
+		"data":   "",
+		"path":   "auth/login",
+		"token":  "",
+	})
+
+}
 
 func LoginPage(c echo.Context) error {
-	csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+	//csrfToken := c.Get(middleware.DefaultCSRFConfig.ContextKey).(string)
+	csrfToken := ""
 	return c.Render(http.StatusOK, "login.html", map[string]interface{}{
 		"title":         config.Config.Title,
 		"favicon":       config.Config.Favicon,
 		"lambda_config": config.Config,
 		"mix":           tools.Mix,
-		"csrfToken":           csrfToken,
+		"csrfToken":     csrfToken,
 	})
 }
 
@@ -155,13 +147,13 @@ func checkRole(role int64) string {
 		}
 	}
 	foundRole := models.Role{}
-	DB.DB.Where("id = ?",role).First(&foundRole)
-	if foundRole.Permissions != ""{
+	DB.DB.Where("id = ?", role).First(&foundRole)
+	if foundRole.Permissions != "" {
 
 		Permissions := models.Permissions{}
 		json.Unmarshal([]byte(foundRole.Permissions), &Permissions)
-		if Permissions.DefaultMenu != ""{
-			return config.Config.AppURL+Permissions.DefaultMenu
+		if Permissions.DefaultMenu != "" {
+			return config.Config.AppURL + Permissions.DefaultMenu
 		}
 	}
 	return "/auth/login"

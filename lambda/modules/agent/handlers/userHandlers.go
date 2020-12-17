@@ -42,8 +42,6 @@ func SearchUsers(c echo.Context) error {
 
 	users := []agentModels.User{}
 
-
-
 	query := DB.DB.Table("users")
 
 

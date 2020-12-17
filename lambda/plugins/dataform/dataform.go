@@ -540,7 +540,8 @@ func Store(c echo.Context, FromModel interface{}, schemaId string, id string, ac
 			json.Unmarshal(inrec, &formInterface)
 			data := callTrigger("afterInsert", Model, *dataJson, fmt.Sprintf("%v", formInterface[Identity]))
 
-			data[Identity] = formInterface[Identity]
+			data["id"] = formInterface[Identity]
+
 
 
 			return c.JSON(http.StatusOK, map[string]interface{}{
