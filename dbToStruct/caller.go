@@ -25,3 +25,111 @@ func GetStruct(table string) {
 
 
 }
+
+func TableToStruct(table string, hiddenColumns []string, pkgName string) string{
+
+	if(table != ""){
+		var DB_ *sql.DB
+		DB_ = DB.DB.DB()
+
+		columnDataTypes, err := GetColumnsFromSQLlTable(DB_, table, hiddenColumns)
+		//fmt.Println(columnDataTypes)
+
+		if err != nil {
+			fmt.Println("Error in creating struct from json: " + err.Error())
+		}
+
+		struc_, _ := GenerateWithImports("", *columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), pkgName, true, true, true, "", "")
+
+
+		return string(struc_)
+	}
+
+	return ""
+
+}
+
+func TableToStructNoTime(table string, hiddenColumns []string, pkgName string) string{
+
+	if(table != ""){
+		var DB_ *sql.DB
+		DB_ = DB.DB.DB()
+
+		columnDataTypes, err := GetColumnsFromSQLlTable(DB_, table, hiddenColumns)
+		//fmt.Println(columnDataTypes)
+
+		if err != nil {
+			fmt.Println("Error in creating struct from json: " + err.Error())
+		}
+
+		struc_, _ := GenerateWithImportsNoTime("", *columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), pkgName, true, true, true, "", "")
+
+
+		return string(struc_)
+	}
+
+	return ""
+
+}
+
+func TableToGraphqlOrderBy(table string, hiddenColumns []string) string{
+
+	if(table != ""){
+		var DB_ *sql.DB
+		DB_ = DB.DB.DB()
+
+		columnDataTypes, err := GetColumnsFromSQLlTable(DB_, table, hiddenColumns)
+		//fmt.Println(columnDataTypes)
+
+		if err != nil {
+			fmt.Println("Error in creating struct from json: " + err.Error())
+		}
+
+		struc_, _ := GenerateGrapqlOrder(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table))+"OrderBy", "", false, false, true, "", "")
+
+		return string(struc_)
+	}
+
+	return ""
+
+}
+
+
+func TableToGraphql(table string, hiddenColumns []string) string{
+
+	if(table != ""){
+		var DB_ *sql.DB
+		DB_ = DB.DB.DB()
+
+		columnDataTypes, err := GetColumnsFromSQLlTable(DB_, table, hiddenColumns)
+		//fmt.Println(columnDataTypes)
+
+		if err != nil {
+			fmt.Println("Error in creating struct from json: " + err.Error())
+		}
+
+		struc_, _ := GenerateGrapql(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), "", false, false, true, "", "")
+
+		return string(struc_)
+	}
+
+	return ""
+
+}
+
+func TableColumns(table string, hiddenColumns []string) string{
+
+	if(table != ""){
+		var DB_ *sql.DB
+		DB_ = DB.DB.DB()
+
+		columns, err := GetColumns(DB_, table, hiddenColumns)
+		if err != nil {
+			fmt.Println("Error in creating struct from json: " + err.Error())
+		}
+		return columns
+	}
+
+	return ""
+
+}

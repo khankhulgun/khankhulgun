@@ -20,6 +20,7 @@ type App struct {
 	GetMODEL     func(schemaId string) (string, interface{})
 	GetMessages  func(schemaId string) map[string][]string
 	GetRules     func(schemaId string) map[string][]string
+	echoWrapHandler     echo.HandlerFunc
 }
 
 func (app *App) Start() {

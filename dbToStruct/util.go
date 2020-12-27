@@ -28,6 +28,17 @@ const (
 	gureguNullTime   = "*time.Time"
 	golangTime       = "time.Time"
 )
+const (
+	gqlNullInt   = "Int"
+	gqlInt       = "Int!"
+	gqlNullFloat   = "Float"
+	gqlFloat      = "Float!"
+	gqlNullString   = "String"
+	gqlString       = "String!"
+	gqlNullTime  = "Time"
+	gqlTime       = "Time!"
+
+)
 
 // commonInitialisms is a set of common initialisms.
 // Only add entries that are highly unlikely to be non-initialisms.
@@ -138,6 +149,34 @@ func GenerateOnlyStruct(columnTypes map[string]map[string]string, tableName stri
 	}
 	return formatted, err
 }
+func GenerateGrapql(columnTypes map[string]map[string]string, tableName string, structName string, pkgName string, jsonAnnotation bool, gormAnnotation bool, gureguTypes bool, extraColumns string, extraStucts string) ([]byte, error) {
+
+	dbTypes := generateQraphqlTypes(columnTypes, 0, jsonAnnotation, gormAnnotation, gureguTypes)
+
+
+
+	src := fmt.Sprintf("type %s %s %s \n} %s",
+		structName,
+		dbTypes,
+		extraColumns,extraStucts)
+
+
+	return []byte(src), nil
+}
+func GenerateGrapqlOrder(columnTypes map[string]map[string]string, tableName string, structName string, pkgName string, jsonAnnotation bool, gormAnnotation bool, gureguTypes bool, extraColumns string, extraStucts string) ([]byte, error) {
+
+	dbTypes := generateQraphqlTypesOrder(columnTypes, 0, jsonAnnotation, gormAnnotation, gureguTypes)
+
+
+
+	src := fmt.Sprintf("\n  \ninput %s %s %s \n} %s",
+		structName,
+		dbTypes,
+		extraColumns,extraStucts)
+
+
+	return []byte(src), nil
+}
 func GenerateWithImports(otherPackage string, columnTypes map[string]map[string]string, tableName string, structName string, pkgName string, jsonAnnotation bool, gormAnnotation bool, gureguTypes bool, extraColumns string, extraStucts string) ([]byte, error) {
 	var dbTypes string
 
@@ -147,6 +186,36 @@ func GenerateWithImports(otherPackage string, columnTypes map[string]map[string]
 	importTime := ""
 	//if time_found {
 		importTime = "import \"time\" \n var _ = time.Time{}  \n"
+	//}
+	src := fmt.Sprintf("package %s\n %s\n %s\n \ntype %s %s %s} %s",
+		pkgName,
+		otherPackage,
+		importTime,
+		structName,
+		dbTypes,
+		extraColumns,extraStucts)
+	if gormAnnotation == true {
+		tableNameFunc := "//  TableName sets the insert table name for this struct type\n " +
+			"func (" + strings.ToLower(string(structName[0])) + " *" + structName + ") TableName() string {\n" +
+			"	return \"" + tableName + "\"" +
+			"}"
+		src = fmt.Sprintf("%s\n%s", src, tableNameFunc)
+	}
+	formatted, err := format.Source([]byte(src))
+	if err != nil {
+		err = fmt.Errorf("error formatting: %s, was formatting\n%s", err, src)
+	}
+	return formatted, err
+}
+func GenerateWithImportsNoTime(otherPackage string, columnTypes map[string]map[string]string, tableName string, structName string, pkgName string, jsonAnnotation bool, gormAnnotation bool, gureguTypes bool, extraColumns string, extraStucts string) ([]byte, error) {
+	var dbTypes string
+
+	dbTypes, timeFound := generateMysqlTypesNoTime(columnTypes, 0, jsonAnnotation, gormAnnotation, gureguTypes)
+
+	var _ = timeFound
+	importTime := ""
+	//if time_found {
+	//	importTime = "import \"time\" \n var _ = time.Time{}  \n"
 	//}
 	src := fmt.Sprintf("package %s\n %s\n %s\n \ntype %s %s %s} %s",
 		pkgName,

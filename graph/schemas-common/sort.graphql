@@ -1,0 +1,8 @@
+input sort {
+    column: String!
+    order:order!
+}
+enum order{
+    asc
+    desc
+}

@@ -54,6 +54,8 @@ func ModelInit(projectPath string, moduleName string) {
 	fmt.Println("MODEL INIT DONE")
 }
 
+
+
 /*GRID*/
 func WriteGridModel(moduleName string) {
 

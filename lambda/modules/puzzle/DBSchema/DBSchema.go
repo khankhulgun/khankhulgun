@@ -417,8 +417,8 @@ func WriteGridModel(grids []models.VBSchema) {
 
 		json.Unmarshal([]byte(vb.Schema), &schema)
 
-		modelAlias := getModelAlias(schema.Model)
-		MainTableAlias := getModelAlias(schema.MainTable)+"MainTable"
+		modelAlias := GetModelAlias(schema.Model)
+		MainTableAlias := GetModelAlias(schema.MainTable)+"MainTable"
 
 		modelAliasWithID := modelAlias + strconv.FormatUint(vb.ID, 10)
 		MainTableAliasWithID := MainTableAlias + strconv.FormatUint(vb.ID, 10)
@@ -711,8 +711,8 @@ func WriteGridDataCaller(forms []models.VBSchema, moduleName string) {
 
 		json.Unmarshal([]byte(vb.Schema), &schema)
 
-		modelAlias := getModelAlias(schema.Model)
-		mainTableAlias := getModelAlias(schema.MainTable)+"MainTable"
+		modelAlias := GetModelAlias(schema.Model)
+		mainTableAlias := GetModelAlias(schema.MainTable)+"MainTable"
 
 		l5, err := f.WriteString("\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn new(grid." + modelAlias + strconv.FormatUint(vb.ID, 10) + "), new([]grid." + modelAlias + strconv.FormatUint(vb.ID, 10) + "), \"" + schema.Model + "\", \"" + vb.Name + "\", new(grid." + mainTableAlias + strconv.FormatUint(vb.ID, 10) + "), \"" + schema.Identity + "\"\n")
 		if err != nil {
@@ -747,7 +747,7 @@ func WriteFormModel(grids []models.VBSchema) {
 
 		json.Unmarshal([]byte(vb.Schema), &schema)
 
-		modelAlias := getModelAlias(schema.Model)
+		modelAlias := GetModelAlias(schema.Model)
 		DB_ := DBConnection()
 
 		hiddenColumns := []string{}
@@ -773,8 +773,8 @@ func WriteFormModel(grids []models.VBSchema) {
 			if field.FormType == "SubForm" {
 				if field.SubType == "Form" {
 
-					//Parent := getModelAlias(field.Parent)
-					//subAlis := getModelAlias(field.Model)
+					//Parent := GetModelAlias(field.Parent)
+					//subAlis := GetModelAlias(field.Model)
 					//subForm := subAlis+modelAlias+strconv.FormatUint(vb.ID, 10)
 					////gormSubItem = gormSubItem+"\n"+subForm+"     []"+subForm+" `gorm:\"foreignkey:"+Parent+";\" json:\""+field.Model+"\"`"
 					//
@@ -785,8 +785,8 @@ func WriteFormModel(grids []models.VBSchema) {
 					//
 					//gormStructs = gormStructs + string(subStructs)
 				} else {
-					//Parent := getModelAlias(field.Parent)
-					subAlis := getModelAlias(field.Model)
+					//Parent := GetModelAlias(field.Parent)
+					subAlis := GetModelAlias(field.Model)
 					subForm := subAlis + modelAlias + strconv.FormatUint(vb.ID, 10)
 					//gormSubItem = gormSubItem+"\n"+subForm+"     []"+subForm+" `gorm:\"foreignkey:"+Parent+";\" json:\""+field.Model+"\"`"
 
@@ -832,7 +832,7 @@ func WriteFormModel(grids []models.VBSchema) {
 		for _, field := range schema.Schema {
 			if field.FormType == "SubForm" {
 				if field.SubType == "Grid" {
-					subAlis := getModelAlias(field.Model)
+					subAlis := GetModelAlias(field.Model)
 
 
 					subFormTex, err := f.WriteString("\nmap[string]interface{}{")
@@ -865,7 +865,7 @@ func WriteFormModel(grids []models.VBSchema) {
 						f.Close()
 					}
 				} else {
-					subAlis := getModelAlias(field.Model)
+					subAlis := GetModelAlias(field.Model)
 
 
 					subFormTex, err := f.WriteString("\nmap[string]interface{}{")
@@ -1111,7 +1111,7 @@ return "id", new(form.UserPassword)
 
 		json.Unmarshal([]byte(vb.Schema), &schema)
 
-		modelAlias := getModelAlias(schema.Model)
+		modelAlias := GetModelAlias(schema.Model)
 
 
 		l5, err := f.WriteString("\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn \""+schema.Identity+"\",  new(form." + modelAlias + strconv.FormatUint(vb.ID, 10) + ")\n")
@@ -1200,7 +1200,7 @@ func WriteValidationCaller(forms []models.VBSchema, moduleName string) {
 		json.Unmarshal([]byte(vb.Schema), &schema)
 
 		WriteModelValidation(schema, vb.ID)
-		modelAlias := getModelAlias(schema.Model)
+		modelAlias := GetModelAlias(schema.Model)
 
 		l5, err := f.WriteString("\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn validations.Get" + modelAlias + strconv.FormatUint(vb.ID, 10) + "Rules()\n")
 		if err != nil {
@@ -1288,7 +1288,7 @@ func WriteValidationMessageCaller(forms []models.VBSchema, moduleName string) {
 
 		json.Unmarshal([]byte(vb.Schema), &schema)
 
-		modelAlias := getModelAlias(schema.Model)
+		modelAlias := GetModelAlias(schema.Model)
 
 		l5, err := f.WriteString("\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn validations.Get" + modelAlias + strconv.FormatUint(vb.ID, 10) + "Messages()\n")
 		if err != nil {
@@ -1318,7 +1318,7 @@ func WriteModelValidation(vb SCHEMA, ID uint64) {
 
 	id_ := strconv.FormatUint(ID, 10)
 
-	modelAlias := getModelAlias(vb.Model)
+	modelAlias := GetModelAlias(vb.Model)
 	f, err := os.Create("models/form/validations/" + vb.Model + id_ + ".go")
 	if err != nil {
 		fmt.Println(err, f)
@@ -1418,6 +1418,6 @@ func Get` + modelAlias + id_ + `Messages() map[string][]string{
 
 }
 
-func getModelAlias(modelName string) string {
+func GetModelAlias(modelName string) string {
 	return strmangle.TitleCase(strmangle.Singular(modelName))
 }

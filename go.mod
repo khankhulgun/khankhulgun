@@ -13,4 +13,5 @@ require (
 	github.com/thedevsaddam/govalidator v1.9.10 // indirect
 	github.com/volatiletech/inflect v0.0.1 // indirect
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible
+	github.com/99designs/gqlgen v0.13.0
 )

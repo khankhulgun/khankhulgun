@@ -1,0 +1,19 @@
+input filter {
+    column: String!
+    condition:condition!
+    value: String!
+}
+enum condition{
+    equals
+    notEqual
+    contains
+    notContains
+    startsWith
+    endsWith
+    greaterThan
+    greaterThanOrEqual
+    lessThan
+    lessThanOrEqual
+    isNull
+    notNull
+}
