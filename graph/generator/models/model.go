@@ -9,6 +9,11 @@ type GqlTable struct {
 		Roles      []int `json:"roles"`
 	} `json:"checkAuth"`
 	HiddenColumns []string `json:"hidden_columns"`
+	Actions       struct {
+		Create bool `json:"create"`
+		Update bool `json:"update"`
+		Delete bool `json:"delete"`
+	} `json:"actions"`
 	Subs []SubTable `json:"subs"`
 }
 
@@ -17,3 +22,4 @@ type SubTable struct {
 	ConnectionField string `json:"connection_field"`
 	ParentIdentity  string `json:"parent_identity"`
 }
+

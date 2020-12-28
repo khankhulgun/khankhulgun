@@ -1,0 +1,67 @@
+[
+  {
+    "table": "users",
+    "identity": "id",
+    "checkAuth": {
+      "isLoggedIn": true,
+      "roles": []
+    },
+    "hidden_columns": ["password", "status"],
+    "subs": [],
+    "actions":{
+      "create":false, "update":false, "delete":false
+    }
+  },
+  {
+    "table": "bag",
+    "identity": "id",
+    "checkAuth": {
+      "isLoggedIn": false,
+      "roles": []
+    },
+    "hidden_columns": [],
+    "subs": [],
+    "actions":{
+      "create":false, "update":false, "delete":false
+    }
+  },
+  {
+    "table": "sum",
+    "identity": "id",
+    "checkAuth": {
+      "isLoggedIn": false,
+      "roles": []
+    },
+    "hidden_columns": [],
+    "subs": [{"table":"bag", "connection_field":"sumid", "parent_identity":"id"}],
+    "actions":{
+      "create":false, "update":false, "delete":false
+    }
+  },
+  {
+    "table": "aimag",
+    "identity": "id",
+    "checkAuth": {
+      "isLoggedIn": false,
+      "roles": []
+    },
+    "hidden_columns": [],
+    "subs": [{"table":"sum", "connection_field":"aimagid", "parent_identity":"id"}],
+    "actions":{
+      "create":false, "update":false, "delete":false
+    }
+  },
+  {
+    "table": "friends",
+    "identity": "id",
+    "checkAuth": {
+      "isLoggedIn": false,
+      "roles": []
+    },
+    "hidden_columns": [],
+    "subs": [],
+    "actions":{
+      "create":true, "update":true, "delete":true
+    }
+  }
+]

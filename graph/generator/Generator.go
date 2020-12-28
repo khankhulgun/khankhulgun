@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"github.com/99designs/gqlgen/api"
 	"github.com/99designs/gqlgen/codegen/config"
+	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/dbToStruct"
 	"github.com/khankhulgun/khankhulgun/graph/generator/models"
 	"github.com/khankhulgun/khankhulgun/graph/generator/plugin/resolvergen"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
+	puzzleModels "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	khankhulgunConfig "github.com/khankhulgun/khankhulgun/config"
 	"github.com/otiai10/copy"
 	"go/format"
@@ -38,49 +40,15 @@ func GenerateSchema(projectName string) {
 
 	GqlTables := []models.GqlTable{}
 
-	jsonstr := `[
-  {
-    "table": "users",
-    "identity": "id",
-    "checkAuth": {
-      "isLoggedIn": true,
-      "roles": []
-    },
-    "hidden_columns": ["password", "status"],
-   	"subs": []
-  },
-  {
-    "table": "bag",
- 	"identity": "id",
-    "checkAuth": {
-      "isLoggedIn": false,
-      "roles": []
-    },
-    "hidden_columns": [],
- 	"subs": []
-  },
-  {
-    "table": "sum",
-    "identity": "id",
-    "checkAuth": {
-      "isLoggedIn": false,
-      "roles": []
-    },
-    "hidden_columns": [],
- 	"subs": [{"table":"bag", "connection_field":"sumid", "parent_identity":"id"}]
-  },
-  {
-    "table": "aimag",
-    "identity": "id",
-    "checkAuth": {
-      "isLoggedIn": false,
-      "roles": []
-    },
-    "hidden_columns": [],
-   	"subs": [{"table":"sum", "connection_field":"aimagid", "parent_identity":"id"}]
-  }
-]`
-	json.Unmarshal([]byte(jsonstr), &GqlTables)
+	preTables := []puzzleModels.VBSchema{}
+
+	DB.DB.Where("type = 'graphql'").Find(&preTables)
+
+	for _, preTable := range preTables {
+		GqlTable := models.GqlTable{}
+		json.Unmarshal([]byte(preTable.Schema), &GqlTable)
+		GqlTables = append(GqlTables, GqlTable)
+	}
 
 	resolverTmplate := `package resolvers
 
@@ -215,12 +183,7 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 	QueryContent := "type Query {\n"
 	Pagination := "\ntype paginate  {\n    page: Int!\n    total: Int!\n    last_page: Int!\n"
 
-
 	paginationSub := "_"
-
-
-
-
 
 	for _, table := range GqlTables {
 		modelAlias := DBSchema.GetModelAlias(table.Table)
@@ -229,7 +192,7 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		subTablesMap := ""
 		subSetTemps := ""
 
-		if (len(table.Subs) >= 1) {
+		if len(table.Subs) >= 1 {
 			paginationSub = "subs"
 		}
 		for _, sub := range table.Subs {
@@ -246,17 +209,17 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 				sub.ParentIdentity,
 				sub.ConnectionField,
 			)
-			subCaller := subAlias+"(ctx, sorts, filters)"
+			subCaller := subAlias + "(ctx, sorts, filters)"
 			subHasSub := false
 			for _, tableCheck := range GqlTables {
-				if(tableCheck.Table == sub.Table){
-					if(len(tableCheck.Subs) >= 1){
+				if tableCheck.Table == sub.Table {
+					if len(tableCheck.Subs) >= 1 {
 						subHasSub = true
 					}
 				}
 			}
-			if(subHasSub){
-				subCaller = subAlias+"(ctx, sorts, filters, subSorts, subFilters)"
+			if subHasSub {
+				subCaller = subAlias + "(ctx, sorts, filters, subSorts, subFilters)"
 			}
 			subSetTemps = subSetTemps + fmt.Sprintf(subSetTemp,
 				sub.Table,
@@ -275,18 +238,18 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		parentConnectsions := ""
 		for _, tableCheck := range GqlTables {
 			for _, sub := range tableCheck.Subs {
-				if (table.Table == sub.Table) {
-					if(parentConnectsions == ""){
-						parentConnectsions = "\""+sub.ConnectionField+"\""
+				if table.Table == sub.Table {
+					if parentConnectsions == "" {
+						parentConnectsions = "\"" + sub.ConnectionField + "\""
 					} else {
-						parentConnectsions = parentConnectsions+",\""+sub.ConnectionField+"\""
+						parentConnectsions = parentConnectsions + ",\"" + sub.ConnectionField + "\""
 					}
 				}
 			}
 		}
 
 		structStr := dbToStruct.TableToStruct(table.Table, table.HiddenColumns, "models", subTables)
-		schema := dbToStruct.TableToGraphql(table.Table, table.HiddenColumns, subTables)
+		schema := dbToStruct.TableToGraphql(table.Table, table.HiddenColumns, subTables, false)
 		colunms := dbToStruct.TableColumns(table.Table, table.HiddenColumns)
 		//schemaOrderBy := dbToStruct.TableToGraphqlOrderBy(table.Table, table.HiddenColumns)
 
@@ -296,6 +259,8 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 			QueryContent = QueryContent + "    " + strings.ToLower(modelAlias) + "(sorts:[sort], filters:[filter]): [" + modelAlias + "!]\n"
 		}
 		Pagination = Pagination + "    " + strings.ToLower(modelAlias) + ":[" + modelAlias + "!]\n"
+
+
 
 		WriteFile(structStr, "graph/models/"+modelAlias+".go")
 
@@ -362,7 +327,15 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 
 		}
 
+		actions := createActions(table, modelAlias, colunms)
+
+		resolver = resolver +actions
 		formattedResolver, err := format.Source([]byte(resolver))
+
+		if(err != nil){
+			fmt.Println(err)
+			fmt.Println(resolver)
+		}
 
 		if err == nil {
 			WriteFile(string(formattedResolver), "graph/resolvers/"+modelAlias+".go")
@@ -370,10 +343,9 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 
 		WriteFile(schema, "graph/schemas/"+modelAlias+".graphql")
 
-
 		paginationReturn := "return &Paginate, nil"
 
-		if(len(table.Subs) >= 1){
+		if len(table.Subs) >= 1 {
 			paginationReturn = fmt.Sprintf(`if len(subs) >= 1 {
 				resultWithSubs, errorsub := Set%sSubs(ctx, Paginate.%s, subs, subSorts, subFilters)
 				Paginate.%s = resultWithSubs
@@ -409,7 +381,7 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		Paginate.LastPage = pagination.LastPage
 		Paginate.Total = pagination.Total
 		%s
-	}`, strings.ToLower(modelAlias), authCheck, table.Identity, parentConnectsions,modelAlias, modelAlias, modelAlias, paginationReturn) + "\n"
+	}`, strings.ToLower(modelAlias), authCheck, table.Identity, parentConnectsions, modelAlias, modelAlias, modelAlias, paginationReturn) + "\n"
 
 	}
 
@@ -430,8 +402,118 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		WriteFile(string(formattedPagination), "graph/resolvers/Paginate.go")
 	}
 
-}
+	createActionUpdateActions(GqlTables)
 
+}
+func createActionUpdateActions(GqlTables []models.GqlTable){
+
+	mutations := `type Mutation {
+`
+	mutationTemp := `	%s
+	%s
+    %s`
+
+	for _, table := range GqlTables {
+		if(table.Actions.Create || table.Actions.Update){
+			modelAlias := DBSchema.GetModelAlias(table.Table)
+			schema := dbToStruct.TableToGraphql(table.Table, []string{"created_at", "created_at", "deleted_at", table.Identity}, []string{}, true)
+
+
+			createMutation := ""
+			if(table.Actions.Create){
+				createMutation = fmt.Sprintf("\"mutation-create\"\n    create%s(input: %sInput!):%s!", modelAlias, modelAlias, modelAlias)
+			}
+			updateMutation := ""
+			if(table.Actions.Update){
+				updateMutation = fmt.Sprintf("\"mutation-update\"\n    update%s(id: ID!, input:%sInput!):%s!", modelAlias, modelAlias, modelAlias)
+			}
+			deleteMutation := ""
+			if(table.Actions.Delete){
+				deleteMutation = fmt.Sprintf("\"mutation-delete\"\n    delete%s(id: ID!):deleted!", modelAlias)
+			}
+			mutations = mutations+fmt.Sprintf(mutationTemp, createMutation, updateMutation, deleteMutation)
+
+			WriteFile(schema, "graph/schemas/"+modelAlias+"Input.graphql")
+		}
+	}
+	mutations = mutations +"\n}"
+	WriteFile(mutations, "graph/schemas/mutations.graphql")
+}
+func createActions(table models.GqlTable, modelAlias string, colunms string) string{
+
+	createTemp := `
+func Create%s(ctx context.Context, input model.%sInput) (*models.%s, error) {
+			row := models.%s{}
+			%s
+			DB.DB.NewRecord(row)
+			err := DB.DB.Create(&row).Error
+			return &row, err
+		}`
+	updateTemp := `
+func Update%s(ctx context.Context, id string, input model.%sInput) (*models.%s, error) {
+			row := models.%s{}
+			DB.DB.Where("%s = ?", id).Find(&row)
+			%s
+			err := DB.DB.Save(&row).Error
+
+			return &row, err
+		}`
+	deleteTemp := `
+func Delete%s(ctx context.Context, id string) (*model.Deleted, error) {
+			err := DB.DB.Where("%s = ?", id).Delete(&models.%s{}).Error
+			return &model.Deleted{ID: id}, err
+		}`
+
+	actions := ""
+
+	columnsWithInput := ""
+	colunms = strings.ReplaceAll(colunms, "\"", "")
+	colunms = strings.ReplaceAll(colunms, " ", "")
+	for _, column :=range strings.Split(colunms, ","){
+		if(column != table.Identity && column != "created_at" && column != "created_at" && column != "deleted_at"){
+			columnReady := DBSchema.GetModelAlias(column)
+			columnsWithInput = columnsWithInput + fmt.Sprintf("row.%s = *input.%s\n",
+				columnReady,
+				columnReady,
+			)
+		}
+	}
+
+		if(table.Actions.Create){
+
+			actions = actions + fmt.Sprintf(createTemp,
+				modelAlias,
+				modelAlias,
+				modelAlias,
+				modelAlias,
+				columnsWithInput,
+			)
+		}
+
+		if(table.Actions.Update){
+
+			actions = actions + fmt.Sprintf(updateTemp,
+				modelAlias,
+				modelAlias,
+				modelAlias,
+				modelAlias,
+				table.Identity,
+				columnsWithInput,
+			)
+		}
+
+		if(table.Actions.Delete){
+
+			actions = actions + fmt.Sprintf(deleteTemp,
+				modelAlias,
+				table.Identity,
+				modelAlias,
+			)
+		}
+
+		return actions
+
+}
 func GQLInit(projectPath string, projectName string) {
 
 	dir := projectPath
@@ -472,7 +554,6 @@ func GQLInit(projectPath string, projectName string) {
 	Generate(projectName)
 
 }
-
 func WriteFile(fileContent string, path string) {
 	f, err := os.Create(path)
 	if err != nil {

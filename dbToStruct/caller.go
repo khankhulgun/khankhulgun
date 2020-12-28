@@ -103,7 +103,7 @@ func TableToGraphqlOrderBy(table string, hiddenColumns []string) string{
 }
 
 
-func TableToGraphql(table string, hiddenColumns []string, Subs []string) string{
+func TableToGraphql(table string, hiddenColumns []string, Subs []string, isInpute bool) string{
 
 	if(table != ""){
 		var DB_ *sql.DB
@@ -116,7 +116,7 @@ func TableToGraphql(table string, hiddenColumns []string, Subs []string) string{
 			fmt.Println("Error in creating struct from json: " + err.Error())
 		}
 
-		struc_, _ := GenerateGrapql(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), "", false, false, true, "", "", Subs)
+		struc_, _ := GenerateGrapql(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), "", false, false, true, "", "", Subs, isInpute)
 
 		return string(struc_)
 	}

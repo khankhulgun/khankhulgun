@@ -112,6 +112,17 @@ func (m *Plugin) generatePerSchema(data *codegen.Data) error {
 				implementation = `return resolvers.`+f.GoFieldName+`(ctx, sorts, filters, subSorts, subFilters)`
 			}
 
+			if(f.Description == "mutation-create"){
+				implementation = "return resolvers."+f.GoFieldName+"(ctx, input)"
+			}
+
+			if(f.Description == "mutation-update"){
+				implementation = "return resolvers."+f.GoFieldName+"(ctx, id, input)"
+			}
+
+			if(f.Description == "mutation-delete"){
+				implementation = "return resolvers."+f.GoFieldName+"(ctx, id)"
+			}
 
 
 			resolver := Resolver{o, f, implementation}

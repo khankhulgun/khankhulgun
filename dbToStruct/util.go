@@ -150,7 +150,7 @@ func GenerateOnlyStruct(columnTypes map[string]map[string]string, tableName stri
 	}
 	return formatted, err
 }
-func GenerateGrapql(columnTypes map[string]map[string]string, tableName string, structName string, pkgName string, jsonAnnotation bool, gormAnnotation bool, gureguTypes bool, extraColumns string, extraStucts string, Subs []string) ([]byte, error) {
+func GenerateGrapql(columnTypes map[string]map[string]string, tableName string, structName string, pkgName string, jsonAnnotation bool, gormAnnotation bool, gureguTypes bool, extraColumns string, extraStucts string, Subs []string, isInpute bool) ([]byte, error) {
 
 	dbTypes := generateQraphqlTypes(columnTypes, 0, jsonAnnotation, gormAnnotation, gureguTypes)
 
@@ -161,7 +161,13 @@ func GenerateGrapql(columnTypes map[string]map[string]string, tableName string, 
 		subStchemas = subStchemas+"\n    "+sub+":["+strmangle.TitleCase(strmangle.Singular(sub))+"!]"
 	}
 
-	src := fmt.Sprintf("type %s %s %s %s \n} %s",
+	typeSchema := "type"
+	if(isInpute){
+		typeSchema = "input"
+		structName = structName+"Input"
+	}
+	src := fmt.Sprintf("%s %s %s %s %s \n} %s",
+		typeSchema,
 		structName,
 		dbTypes,
 		extraColumns, subStchemas, extraStucts)
