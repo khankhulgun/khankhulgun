@@ -26,7 +26,7 @@ func GetStruct(table string) {
 
 }
 
-func TableToStruct(table string, hiddenColumns []string, pkgName string) string{
+func TableToStruct(table string, hiddenColumns []string, pkgName string, Subs []string) string{
 
 	if(table != ""){
 		var DB_ *sql.DB
@@ -39,7 +39,15 @@ func TableToStruct(table string, hiddenColumns []string, pkgName string) string{
 			fmt.Println("Error in creating struct from json: " + err.Error())
 		}
 
-		struc_, _ := GenerateWithImports("", *columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), pkgName, true, true, true, "", "")
+
+
+		subStchemas := ""
+
+		for _, sub := range Subs{
+			subStchemas = subStchemas+"\n    "+strmangle.TitleCase(strmangle.Singular(sub))+" []*"+strmangle.TitleCase(strmangle.Singular(sub))+""
+		}
+
+		struc_, _ := GenerateWithImports("", *columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), pkgName, true, true, true, subStchemas, "")
 
 
 		return string(struc_)
@@ -95,7 +103,7 @@ func TableToGraphqlOrderBy(table string, hiddenColumns []string) string{
 }
 
 
-func TableToGraphql(table string, hiddenColumns []string) string{
+func TableToGraphql(table string, hiddenColumns []string, Subs []string) string{
 
 	if(table != ""){
 		var DB_ *sql.DB
@@ -108,7 +116,7 @@ func TableToGraphql(table string, hiddenColumns []string) string{
 			fmt.Println("Error in creating struct from json: " + err.Error())
 		}
 
-		struc_, _ := GenerateGrapql(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), "", false, false, true, "", "")
+		struc_, _ := GenerateGrapql(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), "", false, false, true, "", "", Subs)
 
 		return string(struc_)
 	}

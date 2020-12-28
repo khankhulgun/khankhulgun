@@ -3,6 +3,12 @@ input filter {
     condition:condition!
     value: String!
 }
+input subFilter {
+    column: String!
+    table: String!
+    condition:condition!
+    value: String!
+}
 enum condition{
     equals
     notEqual
@@ -16,4 +22,5 @@ enum condition{
     lessThanOrEqual
     isNull
     notNull
+    whereIn
 }

@@ -4,18 +4,18 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo/v4"
-	"github.com/khankhulgun/khankhulgun/graph/builder"
+	"github.com/khankhulgun/khankhulgun/graph/gql"
 	"PROJECTNAME/graph/generated"
 )
 
 func Set(e *echo.Echo) {
 
-	e.Use(builder.Process)
+	e.Use(gql.Process)
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &Resolver{}}))
 	playgroundHandler := playground.Handler("GraphQL playground", "/query")
 
 	e.POST("/query", func(c echo.Context) error {
-		cc := c.(*builder.CustomContext)
+		cc := c.(*gql.CustomContext)
 		req := cc.Request()
 		res := cc.Response()
 		graphqlHandler.ServeHTTP(res, req)
@@ -23,8 +23,7 @@ func Set(e *echo.Echo) {
 	})
 
 	e.GET("/play", func(c echo.Context) error {
-
-		cc := c.(*builder.CustomContext)
+		cc := c.(*gql.CustomContext)
 		req := cc.Request()
 		res := cc.Response()
 		playgroundHandler.ServeHTTP(res, req)

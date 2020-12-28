@@ -1,10 +1,9 @@
-package builder
+package gql
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
-	"context"
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 	"strings"
@@ -50,7 +49,6 @@ func Filter(filtersPre interface{}, query *gorm.DB, columns []string) (*gorm.DB,
 
 			errCol := CheckColumns(filter["column"], columns)
 
-			fmt.Println(filter["condition"])
 			if errCol != nil {
 				return query, errCol
 			}
@@ -83,6 +81,8 @@ func Filter(filtersPre interface{}, query *gorm.DB, columns []string) (*gorm.DB,
 				query = query.Where(k+" IS NULL")
 			case "notNull":
 				query = query.Where(k+" IS NOT NULL")
+			case "whereIn":
+				query = query.Where(k+" IN (?)", strings.Split(v, ","))
 
 			default:
 				return query, errors.New(filter["condition"] + ": is wrong condition")

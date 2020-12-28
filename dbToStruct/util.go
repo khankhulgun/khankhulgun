@@ -2,6 +2,7 @@ package dbToStruct
 
 import (
 	"fmt"
+	"github.com/volatiletech/sqlboiler/strmangle"
 	"go/format"
 	"strconv"
 	"strings"
@@ -149,16 +150,21 @@ func GenerateOnlyStruct(columnTypes map[string]map[string]string, tableName stri
 	}
 	return formatted, err
 }
-func GenerateGrapql(columnTypes map[string]map[string]string, tableName string, structName string, pkgName string, jsonAnnotation bool, gormAnnotation bool, gureguTypes bool, extraColumns string, extraStucts string) ([]byte, error) {
+func GenerateGrapql(columnTypes map[string]map[string]string, tableName string, structName string, pkgName string, jsonAnnotation bool, gormAnnotation bool, gureguTypes bool, extraColumns string, extraStucts string, Subs []string) ([]byte, error) {
 
 	dbTypes := generateQraphqlTypes(columnTypes, 0, jsonAnnotation, gormAnnotation, gureguTypes)
 
 
+	subStchemas := ""
 
-	src := fmt.Sprintf("type %s %s %s \n} %s",
+	for _, sub := range Subs{
+		subStchemas = subStchemas+"\n    "+sub+":["+strmangle.TitleCase(strmangle.Singular(sub))+"!]"
+	}
+
+	src := fmt.Sprintf("type %s %s %s %s \n} %s",
 		structName,
 		dbTypes,
-		extraColumns,extraStucts)
+		extraColumns, subStchemas, extraStucts)
 
 
 	return []byte(src), nil

@@ -103,11 +103,13 @@ func (m *Plugin) generatePerSchema(data *codegen.Data) error {
 			}
 
 
-
 			implementation := `return resolvers.`+f.GoFieldName+`(ctx, sorts, filters)`
 
 			if(f.Name == "paginate"){
-				implementation = "return resolvers.Paginate(ctx, sorts, filters, page, size)"
+				implementation = "return resolvers.Paginate(ctx, sorts, filters, subSorts, subFilters, page, size)"
+			}
+			if(len(f.Args) == 4 && f.Name != "paginate"){
+				implementation = `return resolvers.`+f.GoFieldName+`(ctx, sorts, filters, subSorts, subFilters)`
 			}
 
 
