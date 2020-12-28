@@ -13,6 +13,7 @@ import (
 	puzzleModels "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	khankhulgunConfig "github.com/khankhulgun/khankhulgun/config"
 	"github.com/otiai10/copy"
+	"github.com/volatiletech/sqlboiler/strmangle"
 	"go/format"
 	"io/ioutil"
 	"os"
@@ -254,11 +255,11 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		//schemaOrderBy := dbToStruct.TableToGraphqlOrderBy(table.Table, table.HiddenColumns)
 
 		if len(table.Subs) >= 1 {
-			QueryContent = QueryContent + "    " + strings.ToLower(modelAlias) + "(sorts:[sort], filters:[filter], subSorts:[subSort], subFilters:[subFilter]): [" + modelAlias + "!]\n"
+			QueryContent = QueryContent + "    " + strmangle.Singular(table.Table) + "(sorts:[sort], filters:[filter], subSorts:[subSort], subFilters:[subFilter]): [" + modelAlias + "!]\n"
 		} else {
-			QueryContent = QueryContent + "    " + strings.ToLower(modelAlias) + "(sorts:[sort], filters:[filter]): [" + modelAlias + "!]\n"
+			QueryContent = QueryContent + "    " + strmangle.Singular(table.Table) + "(sorts:[sort], filters:[filter]): [" + modelAlias + "!]\n"
 		}
-		Pagination = Pagination + "    " + strings.ToLower(modelAlias) + ":[" + modelAlias + "!]\n"
+		Pagination = Pagination + "    " + strmangle.Singular(table.Table) + ":[" + modelAlias + "!]\n"
 
 
 
