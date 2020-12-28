@@ -267,7 +267,7 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 
 		authCheck := ""
 		if table.CheckAuth.IsLoggedIn {
-			authCheck = `_, authErr := gql.CheckAuth(ctx)
+			authCheck = `_, authErr := gql.CheckAuth(ctx, []int{`+strings.Trim(strings.Replace(fmt.Sprint(table.CheckAuth.Roles), " ", ",", -1), "[]")+`})
 	if authErr != nil {
 		return nil, authErr
 	}`
