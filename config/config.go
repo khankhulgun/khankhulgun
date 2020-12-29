@@ -32,6 +32,7 @@ type config struct {
 	JWT          JWT
 	Mail         Mail
 	LambdaConfig LambdaConfig
+	Graphql Graphql
 }
 
 type database struct {
@@ -74,4 +75,9 @@ type Mail struct {
 
 type LambdaConfig struct {
 	ConfigFile string
+}
+
+
+type Graphql struct {
+	Environment string
 }

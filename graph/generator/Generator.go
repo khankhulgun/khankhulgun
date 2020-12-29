@@ -6,12 +6,12 @@ import (
 	"github.com/99designs/gqlgen/api"
 	"github.com/99designs/gqlgen/codegen/config"
 	"github.com/khankhulgun/khankhulgun/DB"
+	khankhulgunConfig "github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/dbToStruct"
 	"github.com/khankhulgun/khankhulgun/graph/generator/models"
 	"github.com/khankhulgun/khankhulgun/graph/generator/plugin/resolvergen"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
 	puzzleModels "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
-	khankhulgunConfig "github.com/khankhulgun/khankhulgun/config"
 	"github.com/otiai10/copy"
 	"github.com/volatiletech/sqlboiler/strmangle"
 	"go/format"
@@ -478,6 +478,9 @@ import (
 	"sync"
 	"time"
 	"math/rand"
+	"github.com/khankhulgun/khankhulgun/config"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 )
 
 type Cache struct {
@@ -490,14 +493,27 @@ func Set(e *echo.Echo) {
 	e.Use(gql.Process)
 
 
-	config := generated.Config{Resolvers: &Resolver{
+	graphqlConfig := generated.Config{Resolvers: &Resolver{
 		%s
 		mutex:           sync.Mutex{},
 	}}
-	graphqlHandler := handler.New(generated.NewExecutableSchema(config))
+	graphqlHandler := handler.New(generated.NewExecutableSchema(graphqlConfig))
 	playgroundHandler := playground.Handler("GraphQL playground", "/query")
 
+
+	graphqlHandler.AddTransport(transport.Options{})
+	graphqlHandler.AddTransport(transport.GET{})
 	graphqlHandler.AddTransport(transport.POST{})
+	graphqlHandler.AddTransport(transport.MultipartForm{})
+
+	graphqlHandler.SetQueryCache(lru.New(1000))
+
+	if(config.Config.Graphql.Environment == "dev"){
+		graphqlHandler.Use(extension.Introspection{})
+	}
+	graphqlHandler.Use(extension.AutomaticPersistedQuery{
+		Cache: lru.New(100),
+	})
 	graphqlHandler.AddTransport(transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
 		Upgrader: websocket.Upgrader{
