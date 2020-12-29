@@ -1,0 +1,101 @@
+package graph
+
+import (
+	"fmt"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/labstack/echo/v4"
+	"github.com/khankhulgun/khankhulgun/graph/gql"
+	"PROJECTNAME/graph/generated"
+	"github.com/go-redis/redis"
+	"time"
+	"context"
+	"log"
+
+)
+
+type Cache struct {
+	client redis.UniversalClient
+	ttl    time.Duration
+}
+
+const apqPrefix = "apq:"
+const defaultPort = "8080"
+const redisAddr = "127.0.0.1:6379"
+const redisPass = "SUPER_SECRET_PASSWORD"
+
+func NewCache(redisAddress string, password string, ttl time.Duration) (*Cache, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     redisAddress,
+		Password: password,
+	})
+
+	err := client.Ping().Err()
+	if err != nil {
+		return nil, fmt.Errorf("could not create cache: %w", err)
+	}
+
+	return &Cache{client: client, ttl: ttl}, nil
+}
+
+func (c *Cache) Add(ctx context.Context, key string, value interface{}) {
+	c.client.Set(apqPrefix+key, value, c.ttl)
+}
+
+func (c *Cache) Get(ctx context.Context, key string) (interface{}, bool) {
+	s, err := c.client.Get(apqPrefix + key).Result()
+	if err != nil {
+		return struct{}{}, false
+	}
+	return s, true
+}
+
+func Set(e *echo.Echo) {
+
+	e.Use(gql.Process)
+
+	cache, err := NewCache(redisAddr, redisPass, 24*time.Hour)
+	if err != nil {
+		log.Fatalf("cannot create APQ redis cache: %v", err)
+	}
+
+	config := generated.Config{Resolvers: &Resolver{}}
+	graphqlHandler := handler.New(generated.NewExecutableSchema(config))
+	playgroundHandler := playground.Handler("GraphQL playground", "/query")
+
+
+	//graphqlHandler.AddTransport(transport.POST{})
+	//graphqlHandler.AddTransport(transport.GET{})
+	//graphqlHandler.AddTransport(transport.Options{})
+	//graphqlHandler.AddTransport(transport.MultipartForm{})
+	//graphqlHandler.AddTransport(transport.Websocket{
+	//	KeepAlivePingInterval: 10 * time.Second,
+	//	Upgrader: websocket.Upgrader{
+	//		CheckOrigin: func(r *http.Request) bool {
+	//			return true
+	//		},
+	//	},
+	//})
+	graphqlHandler.AddTransport(transport.POST{})
+	graphqlHandler.Use(extension.AutomaticPersistedQuery{Cache: cache})
+
+	e.Any("/query", func(c echo.Context) error {
+		cc := c.(*gql.CustomContext)
+		req := cc.Request()
+		res := cc.Response()
+		graphqlHandler.ServeHTTP(res, req)
+
+		return nil
+	})
+
+	e.GET("/play", func(c echo.Context) error {
+		cc := c.(*gql.CustomContext)
+		req := cc.Request()
+		res := cc.Response()
+		playgroundHandler.ServeHTTP(res, req)
+		return nil
+	})
+}
+

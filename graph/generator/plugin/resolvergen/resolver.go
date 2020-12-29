@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"fmt"
 )
 var ResolverPath string
 func New(resolverPath string) plugin.Plugin {
@@ -112,17 +113,139 @@ func (m *Plugin) generatePerSchema(data *codegen.Data) error {
 				implementation = `return resolvers.`+f.GoFieldName+`(ctx, sorts, filters, subSorts, subFilters)`
 			}
 
-			if(f.Description == "mutation-create"){
-				implementation = "return resolvers."+f.GoFieldName+"(ctx, input)"
+			if(strings.Contains(f.Description, "mutation-create")){
+				sources := strings.Split(f.Description, ":")
+				subscriptionAdd := ""
+				if(len(sources) >= 2){
+					if(strings.Contains(sources[1], "subscription")){
+						subscription := strings.Split(sources[1], "-")
+
+						subscriptionAdd = fmt.Sprintf(`r.mutex.Lock()
+	for _, ch := range r.%sCreatedChannel {
+		ch <- row
+	}
+	r.mutex.Unlock()`, subscription[1])
+					}
+					}
+
+				temp :=  fmt.Sprintf(`row, err := resolvers.%s(ctx, input)
+    %s
+	return row, err`, f.GoFieldName, subscriptionAdd)
+				implementation = temp
 			}
 
-			if(f.Description == "mutation-update"){
-				implementation = "return resolvers."+f.GoFieldName+"(ctx, id, input)"
+			if(strings.Contains(f.Description, "mutation-update")){
+				sources := strings.Split(f.Description, ":")
+				subscriptionAdd := ""
+				if(len(sources) >= 2){
+					if(strings.Contains(sources[1], "subscription")){
+						subscription := strings.Split(sources[1], "-")
+
+						subscriptionAdd = fmt.Sprintf(`r.mutex.Lock()
+	for _, ch := range r.%sUpdatedChannel {
+		ch <- row
+	}
+	r.mutex.Unlock()`, subscription[1])
+					}
+				}
+
+				temp :=  fmt.Sprintf(`row, err := resolvers.%s(ctx, id, input)
+    %s
+	return row, err`, f.GoFieldName, subscriptionAdd)
+				implementation = temp
 			}
 
-			if(f.Description == "mutation-delete"){
-				implementation = "return resolvers."+f.GoFieldName+"(ctx, id)"
+
+			if(strings.Contains(f.Description, "mutation-delete")){
+				sources := strings.Split(f.Description, ":")
+				subscriptionAdd := ""
+				if(len(sources) >= 2){
+					if(strings.Contains(sources[1], "subscription")){
+						subscription := strings.Split(sources[1], "-")
+
+						subscriptionAdd = fmt.Sprintf(`r.mutex.Lock()
+	for _, ch := range r.%sDeletedChannel {
+		ch <- row
+	}
+	r.mutex.Unlock()`, subscription[1])
+					}
+				}
+
+				temp :=  fmt.Sprintf(`row, err := resolvers.%s(ctx, id)
+    %s
+	return row, err`, f.GoFieldName, subscriptionAdd)
+				implementation = temp
 			}
+
+
+			if(strings.Contains(f.Description, "subscription-created")){
+
+				sources := strings.Split(f.Description, ":")
+
+					implementation = fmt.Sprintf(`id := RandString(8)
+	event := make(chan *models.%s, 1)
+	r.mutex.Lock()
+	r.%sCreatedChannel[id] = event
+	r.mutex.Unlock()
+	go func() {
+		<-ctx.Done()
+		r.mutex.Lock()
+		delete(r.%sCreatedChannel, id)
+		r.mutex.Unlock()
+	}()
+	return event, nil`,
+						sources[1],
+						sources[1],
+						sources[1],
+					)
+
+			}
+			if(strings.Contains(f.Description, "subscription-updated")){
+
+				sources := strings.Split(f.Description, ":")
+
+				implementation = fmt.Sprintf(`id := RandString(8)
+	event := make(chan *models.%s, 1)
+	r.mutex.Lock()
+	r.%sUpdatedChannel[id] = event
+	r.mutex.Unlock()
+	go func() {
+		<-ctx.Done()
+		r.mutex.Lock()
+		delete(r.%sUpdatedChannel, id)
+		r.mutex.Unlock()
+	}()
+	return event, nil`,
+					sources[1],
+					sources[1],
+					sources[1],
+				)
+
+			}
+			if(strings.Contains(f.Description, "subscription-deleted")){
+
+				sources := strings.Split(f.Description, ":")
+
+				implementation = fmt.Sprintf(`id := RandString(8)
+	event := make(chan *models.%s, 1)
+	r.mutex.Lock()
+	r.%sDeletedChannel[id] = event
+	r.mutex.Unlock()
+	go func() {
+		<-ctx.Done()
+		r.mutex.Lock()
+		delete(r.%sDeletedChannel, id)
+		r.mutex.Unlock()
+	}()
+	return event, nil`,
+					sources[1],
+					sources[1],
+					sources[1],
+				)
+
+			}
+
+
 
 
 			resolver := Resolver{o, f, implementation}

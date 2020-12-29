@@ -15,6 +15,7 @@ type GqlTable struct {
 		Delete bool `json:"delete"`
 	} `json:"actions"`
 	Subs []SubTable `json:"subs"`
+	Subscription bool `json:"subscription"`
 }
 
 type SubTable struct {

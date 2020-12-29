@@ -396,6 +396,11 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		paginationSub,
 	)
 	paginationTmplate = paginationTmplate + "return &Paginate, nil\n}"
+
+	subscriptionSchema, subscriptions:= createSubscription(GqlTables)
+
+	QueryContent = QueryContent + "\n"+subscriptionSchema
+
 	WriteFile(QueryContent, "graph/schemas/schemas.graphql")
 
 	formattedPagination, err := format.Source([]byte(paginationTmplate))
@@ -403,7 +408,11 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		WriteFile(string(formattedPagination), "graph/resolvers/Paginate.go")
 	}
 
+
+	createGraphqlFile(projectName, subscriptions)
+
 	createActionUpdateActions(GqlTables)
+
 
 }
 func createActionUpdateActions(GqlTables []models.GqlTable){
@@ -422,15 +431,27 @@ func createActionUpdateActions(GqlTables []models.GqlTable){
 
 			createMutation := ""
 			if(table.Actions.Create){
-				createMutation = fmt.Sprintf("\"mutation-create\"\n    create%s(input: %sInput!):%s!", modelAlias, modelAlias, modelAlias)
+				descrition := "mutation-create"
+				if(table.Subscription){
+					descrition = descrition+":subscription-"+modelAlias
+				}
+				createMutation = fmt.Sprintf("\n    \"%s\"\n    create%s(input: %sInput!):%s!", descrition, modelAlias, modelAlias, modelAlias)
 			}
 			updateMutation := ""
 			if(table.Actions.Update){
-				updateMutation = fmt.Sprintf("\"mutation-update\"\n    update%s(id: ID!, input:%sInput!):%s!", modelAlias, modelAlias, modelAlias)
+				descrition := "mutation-update"
+				if(table.Subscription){
+					descrition = descrition+":subscription-"+modelAlias
+				}
+				updateMutation = fmt.Sprintf("\n    \"%s\"\n    update%s(id: ID!, input:%sInput!):%s!", descrition, modelAlias, modelAlias, modelAlias)
 			}
 			deleteMutation := ""
 			if(table.Actions.Delete){
-				deleteMutation = fmt.Sprintf("\"mutation-delete\"\n    delete%s(id: ID!):deleted!", modelAlias)
+				descrition := "mutation-delete"
+				if(table.Subscription){
+					descrition = descrition+":subscription-"+modelAlias
+				}
+				deleteMutation = fmt.Sprintf("\n    \"%s\"\n    delete%s(id: ID!):%s!", descrition, modelAlias, modelAlias)
 			}
 			mutations = mutations+fmt.Sprintf(mutationTemp, createMutation, updateMutation, deleteMutation)
 
@@ -439,6 +460,191 @@ func createActionUpdateActions(GqlTables []models.GqlTable){
 	}
 	mutations = mutations +"\n}"
 	WriteFile(mutations, "graph/schemas/mutations.graphql")
+}
+func createGraphqlFile(projectName string, subscriptions []map[string]string){
+	temp := `package graph
+
+import (
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/go-redis/redis"
+	"github.com/gorilla/websocket"
+	"github.com/khankhulgun/khankhulgun/graph/gql"
+	"github.com/labstack/echo/v4"
+	"%s/graph/generated"
+	%s
+	"net/http"
+	"sync"
+	"time"
+	"math/rand"
+)
+
+type Cache struct {
+	client redis.UniversalClient
+	ttl    time.Duration
+}
+
+func Set(e *echo.Echo) {
+
+	e.Use(gql.Process)
+
+
+	config := generated.Config{Resolvers: &Resolver{
+		%s
+		mutex:           sync.Mutex{},
+	}}
+	graphqlHandler := handler.New(generated.NewExecutableSchema(config))
+	playgroundHandler := playground.Handler("GraphQL playground", "/query")
+
+	graphqlHandler.AddTransport(transport.POST{})
+	graphqlHandler.AddTransport(transport.Websocket{
+		KeepAlivePingInterval: 10 * time.Second,
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+	})
+
+
+	e.Any("/query", func(c echo.Context) error {
+		cc := c.(*gql.CustomContext)
+		req := cc.Request()
+		res := cc.Response()
+		graphqlHandler.ServeHTTP(res, req)
+
+		return nil
+	})
+
+	e.GET("/play", func(c echo.Context) error {
+		cc := c.(*gql.CustomContext)
+		req := cc.Request()
+		res := cc.Response()
+		playgroundHandler.ServeHTTP(res, req)
+		return nil
+	})
+}
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+func RandString(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	s := string(b)
+	return s
+}
+
+`
+	tempResolver := `package graph
+
+import (
+	%s
+	"sync"
+)
+
+type Resolver struct {
+	%s
+	mutex          sync.Mutex
+}
+
+`
+
+	subs := ""
+	subsR := ""
+	for _, subscription := range subscriptions{
+		subs = subs + fmt.Sprintf("%s%sChannel: map[string]chan *models.%s{},\n", subscription["model"], subscription["action"], subscription["model"])
+		subsR = subsR + fmt.Sprintf("%s%sChannel map[string]chan *models.%s\n", subscription["model"], subscription["action"], subscription["model"])
+
+	}
+	modelsImport := ""
+	if(len(subscriptions) >= 1){
+		modelsImport = fmt.Sprintf("\"%s/graph/models\"",
+			projectName,
+		)
+	}
+	graphql := fmt.Sprintf(temp,
+		projectName,
+		modelsImport,
+		subs,
+	)
+	resolver := fmt.Sprintf(tempResolver,
+		modelsImport,
+		subsR,
+	)
+
+	formatted, err := format.Source([]byte(graphql))
+
+	if err == nil {
+		WriteFile(string(formatted), "graph/graphql.go")
+	}
+
+	formattedR, errR := format.Source([]byte(resolver))
+	if errR == nil {
+		WriteFile(string(formattedR), "graph/resolver.go")
+	}
+}
+func createSubscription(GqlTables []models.GqlTable) (string, []map[string]string){
+
+	Subscription := `type Subscription {
+`
+	SubscriptionTmp := `
+    "%s"
+    %sCreated: %s!
+`
+	SubscriptionTmpUpdated := `
+    "%s"
+    %sUpdated: %s!
+`
+	SubscriptionTmpDeleted := `
+    "%s"
+    %sDeleted: %s!
+`
+	Subscriptions := []map[string]string{}
+	SubscriptionFound := false
+	for _, table := range GqlTables {
+
+		if(table.Subscription && table.Actions.Create){
+			SubscriptionFound = true
+			modelAlias := DBSchema.GetModelAlias(table.Table)
+			Subscription = Subscription+fmt.Sprintf(SubscriptionTmp, "subscription-created:"+modelAlias, modelAlias, modelAlias)
+
+			Subscriptions = append(Subscriptions, map[string]string{
+				"model":modelAlias,
+				"action":"Created",
+			})
+		}
+
+		if(table.Subscription && table.Actions.Update){
+			SubscriptionFound = true
+			modelAlias := DBSchema.GetModelAlias(table.Table)
+			Subscription = Subscription+fmt.Sprintf(SubscriptionTmpUpdated, "subscription-updated:"+modelAlias, modelAlias, modelAlias)
+
+			Subscriptions = append(Subscriptions, map[string]string{
+				"model":modelAlias,
+				"action":"Updated",
+			})
+		}
+
+		if(table.Subscription && table.Actions.Delete){
+			SubscriptionFound = true
+			modelAlias := DBSchema.GetModelAlias(table.Table)
+			Subscription = Subscription+fmt.Sprintf(SubscriptionTmpDeleted, "subscription-deleted:"+modelAlias, modelAlias, modelAlias)
+
+			Subscriptions = append(Subscriptions, map[string]string{
+				"model":modelAlias,
+				"action":"Deleted",
+			})
+		}
+
+	}
+	Subscription = Subscription +"\n}"
+	if(SubscriptionFound){
+		return Subscription, Subscriptions
+	} else  {
+		return "", Subscriptions
+	}
+
 }
 func createActions(table models.GqlTable, modelAlias string, colunms string) string{
 
@@ -460,9 +666,11 @@ func Update%s(ctx context.Context, id string, input model.%sInput) (*models.%s, 
 			return &row, err
 		}`
 	deleteTemp := `
-func Delete%s(ctx context.Context, id string) (*model.Deleted, error) {
+func Delete%s(ctx context.Context, id string) (*models.%s, error) {
+			row := models.%s{}
+			DB.DB.Where("%s = ?", id).Find(&row)
 			err := DB.DB.Where("%s = ?", id).Delete(&models.%s{}).Error
-			return &model.Deleted{ID: id}, err
+			return &row, err
 		}`
 
 	actions := ""
@@ -507,6 +715,9 @@ func Delete%s(ctx context.Context, id string) (*model.Deleted, error) {
 
 			actions = actions + fmt.Sprintf(deleteTemp,
 				modelAlias,
+				modelAlias,
+				modelAlias,
+				table.Identity,
 				table.Identity,
 				modelAlias,
 			)
@@ -548,9 +759,9 @@ func GQLInit(projectPath string, projectName string) {
 	gqlgenFileContent := strings.ReplaceAll(string(gqlgenFile), "PROJECTNAME", projectName)
 	WriteFile(gqlgenFileContent, dir+"/graph/gqlgen.yml")
 
-	graphqlFile, _ := ioutil.ReadFile(AbsolutePath + "/graph/graphql.go.exmaple")
-	graphqlFileContent := strings.ReplaceAll(string(graphqlFile), "PROJECTNAME", projectName)
-	WriteFile(graphqlFileContent, dir+"/graph/graphql.go")
+	//graphqlFile, _ := ioutil.ReadFile(AbsolutePath + "/graph/graphql.go.exmaple")
+	//graphqlFileContent := strings.ReplaceAll(string(graphqlFile), "PROJECTNAME", projectName)
+	//WriteFile(graphqlFileContent, dir+"/graph/graphql.go")
 	GenerateSchema(projectName)
 	Generate(projectName)
 

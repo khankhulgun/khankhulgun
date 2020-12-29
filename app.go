@@ -59,7 +59,7 @@ func New(moduleName string, GetGridMODEL func(schemaId string) (interface{}, int
 	//}))
 	//CORS
 	app.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*", "http://localhost:*"},
+		AllowOrigins:     []string{"*", "http://localhost:*","http://127.0.0.1:*"},
 		AllowCredentials: true,
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, "X-Requested-With", "x-requested-with"},
 		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS},
