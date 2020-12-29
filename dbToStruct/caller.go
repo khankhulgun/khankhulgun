@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/khankhulgun/khankhulgun/DB"
-	"github.com/volatiletech/sqlboiler/strmangle"
+	"github.com/iancoleman/strcase"
+
 )
 func GetStruct(table string) {
 
@@ -19,7 +20,7 @@ func GetStruct(table string) {
 			fmt.Println("Error in creating struct from json: " + err.Error())
 		}
 
-		struc_, _ := GenerateOnlyStruct(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), "models", true, true, true, "", "")
+		struc_, _ := GenerateOnlyStruct(*columnDataTypes, table, strcase.ToCamel(table), "models", true, true, true, "", "")
 		fmt.Println(string(struc_))
 	}
 
@@ -44,10 +45,10 @@ func TableToStruct(table string, hiddenColumns []string, pkgName string, Subs []
 		subStchemas := ""
 
 		for _, sub := range Subs{
-			subStchemas = subStchemas+"\n    "+strmangle.TitleCase(strmangle.Singular(sub))+" []*"+strmangle.TitleCase(strmangle.Singular(sub))+""
+			subStchemas = subStchemas+"\n    "+strcase.ToCamel(sub)+" []*"+strcase.ToCamel(sub)+""
 		}
 
-		struc_, _ := GenerateWithImports("", *columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), pkgName, true, true, true, subStchemas, "")
+		struc_, _ := GenerateWithImports("", *columnDataTypes, table, strcase.ToCamel(table), pkgName, true, true, true, subStchemas, "")
 
 
 		return string(struc_)
@@ -70,7 +71,7 @@ func TableToStructNoTime(table string, hiddenColumns []string, pkgName string) s
 			fmt.Println("Error in creating struct from json: " + err.Error())
 		}
 
-		struc_, _ := GenerateWithImportsNoTime("", *columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), pkgName, true, true, true, "", "")
+		struc_, _ := GenerateWithImportsNoTime("", *columnDataTypes, table, strcase.ToCamel(table), pkgName, true, true, true, "", "")
 
 
 		return string(struc_)
@@ -93,7 +94,7 @@ func TableToGraphqlOrderBy(table string, hiddenColumns []string) string{
 			fmt.Println("Error in creating struct from json: " + err.Error())
 		}
 
-		struc_, _ := GenerateGrapqlOrder(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table))+"OrderBy", "", false, false, true, "", "")
+		struc_, _ := GenerateGrapqlOrder(*columnDataTypes, table, strcase.ToCamel(table)+"OrderBy", "", false, false, true, "", "")
 
 		return string(struc_)
 	}
@@ -116,7 +117,7 @@ func TableToGraphql(table string, hiddenColumns []string, Subs []string, isInput
 			fmt.Println("Error in creating struct from json: " + err.Error())
 		}
 
-		struc_, _ := GenerateGrapql(*columnDataTypes, table, strmangle.TitleCase(strmangle.Singular(table)), "", false, false, true, "", "", Subs, isInpute)
+		struc_, _ := GenerateGrapql(*columnDataTypes, table, strcase.ToCamel(table), "", false, false, true, "", "", Subs, isInpute)
 
 		return string(struc_)
 	}

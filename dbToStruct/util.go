@@ -2,7 +2,7 @@ package dbToStruct
 
 import (
 	"fmt"
-	"github.com/volatiletech/sqlboiler/strmangle"
+	"github.com/iancoleman/strcase"
 	"go/format"
 	"strconv"
 	"strings"
@@ -158,7 +158,7 @@ func GenerateGrapql(columnTypes map[string]map[string]string, tableName string, 
 	subStchemas := ""
 
 	for _, sub := range Subs{
-		subStchemas = subStchemas+"\n    "+sub+":["+strmangle.TitleCase(strmangle.Singular(sub))+"!]"
+		subStchemas = subStchemas+"\n    "+sub+":["+strcase.ToCamel(sub)+"!]"
 	}
 
 	typeSchema := "type"

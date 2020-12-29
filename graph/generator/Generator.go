@@ -13,7 +13,6 @@ import (
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
 	puzzleModels "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	"github.com/otiai10/copy"
-	"github.com/volatiletech/sqlboiler/strmangle"
 	"go/format"
 	"io/ioutil"
 	"os"
@@ -255,11 +254,11 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		//schemaOrderBy := dbToStruct.TableToGraphqlOrderBy(table.Table, table.HiddenColumns)
 
 		if len(table.Subs) >= 1 {
-			QueryContent = QueryContent + "    " + strmangle.Singular(table.Table) + "(sorts:[sort], filters:[filter], subSorts:[subSort], subFilters:[subFilter]): [" + modelAlias + "!]\n"
+			QueryContent = QueryContent + "    " + strings.ToLower(table.Table) + "(sorts:[sort], filters:[filter], subSorts:[subSort], subFilters:[subFilter]): [" + modelAlias + "!]\n"
 		} else {
-			QueryContent = QueryContent + "    " + strmangle.Singular(table.Table) + "(sorts:[sort], filters:[filter]): [" + modelAlias + "!]\n"
+			QueryContent = QueryContent + "    " + strings.ToLower(table.Table) + "(sorts:[sort], filters:[filter]): [" + modelAlias + "!]\n"
 		}
-		Pagination = Pagination + "    " + strmangle.Singular(table.Table) + ":[" + modelAlias + "!]\n"
+		Pagination = Pagination + "    " + strings.ToLower(table.Table) + ":[" + modelAlias + "!]\n"
 
 
 
@@ -382,7 +381,7 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		Paginate.LastPage = pagination.LastPage
 		Paginate.Total = pagination.Total
 		%s
-	}`, strings.ToLower(modelAlias), authCheck, table.Identity, parentConnectsions, modelAlias, modelAlias, modelAlias, paginationReturn) + "\n"
+	}`, strings.ToLower(table.Table), authCheck, table.Identity, parentConnectsions, modelAlias, modelAlias, modelAlias, paginationReturn) + "\n"
 
 	}
 
@@ -423,14 +422,16 @@ func createActionUpdateActions(GqlTables []models.GqlTable){
 	%s
     %s`
 
+	mutationFound := false
+
 	for _, table := range GqlTables {
 		if(table.Actions.Create || table.Actions.Update){
 			modelAlias := DBSchema.GetModelAlias(table.Table)
 			schema := dbToStruct.TableToGraphql(table.Table, []string{"created_at", "created_at", "deleted_at", table.Identity}, []string{}, true)
 
-
 			createMutation := ""
 			if(table.Actions.Create){
+				mutationFound = true
 				descrition := "mutation-create"
 				if(table.Subscription){
 					descrition = descrition+":subscription-"+modelAlias
@@ -439,6 +440,7 @@ func createActionUpdateActions(GqlTables []models.GqlTable){
 			}
 			updateMutation := ""
 			if(table.Actions.Update){
+				mutationFound = true
 				descrition := "mutation-update"
 				if(table.Subscription){
 					descrition = descrition+":subscription-"+modelAlias
@@ -447,6 +449,7 @@ func createActionUpdateActions(GqlTables []models.GqlTable){
 			}
 			deleteMutation := ""
 			if(table.Actions.Delete){
+				mutationFound = true
 				descrition := "mutation-delete"
 				if(table.Subscription){
 					descrition = descrition+":subscription-"+modelAlias
@@ -459,7 +462,10 @@ func createActionUpdateActions(GqlTables []models.GqlTable){
 		}
 	}
 	mutations = mutations +"\n}"
-	WriteFile(mutations, "graph/schemas/mutations.graphql")
+	if(mutationFound){
+		WriteFile(mutations, "graph/schemas/mutations.graphql")
+	}
+
 }
 func createGraphqlFile(projectName string, subscriptions []map[string]string){
 	temp := `package graph

@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/khankhulgun/khankhulgun/config"
+	"github.com/iancoleman/strcase"
 	"github.com/khankhulgun/khankhulgun/DB"
+	"github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/dbToStruct"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
-	"github.com/volatiletech/sqlboiler/strmangle"
 	"os"
 	"regexp"
 	"strconv"
@@ -1419,5 +1419,5 @@ func Get` + modelAlias + id_ + `Messages() map[string][]string{
 }
 
 func GetModelAlias(modelName string) string {
-	return strmangle.TitleCase(strmangle.Singular(modelName))
+	return strcase.ToCamel(modelName)
 }
