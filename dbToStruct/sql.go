@@ -253,7 +253,7 @@ func generateMysqlTypes(obj map[string]map[string]string, depth int, jsonAnnotat
 
 		valueType = sqlTypeToGoType(mysqlType["value"], nullable, gureguTypes)
 
-		fieldName := fmtFieldName(stringifyFirstChar(key))
+		fieldName := FmtFieldName(StringifyFirstChar(key))
 		var annotations []string
 		if gormAnnotation == true {
 			annotations = append(annotations, fmt.Sprintf("gorm:\"column:%s%s\"", key, primary))
@@ -312,7 +312,7 @@ func generateMysqlTypesNoTime(obj map[string]map[string]string, depth int, jsonA
 
 		valueType = sqlTypeToGoType(mysqlType["value"], nullable, gureguTypes)
 
-		fieldName := fmtFieldName(stringifyFirstChar(key))
+		fieldName := FmtFieldName(StringifyFirstChar(key))
 		var annotations []string
 		if gormAnnotation == true {
 			annotations = append(annotations, fmt.Sprintf("gorm:\"column:%s%s\"", key, primary))

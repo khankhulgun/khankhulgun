@@ -110,7 +110,8 @@ func Set%sSubs(ctx context.Context, parents []*models.%s, subs[]gql.Sub, subSort
 
 	return  parents, nil
 }`
-	subSetTemp := `if (sub.Table == "%s"){
+	subSetTemp := `
+    if (sub.Table == "%s"){
 			subItem := %sSub("%s")
 			sorts := []*model.Sort{}
 			filters := []*model.Filter{}
@@ -187,7 +188,7 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 
 	for _, table := range GqlTables {
 		modelAlias := DBSchema.GetModelAlias(table.Table)
-		Identity := DBSchema.GetModelAlias(table.Identity)
+		Identity := dbToStruct.FmtFieldName(table.Identity)
 		subTables := []string{}
 		subTablesMap := ""
 		subSetTemps := ""
@@ -229,7 +230,7 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 				sub.Table,
 				subCaller,
 				Identity,
-				DBSchema.GetModelAlias(sub.ConnectionField),
+				dbToStruct.FmtFieldName(dbToStruct.StringifyFirstChar(sub.ConnectionField)),
 				subAlias,
 				subAlias,
 			)
@@ -427,7 +428,7 @@ func createActionUpdateActions(GqlTables []models.GqlTable){
 	for _, table := range GqlTables {
 		if(table.Actions.Create || table.Actions.Update){
 			modelAlias := DBSchema.GetModelAlias(table.Table)
-			schema := dbToStruct.TableToGraphql(table.Table, []string{"created_at", "created_at", "deleted_at", table.Identity}, []string{}, true)
+			schema := dbToStruct.TableToGraphql(table.Table, []string{"created_at", "updated_at", "deleted_at", table.Identity}, []string{}, true)
 
 			createMutation := ""
 			if(table.Actions.Create){
@@ -701,8 +702,8 @@ func Delete%s(ctx context.Context, id string) (*models.%s, error) {
 	colunms = strings.ReplaceAll(colunms, "\"", "")
 	colunms = strings.ReplaceAll(colunms, " ", "")
 	for _, column :=range strings.Split(colunms, ","){
-		if(column != table.Identity && column != "created_at" && column != "created_at" && column != "deleted_at"){
-			columnReady := DBSchema.GetModelAlias(column)
+		if(column != table.Identity && column != "created_at" && column != "updated_at" && column != "deleted_at"){
+			columnReady := dbToStruct.FmtFieldName(column)
 			columnsWithInput = columnsWithInput + fmt.Sprintf("row.%s = *input.%s\n",
 				columnReady,
 				columnReady,

@@ -255,7 +255,8 @@ func GenerateWithImportsNoTime(otherPackage string, columnTypes map[string]map[s
 // Example:
 // 	fmtFieldName("foo_id")
 // Output: FooID
-func fmtFieldName(s string) string {
+func FmtFieldName(s string) string {
+
 	name := lintFieldName(s)
 	runes := []rune(name)
 	for i, c := range runes {
@@ -347,7 +348,7 @@ func lintFieldName(name string) string {
 }
 
 // convert first character ints to strings
-func stringifyFirstChar(str string) string {
+func StringifyFirstChar(str string) string {
 	first := str[:1]
 
 	i, err := strconv.ParseInt(first, 10, 8)
