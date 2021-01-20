@@ -12,7 +12,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// App KhanKhulgun application.
 type App struct {
 	Echo         *echo.Echo
 	ModuleName   string
