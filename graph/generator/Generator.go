@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/api"
 	"github.com/99designs/gqlgen/codegen/config"
 	"github.com/khankhulgun/khankhulgun/DB"
+	"github.com/khankhulgun/khankhulgun/tools"
 	khankhulgunConfig "github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/dbToStruct"
 	"github.com/khankhulgun/khankhulgun/graph/generator/models"
@@ -13,7 +14,6 @@ import (
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/DBSchema"
 	puzzleModels "github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	"github.com/otiai10/copy"
-	"go/format"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -263,7 +263,7 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 
 
 
-		WriteFile(structStr, "graph/models/"+modelAlias+".go")
+		tools.WriteFileFormat(structStr, "graph/models/"+modelAlias+".go")
 
 		authCheck := ""
 		if table.CheckAuth.IsLoggedIn {
@@ -331,18 +331,9 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 		actions := createActions(table, modelAlias, colunms)
 
 		resolver = resolver +actions
-		formattedResolver, err := format.Source([]byte(resolver))
+		tools.WriteFileFormat(resolver, "graph/resolvers/"+modelAlias+".go")
 
-		if(err != nil){
-			fmt.Println(err)
-			fmt.Println(resolver)
-		}
-
-		if err == nil {
-			WriteFile(string(formattedResolver), "graph/resolvers/"+modelAlias+".go")
-		}
-
-		WriteFile(schema, "graph/schemas/"+modelAlias+".graphql")
+		tools.WriteFile(schema, "graph/schemas/"+modelAlias+".graphql")
 
 		paginationReturn := "return &Paginate, nil"
 
@@ -401,12 +392,9 @@ func Paginate(ctx context.Context, sorts []*model.Sort, filters []*model.Filter,
 
 	QueryContent = QueryContent + "\n"+subscriptionSchema
 
-	WriteFile(QueryContent, "graph/schemas/schemas.graphql")
+	tools.WriteFile(QueryContent, "graph/schemas/schemas.graphql")
 
-	formattedPagination, err := format.Source([]byte(paginationTmplate))
-	if err == nil {
-		WriteFile(string(formattedPagination), "graph/resolvers/Paginate.go")
-	}
+	tools.WriteFileFormat(paginationTmplate, "graph/resolvers/Paginate.go")
 
 
 	createGraphqlFile(projectName, subscriptions)
@@ -459,12 +447,12 @@ func createActionUpdateActions(GqlTables []models.GqlTable){
 			}
 			mutations = mutations+fmt.Sprintf(mutationTemp, createMutation, updateMutation, deleteMutation)
 
-			WriteFile(schema, "graph/schemas/"+modelAlias+"Input.graphql")
+			tools.WriteFile(schema, "graph/schemas/"+modelAlias+"Input.graphql")
 		}
 	}
 	mutations = mutations +"\n}"
 	if(mutationFound){
-		WriteFile(mutations, "graph/schemas/mutations.graphql")
+		tools.WriteFile(mutations, "graph/schemas/mutations.graphql")
 	}
 
 }
@@ -596,16 +584,11 @@ type Resolver struct {
 		subsR,
 	)
 
-	formatted, err := format.Source([]byte(graphql))
 
-	if err == nil {
-		WriteFile(string(formatted), "graph/graphql.go")
-	}
 
-	formattedR, errR := format.Source([]byte(resolver))
-	if errR == nil {
-		WriteFile(string(formattedR), "graph/resolver.go")
-	}
+	tools.WriteFileFormat(graphql, "graph/graphql.go")
+	tools.WriteFileFormat(resolver, "graph/resolver.go")
+
 }
 func createSubscription(GqlTables []models.GqlTable) (string, []map[string]string){
 
@@ -780,7 +763,7 @@ func GQLInit(projectPath string, projectName string) {
 
 	gqlgenFile, _ := ioutil.ReadFile(AbsolutePath + "/graph/gqlgen.yml.example")
 	gqlgenFileContent := strings.ReplaceAll(string(gqlgenFile), "PROJECTNAME", projectName)
-	WriteFile(gqlgenFileContent, dir+"/graph/gqlgen.yml")
+	tools.WriteFile(gqlgenFileContent, dir+"/graph/gqlgen.yml")
 
 	//graphqlFile, _ := ioutil.ReadFile(AbsolutePath + "/graph/graphql.go.exmaple")
 	//graphqlFileContent := strings.ReplaceAll(string(graphqlFile), "PROJECTNAME", projectName)
@@ -789,20 +772,4 @@ func GQLInit(projectPath string, projectName string) {
 	Generate(projectName)
 
 }
-func WriteFile(fileContent string, path string) {
-	f, err := os.Create(path)
-	if err != nil {
-		fmt.Println(err, f)
-	}
 
-	l2, err := f.WriteString(fileContent)
-	if err != nil {
-		fmt.Println(err, l2)
-		f.Close()
-	}
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-
-	}
-}

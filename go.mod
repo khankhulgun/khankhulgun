@@ -7,6 +7,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/PaesslerAG/gval v1.0.1 // indirect
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
+	github.com/grokify/html-strip-tags-go v0.0.1 // indirect
 	github.com/iancoleman/strcase v0.1.2 // indirect
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.1.17 // indirect

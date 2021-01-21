@@ -9,7 +9,7 @@ import (
 	"github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/dbToStruct"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
-	"os"
+	"github.com/khankhulgun/khankhulgun/tools"
 	"regexp"
 	"strconv"
 	"strings"
@@ -70,7 +70,7 @@ type FormItem struct {
 		Table              interface{}   `json:"table"`
 		Key                interface{}   `json:"key"`
 		Fields             []interface{} `json:"fields"`
-		FilterWithUser             []interface{} `json:"filterWithUser"`
+		FilterWithUser     []interface{} `json:"filterWithUser"`
 		SortField          interface{}   `json:"sortField"`
 		SortOrder          string        `json:"sortOrder"`
 		Multiple           bool          `json:"multiple"`
@@ -92,27 +92,26 @@ type FormItem struct {
 		MaxSize    int    `json:"maxSize"`
 		Type       string `json:"type"`
 	} `json:"file,omitempty"`
-	Options []interface{} `json:"options"`
-	PasswordOption interface{} `json:"passwordOption"`
-	GeographicOption interface{} `json:"GeographicOption"`
-	EditorType interface{} `json:"editorType"`
-	SchemaID string `json:"schemaID,omitempty"`
+	Options          []interface{} `json:"options"`
+	PasswordOption   interface{}   `json:"passwordOption"`
+	GeographicOption interface{}   `json:"GeographicOption"`
+	EditorType       interface{}   `json:"editorType"`
+	SchemaID         string        `json:"schemaID,omitempty"`
 
 	//subForm data
-	Name     string      `json:"name"`
-	SubType     string      `json:"subtype"`
-	Parent      string      `json:"parent"`
-	FormId      uint64      `json:"formId"`
-	FormType    string `json:"formType"`
-	MinHeight    string `json:"min_height"`
-	DisableDelete    bool `json:"disableDelete"`
-	DisableCreate    bool `json:"disableCreate"`
-	ShowRowNumber    bool `json:"showRowNumber"`
-	UseTableType    bool `json:"useTableType"`
-	TableTypeColumn    string `json:"tableTypeColumn"`
-	TableTypeValue    string `json:"tableTypeValue"`
-	Schema        []FormItem `json:"schema"`
-
+	Name            string     `json:"name"`
+	SubType         string     `json:"subtype"`
+	Parent          string     `json:"parent"`
+	FormId          uint64     `json:"formId"`
+	FormType        string     `json:"formType"`
+	MinHeight       string     `json:"min_height"`
+	DisableDelete   bool       `json:"disableDelete"`
+	DisableCreate   bool       `json:"disableCreate"`
+	ShowRowNumber   bool       `json:"showRowNumber"`
+	UseTableType    bool       `json:"useTableType"`
+	TableTypeColumn string     `json:"tableTypeColumn"`
+	TableTypeValue  string     `json:"tableTypeValue"`
+	Schema          []FormItem `json:"schema"`
 }
 type SCHEMA struct {
 	Model         string      `json:"model"`
@@ -122,10 +121,10 @@ type SCHEMA struct {
 	LabelWidth    interface{} `json:"labelWidth"`
 	Width         string      `json:"width"`
 	Padding       int         `json:"padding"`
-	Schema        []FormItem `json:"schema"`
-	UI interface{} `json:"ui"`
-	Formula []Formula `json:"formula"`
-	Triggers struct {
+	Schema        []FormItem  `json:"schema"`
+	UI            interface{} `json:"ui"`
+	Formula       []Formula   `json:"formula"`
+	Triggers      struct {
 		Namespace string `json:"namespace"`
 		Insert    struct {
 			Before string `json:"before"`
@@ -146,7 +145,7 @@ type Formula struct {
 	} `json:"targets"`
 	Template string `json:"template"`
 	Form     string `json:"form"`
-	Model     string `json:"model"`
+	Model    string `json:"model"`
 }
 type SCHEMAGRID struct {
 	Model          string   `json:"model"`
@@ -217,11 +216,11 @@ type SCHEMAGRID struct {
 		HasTranslation bool          `json:"hasTranslation"`
 		Options        []interface{} `json:"options"`
 	} `json:"schema"`
-	Filter                    []interface{} `json:"filter"`
-	Formula                   []interface{} `json:"formula"`
-	Condition                 string        `json:"condition"`
+	Filter                    []interface{}       `json:"filter"`
+	Formula                   []interface{}       `json:"formula"`
+	Condition                 string              `json:"condition"`
 	ColumnAggregations        []map[string]string `json:"columnAggregations"`
-	ColumnAggregationsFormula []interface{} `json:"columnAggregationsFormula"`
+	ColumnAggregationsFormula []interface{}       `json:"columnAggregationsFormula"`
 	Header                    struct {
 		Render    bool          `json:"render"`
 		Preview   bool          `json:"preview"`
@@ -270,8 +269,6 @@ func GetDBSchema() VBSCHEMA {
 
 	table_metas := make(map[string][]TableMeta, 0)
 
-
-
 	for _, table := range tables["tables"] {
 		table_metas_ := TableMetas(table)
 		table_metas[table] = table_metas_
@@ -299,7 +296,7 @@ func Tables() map[string][]string {
 
 	DB_ := DBConnection()
 
-	if config.Config.Database.Connection == "mssql"{
+	if config.Config.Database.Connection == "mssql" {
 		rows, _ := DB_.Query("SELECT TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES ORDER BY TABLE_NAME")
 
 		for rows.Next() {
@@ -339,27 +336,24 @@ func Tables() map[string][]string {
 		return result
 	}
 
-
 }
 func TableMetas(tableName string) []TableMeta {
 	table_metas := make([]TableMeta, 0)
 	DB_ := DBConnection()
 
-	if config.Config.Database.Connection == "mssql"{
-
+	if config.Config.Database.Connection == "mssql" {
 
 		var pkColumn models.PKColumn
-		DB.DB.Raw("SELECT COLUMN_NAME FROM "+config.Config.Database.Database+".INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '"+tableName+"' AND CONSTRAINT_NAME LIKE '%PK%'").Scan(&pkColumn)
+		DB.DB.Raw("SELECT COLUMN_NAME FROM " + config.Config.Database.Database + ".INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME LIKE '" + tableName + "' AND CONSTRAINT_NAME LIKE '%PK%'").Scan(&pkColumn)
 
 		table_metas_ms := []models.MSTableMata{}
-		DB.DB.Raw("SELECT * FROM "+config.Config.Database.Database+".INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName+"'").Scan(&table_metas_ms)
-
+		DB.DB.Raw("SELECT * FROM " + config.Config.Database.Database + ".INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + tableName + "'").Scan(&table_metas_ms)
 
 		for _, column := range table_metas_ms {
 			key := ""
 			extra := ""
 
-			if column.ColumnName == pkColumn.ColumnName{
+			if column.ColumnName == pkColumn.ColumnName {
 				key = "PRI"
 				extra = "auto_increment"
 			}
@@ -372,7 +366,6 @@ func TableMetas(tableName string) []TableMeta {
 				dataType = "text"
 			}
 
-
 			table_metas = append(table_metas, TableMeta{
 				Model:  column.ColumnName,
 				Title:  column.ColumnName,
@@ -383,11 +376,10 @@ func TableMetas(tableName string) []TableMeta {
 			})
 		}
 
-
 	} else {
 		columns, db_error := DB_.Query("show fields from " + tableName)
 
-		if db_error == nil{
+		if db_error == nil {
 			for columns.Next() {
 				var Field, Type, Null, Key, Default, Extra string
 				columns.Scan(&Field, &Type, &Null, &Key, &Default, &Extra)
@@ -404,7 +396,6 @@ func TableMetas(tableName string) []TableMeta {
 		}
 	}
 
-
 	return table_metas
 
 }
@@ -418,7 +409,7 @@ func WriteGridModel(grids []models.VBSchema) {
 		json.Unmarshal([]byte(vb.Schema), &schema)
 
 		modelAlias := GetModelAlias(schema.Model)
-		MainTableAlias := GetModelAlias(schema.MainTable)+"MainTable"
+		MainTableAlias := GetModelAlias(schema.MainTable) + "MainTable"
 
 		modelAliasWithID := modelAlias + strconv.FormatUint(vb.ID, 10)
 		MainTableAliasWithID := MainTableAlias + strconv.FormatUint(vb.ID, 10)
@@ -441,31 +432,20 @@ func WriteGridModel(grids []models.VBSchema) {
 		}
 		triggerPackage := ""
 
-		if schema.Triggers.Namespace != ""{
+		if schema.Triggers.Namespace != "" {
 
-			triggerPackage = "\n import \""+schema.Triggers.Namespace+"\" \n"
+			triggerPackage = "\n import \"" + schema.Triggers.Namespace + "\" \n"
 
 		}
 
 		MainTableColumnDataTypes, _ := dbToStruct.GetOnlyOneField(DB_, schema.MainTable, schema.Identity)
 
-
 		MainTableStructs, _ := dbToStruct.GenerateOnlyStruct(*MainTableColumnDataTypes, schema.MainTable, MainTableAliasWithID, "", true, true, true, "", "")
-
 
 		struc, err := dbToStruct.GenerateWithImports(triggerPackage, *columnDataTypes, schema.Model, modelAliasWithID, "grid", true, true, true, "", string(MainTableStructs))
 
-		f, err := os.Create("models/grid/" + modelAlias + strconv.FormatUint(vb.ID, 10) + ".go")
-		if err != nil {
-			fmt.Println(err, f)
-		}
+		content := string(struc)
 
-		l2, err := f.WriteString(string(struc))
-		if err != nil {
-			fmt.Println(err, l2)
-			f.Close()
-
-		}
 		/*GRID DEFAULT CONDITION*/
 		//
 		//if len(schema.Condition) > 0 {
@@ -473,12 +453,7 @@ func WriteGridModel(grids []models.VBSchema) {
 			func (v *` + modelAliasWithID + `) GetCondition() string {
 				return "` + schema.Condition + `"
 			}`
-		l3, err := f.WriteString(gridCondition)
-		if err != nil {
-			fmt.Println(err, l3)
-			f.Close()
-
-		}
+		content = content + gridCondition
 		gridFilter := `
 			func (v *` + modelAliasWithID + `) GetFilters() map[string]string {
 
@@ -500,12 +475,7 @@ func WriteGridModel(grids []models.VBSchema) {
 
 			return filters
 		}`
-		l4, err := f.WriteString(gridFilter)
-		if err != nil {
-			fmt.Println(err, l4)
-			f.Close()
-
-		}
+		content = content + gridFilter
 
 		gridColumns := `
 			func (v *` + modelAliasWithID + `) GetColumns() map[int]map[string]string{
@@ -519,7 +489,7 @@ func WriteGridModel(grids []models.VBSchema) {
 			if schema.Schema[i].Hide == false {
 
 				gridColumns = gridColumns + `
-					columns[`+fmt.Sprintf("%v", i)+`] = map[string]string{"column":"`  + schema.Schema[i].Model + `","label":"` + schema.Schema[i].Label + `"}
+					columns[` + fmt.Sprintf("%v", i) + `] = map[string]string{"column":"` + schema.Schema[i].Model + `","label":"` + schema.Schema[i].Label + `"}
 `
 
 			}
@@ -530,37 +500,29 @@ func WriteGridModel(grids []models.VBSchema) {
 
 			return columns
 		}`
-		l5, err := f.WriteString(gridColumns)
-		if err != nil {
-			fmt.Println(err, l5)
-			f.Close()
+		content = content + gridColumns
 
-		}
-
-
-		if schema.Triggers.Namespace != ""{
-
+		if schema.Triggers.Namespace != "" {
 
 			packageSplited := strings.Split(schema.Triggers.Namespace, "/")
 
-			triggerPackageName := packageSplited[len(packageSplited) - 1]
-
+			triggerPackageName := packageSplited[len(packageSplited)-1]
 
 			beforeFetchMethods := strings.Split(schema.Triggers.BeforeFetch, "@")
 
 			beforeFetchMethod := `""`
 			beforeFetchStruct := "new(interface{})"
 			if len(beforeFetchMethods) >= 2 {
-				beforeFetchMethod = `"`+beforeFetchMethods[1]+`"`
-				beforeFetchStruct = `new(`+triggerPackageName+"."+beforeFetchMethods[0]+`)`
+				beforeFetchMethod = `"` + beforeFetchMethods[1] + `"`
+				beforeFetchStruct = `new(` + triggerPackageName + "." + beforeFetchMethods[0] + `)`
 			}
 			afterFetchMethods := strings.Split(schema.Triggers.AfterFetch, "@")
 
 			afterFetchMethod := `""`
 			afterFetchStruct := "new(interface{})"
 			if len(afterFetchMethods) >= 2 {
-				afterFetchMethod = `"`+afterFetchMethods[1]+`"`
-				afterFetchStruct = `new(`+triggerPackageName+"."+afterFetchMethods[0]+`)`
+				afterFetchMethod = `"` + afterFetchMethods[1] + `"`
+				afterFetchStruct = `new(` + triggerPackageName + "." + afterFetchMethods[0] + `)`
 			}
 
 			beforeDeleteMethods := strings.Split(schema.Triggers.BeforeDelete, "@")
@@ -568,8 +530,8 @@ func WriteGridModel(grids []models.VBSchema) {
 			beforeDeleteMethod := `""`
 			beforeDeleteStruct := "new(interface{})"
 			if len(beforeDeleteMethods) >= 2 {
-				beforeDeleteMethod = `"`+beforeDeleteMethods[1]+`"`
-				beforeDeleteStruct = `new(`+triggerPackageName+"."+beforeDeleteMethods[0]+`)`
+				beforeDeleteMethod = `"` + beforeDeleteMethods[1] + `"`
+				beforeDeleteStruct = `new(` + triggerPackageName + "." + beforeDeleteMethods[0] + `)`
 			}
 
 			afterDeleteMethods := strings.Split(schema.Triggers.AfterDelete, "@")
@@ -577,49 +539,40 @@ func WriteGridModel(grids []models.VBSchema) {
 			afterDeleteMethod := `""`
 			afterDeleteStruct := "new(interface{})"
 			if len(afterDeleteMethods) >= 2 {
-				afterDeleteMethod = `"`+afterDeleteMethods[1]+`"`
-				afterDeleteStruct = `new(`+triggerPackageName+"."+afterDeleteMethods[0]+`)`
+				afterDeleteMethod = `"` + afterDeleteMethods[1] + `"`
+				afterDeleteStruct = `new(` + triggerPackageName + "." + afterDeleteMethods[0] + `)`
 			}
-
 
 			beforePrintMethods := strings.Split(schema.Triggers.BeforePrint, "@")
 
 			beforePrintMethod := `""`
 			beforePrintStruct := "new(interface{})"
 			if len(beforePrintMethods) >= 2 {
-				beforePrintMethod = `"`+beforePrintMethods[1]+`"`
-				beforePrintStruct = `new(`+triggerPackageName+"."+beforePrintMethods[0]+`)`
+				beforePrintMethod = `"` + beforePrintMethods[1] + `"`
+				beforePrintStruct = `new(` + triggerPackageName + "." + beforePrintMethods[0] + `)`
 			}
 
-
-
-			triggerText, err := f.WriteString(`
+			content = content + `
 func (a *` + modelAlias + strconv.FormatUint(vb.ID, 10) + `) GetTriggers() (map[string]interface{}, string) {
 
 triggers :=map[string]interface{}{
-				"beforeFetch":`+beforeFetchMethod+`,
-				"beforeFetchStruct":`+beforeFetchStruct+`,
-				"afterFetch":`+afterFetchMethod+`,
-				"afterFetchStruct":`+afterFetchStruct+`,
-				"beforeDelete":`+beforeDeleteMethod+`,
-				"beforeDeleteStruct":`+beforeDeleteStruct+`,
-				"afterDelete":`+afterDeleteMethod+`,
-				"afterDeleteStruct":`+afterDeleteStruct+`,
-				"beforePrint":`+beforePrintMethod+`,
-				"beforePrintStruct":`+beforePrintStruct+`,
+				"beforeFetch":` + beforeFetchMethod + `,
+				"beforeFetchStruct":` + beforeFetchStruct + `,
+				"afterFetch":` + afterFetchMethod + `,
+				"afterFetchStruct":` + afterFetchStruct + `,
+				"beforeDelete":` + beforeDeleteMethod + `,
+				"beforeDeleteStruct":` + beforeDeleteStruct + `,
+				"afterDelete":` + afterDeleteMethod + `,
+				"afterDeleteStruct":` + afterDeleteStruct + `,
+				"beforePrint":` + beforePrintMethod + `,
+				"beforePrintStruct":` + beforePrintStruct + `,
 		}
 		
-return triggers, "`+schema.Triggers.Namespace+`"
+return triggers, "` + schema.Triggers.Namespace + `"
 
-}`)
-			if err != nil {
-				fmt.Println(err, triggerText)
-				f.Close()
-
-			}
+}`
 
 		}
-
 
 		/*GRID Aggergation*/
 
@@ -630,35 +583,21 @@ return triggers, "`+schema.Triggers.Namespace+`"
 				aggergations := "`
 		for i, aggergation := range schema.ColumnAggregations {
 
-			if(i <= 0){
-				gridAggergation = gridAggergation + `` + aggergation["aggregation"] + `(` +aggergation["column"]+ `) as `+aggergation["aggregation"] + `_` +aggergation["column"]
+			if i <= 0 {
+				gridAggergation = gridAggergation + `` + aggergation["aggregation"] + `(` + aggergation["column"] + `) as ` + aggergation["aggregation"] + `_` + aggergation["column"]
 			} else {
-				gridAggergation = gridAggergation + `, ` + aggergation["aggregation"] + `(` +aggergation["column"]+ `) as `+aggergation["aggregation"] + `_` +aggergation["column"]
+				gridAggergation = gridAggergation + `, ` + aggergation["aggregation"] + `(` + aggergation["column"] + `) as ` + aggergation["aggregation"] + `_` + aggergation["column"]
 			}
-			
-			
+
 		}
 
 		gridAggergation = gridAggergation + `"
 
 			return aggergations
 		}`
-		lag, err := f.WriteString(gridAggergation)
-		if err != nil {
-			fmt.Println(err, lag)
-			f.Close()
+		content = content + gridAggergation
 
-		}
-
-		err = f.Close()
-		if err != nil {
-			fmt.Println(err)
-
-		}
-
-
-
-		//fmt.Println(vb.Name)
+		tools.WriteFileFormat(content, "models/grid/"+modelAlias+strconv.FormatUint(vb.ID, 10)+".go")
 
 	}
 
@@ -666,24 +605,11 @@ return triggers, "`+schema.Triggers.Namespace+`"
 func WriteGridDataCaller(forms []models.VBSchema, moduleName string) {
 	//return new(models.Naiz)
 
-	f, err := os.Create("models/grid/caller/modelCaller.go")
-	if err != nil {
-		fmt.Println(err)
+	content := "package caller\n"
 
-	}
-	l1, err := f.WriteString("package caller\n")
-	if err != nil {
-		fmt.Println(err, l1)
-		f.Close()
+	content = content + "import \"" + moduleName + "/models/grid\"\n"
 
-	}
-	l2, err := f.WriteString("import \""+moduleName+"/models/grid\"\n")
-	if err != nil {
-		fmt.Println(err, l2)
-		f.Close()
-
-	}
-	l3, err := f.WriteString("func GetMODEL(schema_id string) (interface{}, interface{}, string, string, interface{}, string) {\n\nswitch schema_id {\n" + ` 
+	content = content + "func GetMODEL(schema_id string) (interface{}, interface{}, string, string, interface{}, string) {\n\nswitch schema_id {\n" + ` 
 
 		case "crud_grid":
 			return new(grid.KrudGrid), new([]grid.KrudGrid), "krud", "Крүд тохиргоо",new(grid.KrudGrid), "id"
@@ -700,43 +626,23 @@ func WriteGridDataCaller(forms []models.VBSchema, moduleName string) {
  		case "notification_target_grid":
 			return new(grid.NotificationTarget), new([]grid.NotificationTarget), "notification_targets", "Зорилтод мэдэгдэл",new(grid.NotificationTarget), "id"
  		
-`)
-	if err != nil {
-		fmt.Println(err, l3)
-		f.Close()
+`
 
-	}
 	for _, vb := range forms {
 		var schema SCHEMAGRID
 
 		json.Unmarshal([]byte(vb.Schema), &schema)
 
 		modelAlias := GetModelAlias(schema.Model)
-		mainTableAlias := GetModelAlias(schema.MainTable)+"MainTable"
+		mainTableAlias := GetModelAlias(schema.MainTable) + "MainTable"
 
-		l5, err := f.WriteString("\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn new(grid." + modelAlias + strconv.FormatUint(vb.ID, 10) + "), new([]grid." + modelAlias + strconv.FormatUint(vb.ID, 10) + "), \"" + schema.Model + "\", \"" + vb.Name + "\", new(grid." + mainTableAlias + strconv.FormatUint(vb.ID, 10) + "), \"" + schema.Identity + "\"\n")
-		if err != nil {
-			fmt.Println(err, l5)
-			f.Close()
-
-		}
+		content = content + "\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn new(grid." + modelAlias + strconv.FormatUint(vb.ID, 10) + "), new([]grid." + modelAlias + strconv.FormatUint(vb.ID, 10) + "), \"" + schema.Model + "\", \"" + vb.Name + "\", new(grid." + mainTableAlias + strconv.FormatUint(vb.ID, 10) + "), \"" + schema.Identity + "\"\n"
 
 	}
 
-	//fmt.Println(schema.Model, "schema.Model")
+	content = content + "\n} \nreturn new([]interface{}), new([]interface{}),  \"\", \"\", new([]interface{}), \"id\"\n\n}"
 
-	l4, err := f.WriteString("\n} \nreturn new([]interface{}), new([]interface{}),  \"\", \"\", new([]interface{}), \"id\"\n\n}")
-	if err != nil {
-		fmt.Println(err, l4)
-		f.Close()
-
-	}
-	//fmt.Println(l, "bytes written successfully")
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-
-	}
+	tools.WriteFileFormat(content, "models/grid/caller/modelCaller.go")
 }
 
 /*FROM*/
@@ -799,151 +705,103 @@ func WriteFormModel(grids []models.VBSchema) {
 			}
 		}
 
-
 		triggerPackage := ""
 
-		if schema.Triggers.Namespace != ""{
+		if schema.Triggers.Namespace != "" {
 
-			triggerPackage = "\n import \""+schema.Triggers.Namespace+"\" \n"
+			triggerPackage = "\n import \"" + schema.Triggers.Namespace + "\" \n"
 
 		}
 
 		struc, err := dbToStruct.GenerateWithImports(triggerPackage, *columnDataTypes, schema.Model, modelAlias+strconv.FormatUint(vb.ID, 10), "form", true, true, true, gormSubItem, gormStructs)
 
-		f, err := os.Create("models/form/" + modelAlias + strconv.FormatUint(vb.ID, 10) + ".go")
-		if err != nil {
-			fmt.Println(err, f)
-		}
+		content := string(struc)
 
-		l2, err := f.WriteString(string(struc))
-		if err != nil {
-			fmt.Println(err, l2)
-			f.Close()
+		content = content + `func (a *` + modelAlias + strconv.FormatUint(vb.ID, 10) + `) GetSubForms() []map[string]interface{} {
+	subForms := []map[string]interface{}{`
 
-		}
-
-		getSubText, err := f.WriteString(`func (a *` + modelAlias + strconv.FormatUint(vb.ID, 10) + `) GetSubForms() []map[string]interface{} {
-	subForms := []map[string]interface{}{`)
-		if err != nil {
-			fmt.Println(err, getSubText)
-			f.Close()
-
-		}
 		for _, field := range schema.Schema {
 			if field.FormType == "SubForm" {
 				if field.SubType == "Grid" {
 					subAlis := GetModelAlias(field.Model)
 
+					content = content + "\nmap[string]interface{}{"
 
-					subFormTex, err := f.WriteString("\nmap[string]interface{}{")
-					if err != nil {
-						fmt.Println(err, subFormTex)
-						f.Close()
-
-					}
 					//subForm := subAlis+strconv.FormatUint(field.FormId, 10)
-					subForm := subAlis+modelAlias+strconv.FormatUint(vb.ID, 10)
-					subFormBody, err := f.WriteString(`
-							"connection_field":"`+field.Parent+`",
-							"tableTypeColumn":"`+field.TableTypeColumn+`",
-							"tableTypeValue":"`+field.TableTypeValue+`",
-							"table":"`+field.Model+`",
-							"parentIdentity":"`+schema.Identity+`",
-							"subIdentity":"`+field.Identity+`",
-							"subForm":new([]`+subForm+`),
-							"subFormModel":new(`+subForm+`),
-`)
-					if err != nil {
-						fmt.Println(err, subFormBody)
-						f.Close()
-					}
+					subForm := subAlis + modelAlias + strconv.FormatUint(vb.ID, 10)
+					content = content + `
+							"connection_field":"` + field.Parent + `",
+							"tableTypeColumn":"` + field.TableTypeColumn + `",
+							"tableTypeValue":"` + field.TableTypeValue + `",
+							"table":"` + field.Model + `",
+							"parentIdentity":"` + schema.Identity + `",
+							"subIdentity":"` + field.Identity + `",
+							"subForm":new([]` + subForm + `),
+							"subFormModel":new(` + subForm + `),
+`
 
-					subFormTexEnd, err := f.WriteString(`
-},`)
-					if err != nil {
-						fmt.Println(err, subFormTexEnd)
-						f.Close()
-					}
+					content = content + `
+},`
+
 				} else {
 					subAlis := GetModelAlias(field.Model)
 
+					content = content + "\nmap[string]interface{}{"
 
-					subFormTex, err := f.WriteString("\nmap[string]interface{}{")
-					if err != nil {
-						fmt.Println(err, subFormTex)
-						f.Close()
-
-					}
-					subForm := subAlis+strconv.FormatUint(field.FormId, 10)
+					subForm := subAlis + strconv.FormatUint(field.FormId, 10)
 					//subForm := subAlis+modelAlias+strconv.FormatUint(vb.ID, 10)
-					subFormBody, err := f.WriteString(`
-							"connection_field":"`+field.Parent+`",
-							"tableTypeColumn":"`+field.TableTypeColumn+`",
-							"tableTypeValue":"`+field.TableTypeValue+`",
-							"table":"`+field.Model+`",
-							"parentIdentity":"`+schema.Identity+`",
-							"subIdentity":"`+field.Identity+`",
-							"subForm":new([]`+subForm+`),
-							"subFormModel":new(`+subForm+`),
-`)
-					if err != nil {
-						fmt.Println(err, subFormBody)
-						f.Close()
-					}
+					content = content + `
+							"connection_field":"` + field.Parent + `",
+							"tableTypeColumn":"` + field.TableTypeColumn + `",
+							"tableTypeValue":"` + field.TableTypeValue + `",
+							"table":"` + field.Model + `",
+							"parentIdentity":"` + schema.Identity + `",
+							"subIdentity":"` + field.Identity + `",
+							"subForm":new([]` + subForm + `),
+							"subFormModel":new(` + subForm + `),
+`
 
-					subFormTexEnd, err := f.WriteString(`
-},`)
-					if err != nil {
-						fmt.Println(err, subFormTexEnd)
-						f.Close()
-					}
+					content = content + `
+},`
+
 				}
 
 			}
 		}
-		getSubTextEnd, err := f.WriteString(`}
-	return subForms }`)
-		if err != nil {
-			fmt.Println(err, getSubTextEnd)
-			f.Close()
+		content = content + `}
+	return subForms }`
 
-		}
-
-		if schema.Triggers.Namespace != ""{
-
+		if schema.Triggers.Namespace != "" {
 
 			packageSplited := strings.Split(schema.Triggers.Namespace, "/")
 
-			triggerPackageName := packageSplited[len(packageSplited) - 1]
-
+			triggerPackageName := packageSplited[len(packageSplited)-1]
 
 			insertBeforeMethods := strings.Split(schema.Triggers.Insert.Before, "@")
 
 			insertBeforeMethod := `""`
 			insertBeforeStruct := "new(interface{})"
 			if len(insertBeforeMethods) >= 2 {
-				insertBeforeMethod = `"`+insertBeforeMethods[1]+`"`
-				insertBeforeStruct = `new(`+triggerPackageName+"."+insertBeforeMethods[0]+`)`
+				insertBeforeMethod = `"` + insertBeforeMethods[1] + `"`
+				insertBeforeStruct = `new(` + triggerPackageName + "." + insertBeforeMethods[0] + `)`
 			}
 
 			insertAfterMethods := strings.Split(schema.Triggers.Insert.After, "@")
 
-
-
 			insertAfterMethod := `""`
 			insertAfterStruct := "new(interface{})"
 			if len(insertAfterMethods) >= 2 {
-				insertAfterMethod = `"`+insertAfterMethods[1]+`"`
-				insertAfterStruct = `new(`+triggerPackageName+"."+insertAfterMethods[0]+`)`
+				insertAfterMethod = `"` + insertAfterMethods[1] + `"`
+				insertAfterStruct = `new(` + triggerPackageName + "." + insertAfterMethods[0] + `)`
 			}
 
 			updateBeforeMethods := strings.Split(schema.Triggers.Update.Before, "@")
 
-			updateBeforeMethod :=`""`
+			updateBeforeMethod := `""`
 			updateBeforeStruct := "new(interface{})"
 			if len(updateBeforeMethods) >= 2 {
-				updateBeforeMethod = `"`+updateBeforeMethods[1]+`"`
-				updateBeforeStruct = `new(`+triggerPackageName+"."+updateBeforeMethods[0]+`)`
+				updateBeforeMethod = `"` + updateBeforeMethods[1] + `"`
+				updateBeforeStruct = `new(` + triggerPackageName + "." + updateBeforeMethods[0] + `)`
 			}
 
 			updateAfterMethods := strings.Split(schema.Triggers.Update.After, "@")
@@ -951,40 +809,33 @@ func WriteFormModel(grids []models.VBSchema) {
 			updateAfterMethod := `""`
 			updateAfterStruct := "new(interface{})"
 			if len(updateAfterMethods) >= 2 {
-				updateAfterMethod = `"`+updateAfterMethods[1]+`"`
-				updateAfterStruct = `new(`+triggerPackageName+"."+updateAfterMethods[0]+`)`
+				updateAfterMethod = `"` + updateAfterMethods[1] + `"`
+				updateAfterStruct = `new(` + triggerPackageName + "." + updateAfterMethods[0] + `)`
 			}
 
-
-			triggerText, err := f.WriteString(`
+			content = content + `
 func (a *` + modelAlias + strconv.FormatUint(vb.ID, 10) + `) GetTriggers() (map[string]map[string]interface{}, string) {
 
 triggers :=map[string]map[string]interface{}{
 			"insert":map[string]interface{}{
-				"before":`+insertBeforeMethod+`,
-				"beforeStruct":`+insertBeforeStruct+`,
-				"after":`+insertAfterMethod+`,
-				"afterStruct":`+insertAfterStruct+`,
+				"before":` + insertBeforeMethod + `,
+				"beforeStruct":` + insertBeforeStruct + `,
+				"after":` + insertAfterMethod + `,
+				"afterStruct":` + insertAfterStruct + `,
 			},
 			"update":map[string]interface{}{
-		        "before":`+updateBeforeMethod+`,
-				"beforeStruct":`+updateBeforeStruct+`,
-				"after":`+updateAfterMethod+`,
-				"afterStruct":`+updateAfterStruct+`,
+		        "before":` + updateBeforeMethod + `,
+				"beforeStruct":` + updateBeforeStruct + `,
+				"after":` + updateAfterMethod + `,
+				"afterStruct":` + updateAfterStruct + `,
 			},
 		}
 		
-return triggers, "`+schema.Triggers.Namespace+`"
+return triggers, "` + schema.Triggers.Namespace + `"
 
-}`)
-			if err != nil {
-				fmt.Println(err, triggerText)
-				f.Close()
-
-			}
+}`
 
 		}
-
 
 		formTypes := `
 			func (v *` + modelAlias + strconv.FormatUint(vb.ID, 10) + `) GetFromTypes() map[string]string{
@@ -994,7 +845,6 @@ return triggers, "`+schema.Triggers.Namespace+`"
 
 			`
 		for i := range schema.Schema {
-
 
 			formTypes = formTypes + `
 					"` + schema.Schema[i].Model + `":"` + schema.Schema[i].FormType + `",
@@ -1007,53 +857,28 @@ return triggers, "`+schema.Triggers.Namespace+`"
 
 			return fields
 		}`
-		l5, err := f.WriteString(formTypes)
-		if err != nil {
-			fmt.Println(err, l5)
-			f.Close()
+		content = content + formTypes
 
-		}
-
-
-
-			formula := `
+		formula := `
 			func (v *` + modelAlias + strconv.FormatUint(vb.ID, 10) + `) GetFormula() string{
 
 			return `
 		if len(schema.Formula) >= 1 {
 			stringFormula, _ := json.Marshal(schema.Formula)
 
-
 			var re = regexp.MustCompile(`"`)
 			jsonString := re.ReplaceAllString(string(stringFormula), `\"`)
 
-			formula = formula + `"`+jsonString+`"`
+			formula = formula + `"` + jsonString + `"`
 		} else {
 			formula = formula + `""`
 		}
-		formula = formula +  `
+		formula = formula + `
 		}`
 
+		content = content + formula
 
-			l6, err := f.WriteString(formula)
-			if err != nil {
-				fmt.Println(err, l6)
-				f.Close()
-
-			}
-
-
-
-
-
-
-
-
-			err = f.Close()
-		if err != nil {
-			fmt.Println(err)
-
-		}
+		tools.WriteFileFormat(content, "models/form/"+modelAlias+strconv.FormatUint(vb.ID, 10)+".go")
 
 	}
 
@@ -1061,24 +886,12 @@ return triggers, "`+schema.Triggers.Namespace+`"
 func WriteModelCaller(forms []models.VBSchema, moduleName string) {
 	//return new(models.Naiz)
 
-	f, err := os.Create("models/form/caller/modelCaller.go")
-	if err != nil {
-		fmt.Println(err)
+	content := ""
+	content = content + "package caller\n"
 
-	}
-	l1, err := f.WriteString("package caller\n")
-	if err != nil {
-		fmt.Println(err, l1)
-		f.Close()
+	content = content + "import \"" + moduleName + "/models/form\"\n"
 
-	}
-	l2, err := f.WriteString("import \""+moduleName+"/models/form\"\n")
-	if err != nil {
-		fmt.Println(err, l2)
-		f.Close()
-
-	}
-	l3, err := f.WriteString("func GetMODEL(schema_id string) (string, interface{}) {\n\nswitch schema_id {\n" + `
+	content = content + "func GetMODEL(schema_id string) (string, interface{}) {\n\nswitch schema_id {\n" + `
  case "crud_form":
 return "id", new(form.CrudFrom)
 
@@ -1100,12 +913,8 @@ return "id", new(form.UserProfile)
  case "user_password":
 return "id", new(form.UserPassword)
 
-`)
-	if err != nil {
-		fmt.Println(err, l3)
-		f.Close()
+`
 
-	}
 	for _, vb := range forms {
 		var schema SCHEMA
 
@@ -1113,55 +922,29 @@ return "id", new(form.UserPassword)
 
 		modelAlias := GetModelAlias(schema.Model)
 
-
-		l5, err := f.WriteString("\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn \""+schema.Identity+"\",  new(form." + modelAlias + strconv.FormatUint(vb.ID, 10) + ")\n")
-		if err != nil {
-			fmt.Println(err, l5)
-			f.Close()
-
-		}
-	}
-
-	//fmt.Println(schema.Model, "schema.Model")
-
-	l4, err := f.WriteString("\n} \nreturn \"id\", new(interface{})\n\n}")
-	if err != nil {
-		fmt.Println(err, l4)
-		f.Close()
+		content = content + "\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn \"" + schema.Identity + "\",  new(form." + modelAlias + strconv.FormatUint(vb.ID, 10) + ")\n"
 
 	}
-	//fmt.Println(l, "bytes written successfully")
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
 
-	}
+	content = content + "\n} \nreturn \"id\", new(interface{})\n\n}"
+
+	tools.WriteFileFormat(content, "models/form/caller/modelCaller.go")
 }
+
 func WriteValidationCaller(forms []models.VBSchema, moduleName string) {
 
-	f, err := os.Create("models/form/validationCaller/rulesCaller.go")
-	if err != nil {
-		fmt.Println(err)
+	content := ""
 
-	}
-	l1, err := f.WriteString("package validationCaller\n")
-	if err != nil {
-		fmt.Println(err, l1)
-		f.Close()
+	content = content + "package validationCaller\n"
 
-	}
-	l2, err := f.WriteString(`import (
+	content = content + `import (
 	"github.com/thedevsaddam/govalidator"
-	"`+moduleName+`/models/form/validations"
+	"` + moduleName + `/models/form/validations"
 )
 
-`)
-	if err != nil {
-		fmt.Println(err, l2)
-		f.Close()
+`
 
-	}
-	l3, err := f.WriteString(`func GetRules(schema_id string) map[string][]string {
+	content = content + `func GetRules(schema_id string) map[string][]string {
 
 	switch schema_id {
 
@@ -1188,12 +971,8 @@ func WriteValidationCaller(forms []models.VBSchema, moduleName string) {
 		return validations.GetUserPasswordRules()
 
 	
-`)
-	if err != nil {
-		fmt.Println(err, l3)
-		f.Close()
+`
 
-	}
 	for _, vb := range forms {
 		var schema SCHEMA
 
@@ -1202,56 +981,31 @@ func WriteValidationCaller(forms []models.VBSchema, moduleName string) {
 		WriteModelValidation(schema, vb.ID)
 		modelAlias := GetModelAlias(schema.Model)
 
-		l5, err := f.WriteString("\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn validations.Get" + modelAlias + strconv.FormatUint(vb.ID, 10) + "Rules()\n")
-		if err != nil {
-			fmt.Println(err, l5)
-			f.Close()
+		content = content + "\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn validations.Get" + modelAlias + strconv.FormatUint(vb.ID, 10) + "Rules()\n"
 
-		}
 	}
 
 	//fmt.Println(schema.Model, "schema.Model")
 
-	l4, err := f.WriteString("\n} \nreturn govalidator.MapData{}\n\n}")
-	if err != nil {
-		fmt.Println(err, l4)
-		f.Close()
+	content = content + "\n} \nreturn govalidator.MapData{}\n\n}"
 
-	}
-	//fmt.Println(l, "bytes written successfully")
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-
-	}
+	tools.WriteFileFormat(content, "models/form/validationCaller/rulesCaller.go")
 
 	WriteValidationMessageCaller(forms, moduleName)
 }
 func WriteValidationMessageCaller(forms []models.VBSchema, moduleName string) {
 
-	f, err := os.Create("models/form/validationCaller/messagesCaller.go")
-	if err != nil {
-		fmt.Println(err)
+	content := ""
+	content = content + "package validationCaller\n"
 
-	}
-	l1, err := f.WriteString("package validationCaller\n")
-	if err != nil {
-		fmt.Println(err, l1)
-		f.Close()
-
-	}
-	l2, err := f.WriteString(`import (
+	content = content + `import (
 	"github.com/thedevsaddam/govalidator"
-    "`+moduleName+`/models/form/validations"
+    "` + moduleName + `/models/form/validations"
 )
 
-`)
-	if err != nil {
-		fmt.Println(err, l2)
-		f.Close()
+`
 
-	}
-	l3, err := f.WriteString(`func GetMessages(schema_id string) map[string][]string {
+	content = content + `func GetMessages(schema_id string) map[string][]string {
 
 	switch schema_id {
 
@@ -1277,12 +1031,7 @@ func WriteValidationMessageCaller(forms []models.VBSchema, moduleName string) {
 		return validations.GetUserPasswordMessages()
 
 
-`)
-	if err != nil {
-		fmt.Println(err, l3)
-		f.Close()
-
-	}
+`
 	for _, vb := range forms {
 		var schema SCHEMA
 
@@ -1290,53 +1039,30 @@ func WriteValidationMessageCaller(forms []models.VBSchema, moduleName string) {
 
 		modelAlias := GetModelAlias(schema.Model)
 
-		l5, err := f.WriteString("\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn validations.Get" + modelAlias + strconv.FormatUint(vb.ID, 10) + "Messages()\n")
-		if err != nil {
-			fmt.Println(err, l5)
-			f.Close()
+		content = content + "\n case \"" + strconv.FormatUint(vb.ID, 10) + "\": \nreturn validations.Get" + modelAlias + strconv.FormatUint(vb.ID, 10) + "Messages()\n"
 
-		}
 	}
 
 	//fmt.Println(schema.Model, "schema.Model")
 
-	l4, err := f.WriteString("\n} \nreturn govalidator.MapData{}\n\n}")
-	if err != nil {
-		fmt.Println(err, l4)
-		f.Close()
+	content = content + "\n} \nreturn govalidator.MapData{}\n\n}"
 
-	}
-	//fmt.Println(l, "bytes written successfully")
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-
-	}
+	tools.WriteFileFormat(content, "models/form/validationCaller/messagesCaller.go")
 
 }
 func WriteModelValidation(vb SCHEMA, ID uint64) {
 
 	id_ := strconv.FormatUint(ID, 10)
-
 	modelAlias := GetModelAlias(vb.Model)
-	f, err := os.Create("models/form/validations/" + vb.Model + id_ + ".go")
-	if err != nil {
-		fmt.Println(err, f)
-	}
 
-	l1, err := f.WriteString(`package validations
+	content := `package validations
 
 import "github.com/thedevsaddam/govalidator"
 
 
 func Get` + modelAlias + id_ + `Rules() map[string][]string{
 	return  govalidator.MapData{
-		`)
-	if err != nil {
-		fmt.Println(err, l1)
-		f.Close()
-
-	}
+		`
 
 	for _, field := range vb.Schema {
 
@@ -1344,8 +1070,8 @@ func Get` + modelAlias + id_ + `Rules() map[string][]string{
 			rules := ""
 			for _, rule := range field.Rules {
 
-				if rule.Type != "unique"{
-					if rule.Type == "number"{
+				if rule.Type != "unique" {
+					if rule.Type == "number" {
 						rules = rules + "\"" + "numeric" + "\","
 					} else {
 						rules = rules + "\"" + rule.Type + "\","
@@ -1353,31 +1079,21 @@ func Get` + modelAlias + id_ + `Rules() map[string][]string{
 
 				}
 
-
 			}
 
 			rules = "\n\"" + field.Model + "\": []string{" + rules + "},"
 
-			l5, err := f.WriteString(rules)
-			if err != nil {
-				fmt.Println(err, l5)
-				f.Close()
+			content = content + rules
 
-			}
 		}
 	}
 
-	l3, err := f.WriteString(`
+	content = content + `
 	}
 }
 func Get` + modelAlias + id_ + `Messages() map[string][]string{
 	return govalidator.MapData{
-`)
-	if err != nil {
-		fmt.Println(err, l3)
-		f.Close()
-
-	}
+`
 
 	for _, field := range vb.Schema {
 
@@ -1391,31 +1107,17 @@ func Get` + modelAlias + id_ + `Messages() map[string][]string{
 
 			rules = "\n\"" + field.Model + "\": []string{" + rules + "},"
 
-			l5, err := f.WriteString(rules)
-			if err != nil {
-				fmt.Println(err, l5)
-				f.Close()
+			content = content + rules
 
-			}
 		}
 	}
 
-	l2, err := f.WriteString(`
+	content = content + `
 	}
 }
-`)
-	if err != nil {
-		fmt.Println(err, l2)
-		f.Close()
+`
 
-	}
-
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-
-	}
-
+	tools.WriteFileFormat(content, "models/form/validations/"+vb.Model+id_+".go")
 }
 
 func GetModelAlias(modelName string) string {
