@@ -11,7 +11,7 @@ import (
 
 func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, UseCrudLogger bool, UseNotify bool, UseArcGISConnection bool) {
 	if config.Config.App.Migrate == "true" {
-		utils.AutoMigrateSeed(UseArcGISConnection)
+		utils.AutoMigrateSeed()
 	}
 
 	g := e.Group("/lambda/krud")

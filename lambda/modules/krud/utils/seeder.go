@@ -4,24 +4,23 @@ import (
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/config"
 	krudModels "github.com/khankhulgun/khankhulgun/lambda/modules/krud/models"
-	arcGISModels "github.com/khankhulgun/khankhulgun/lambda/modules/arcGIS/models"
 )
 
-func AutoMigrateSeed(UseArcGISConnection bool) {
+func AutoMigrateSeed() {
 
 	if config.Config.Database.Connection == "mssql"{
 		DB.DB.AutoMigrate(
 			&krudModels.Krud{},
 			&krudModels.KrudTemplate{},
 			&krudModels.CrudLogMSSQL{},
-			&arcGISModels.ArcgisConnection{},
+
 		)
 	} else {
 		DB.DB.AutoMigrate(
 			&krudModels.Krud{},
 			&krudModels.KrudTemplate{},
 			&krudModels.CrudLog{},
-			&arcGISModels.ArcgisConnection{},
+
 		)
 	}
 
