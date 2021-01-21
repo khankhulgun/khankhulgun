@@ -31,11 +31,13 @@ type Settings struct {
 	UseControlPanel bool
 	UseNotify       bool
 	UseCrudLogger   bool
+	UseArcGISConnection   bool
 }
 
 var UseControlPanel = true
 var UseNotify = false
 var UseCrudLogger = false
+var UseArcGISConnection = false
 
 func New(moduleName string, GetGridMODEL func(schemaId string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schemaId string) (string, interface{}), GetMessages func(schemaId string) map[string][]string, GetRules func(schemaId string) map[string][]string, controlPanelSettings ...*Settings) *App {
 
@@ -43,6 +45,7 @@ func New(moduleName string, GetGridMODEL func(schemaId string) (interface{}, int
 		UseControlPanel = controlPanelSettings[0].UseControlPanel
 		UseNotify = controlPanelSettings[0].UseNotify
 		UseCrudLogger = controlPanelSettings[0].UseCrudLogger
+		UseArcGISConnection = controlPanelSettings[0].UseArcGISConnection
 	}
 	app := &App{
 		Echo:         echo.New(),
@@ -64,7 +67,7 @@ func New(moduleName string, GetGridMODEL func(schemaId string) (interface{}, int
 		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS},
 	}))
 
-	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules, UseCrudLogger, UseNotify)
+	krud.Set(app.Echo, app.GetGridMODEL, app.GetMODEL, app.GetMessages, app.GetRules, UseCrudLogger, UseNotify, UseArcGISConnection)
 	agent.Set(app.Echo)
 	puzzle.Set(app.Echo, app.ModuleName, app.GetGridMODEL)
 

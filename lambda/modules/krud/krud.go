@@ -9,28 +9,29 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, UseCrudLogger bool, UseNotify bool) {
-	if config.Config.App.Migrate == "true"{
-		utils.AutoMigrateSeed()
+func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), GetMODEL func(schema_id string) (string, interface{}), GetMessages func(schema_id string) map[string][]string, GetRules func(schema_id string) map[string][]string, UseCrudLogger bool, UseNotify bool, UseArcGISConnection bool) {
+	if config.Config.App.Migrate == "true" {
+		utils.AutoMigrateSeed(UseArcGISConnection)
 	}
 
-	g :=e.Group("/lambda/krud")
-	public :=e.Group("/lambda/krud-public")
+	g := e.Group("/lambda/krud")
+	public := e.Group("/lambda/krud-public")
 	/* ROUTES */
 
-	if(UseCrudLogger){
+	if UseCrudLogger || UseArcGISConnection {
 
-		g.POST("/update-row/:schemaId", handlers.UpdateRow(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete,  func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
-			return krudMW.CrudLoggerNew(handlerFunc, UseNotify)
+		g.POST("/update-row/:schemaId", handlers.UpdateRow(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
+			return krudMW.CrudLoggerNew(handlerFunc, UseNotify, UseArcGISConnection, GetMODEL, GetGridMODEL, false)
 		})
 		g.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionCreate, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
-			return krudMW.CrudLoggerNew(handlerFunc, UseNotify)
+			return krudMW.CrudLoggerNew(handlerFunc, UseNotify, UseArcGISConnection, GetMODEL, GetGridMODEL, false)
 		})
 		g.POST("/:schemaId/:action/:id", handlers.Crud(GetMODEL, GetMessages, GetRules), agentMW.IsLoggedInCookie, krudMW.PermissionEdit, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
-			return krudMW.CrudLoggerNew(handlerFunc, UseNotify)
+			return krudMW.CrudLoggerNew(handlerFunc, UseNotify, UseArcGISConnection, GetMODEL, GetGridMODEL, false)
 		})
 		g.DELETE("/delete/:schemaId/:id", handlers.Delete(GetGridMODEL), agentMW.IsLoggedInCookie, krudMW.PermissionDelete, func(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
-			return krudMW.CrudLoggerNew(handlerFunc, UseNotify)
+
+			return krudMW.CrudLoggerNew(handlerFunc, UseNotify, UseArcGISConnection, GetMODEL, GetGridMODEL, true)
 		})
 
 	} else {
@@ -42,18 +43,17 @@ func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interfa
 
 	public.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules))
 
-
 	/*
-	OTHER
+		OTHER
 	*/
 	g.POST("/upload", handlers.Upload)
 	g.OPTIONS("/upload", handlers.Upload)
 	g.POST("/unique", handlers.CheckUnique)
-	g.POST("/check_current_password", handlers.CheckCurrentPassword,  agentMW.IsLoggedInCookie)
-	g.POST("/excel/:schemaId", handlers.ExportExcel(GetGridMODEL),  agentMW.IsLoggedInCookie)
+	g.POST("/check_current_password", handlers.CheckCurrentPassword, agentMW.IsLoggedInCookie)
+	g.POST("/excel/:schemaId", handlers.ExportExcel(GetGridMODEL), agentMW.IsLoggedInCookie)
 	/*
-	PUBLIC CURDS
+		PUBLIC CURDS
 	*/
-	p :=e.Group("/github.com/khankhulgun/khankhulgun/lambda/krud-public")
+	p := e.Group("/github.com/khankhulgun/khankhulgun/lambda/krud-public")
 	p.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules))
 }

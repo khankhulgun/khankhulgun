@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/khankhulgun/khankhulgun/DB"
+	arcGIS "github.com/khankhulgun/khankhulgun/lambda/modules/arcGIS/handlers"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/krud/models"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/notify/handlers"
 	"github.com/labstack/echo/v4"
@@ -67,9 +68,13 @@ var (
 
 // BodyDumpWithConfig returns a BodyDump middleware with config.
 // See: `BodyDump()`.
-func CrudLoggerNew(next echo.HandlerFunc, useNotify bool) echo.HandlerFunc {
+func CrudLoggerNew(next echo.HandlerFunc, useNotify bool, UseArcGISConnection bool, GetMODEL func(schema_id string) (string, interface{}), GetGridMODEL func(schema_id string) (interface{}, interface{}, string, string, interface{}, string), isDeleteAction bool) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
 			action := c.Param("action")
+
+			if(isDeleteAction){
+				action = "delete"
+			}
 			if(action == "store" || action == "update" || action == "delete" || action == "edit"){
 				// Request
 				reqBody := []byte{}
@@ -92,13 +97,7 @@ func CrudLoggerNew(next echo.HandlerFunc, useNotify bool) echo.HandlerFunc {
 				claims := user.Claims.(jwt.MapClaims)
 				userID := claims["id"].(float64)
 				schemaId, _ := strconv.ParseInt(c.Param("schemaId"), 10, 64)
-
 				RowId := c.Param("id")
-
-
-				var bodyBytes []byte
-
-
 
 				Log := models.CrudLog{
 					UserId: int64(userID),
@@ -124,7 +123,15 @@ func CrudLoggerNew(next echo.HandlerFunc, useNotify bool) echo.HandlerFunc {
 
 				if(useNotify){
 					if(action == "store" || action == "update" || action == "delete"){
-						handlers.BuildNotification(bodyBytes, schemaId, action, int64(userID))
+						handlers.BuildNotification(reqBody, schemaId, action, int64(userID))
+					}
+				}
+
+				if(UseArcGISConnection){
+					if(action == "store" || action == "update"){
+						arcGIS.SAVEGIS(reqBody, schemaId, action, Log.RowId, GetMODEL)
+					}else if(action == "delete"){
+						arcGIS.DELTEGIS(reqBody, schemaId, action, Log.RowId, GetGridMODEL)
 					}
 				}
 
