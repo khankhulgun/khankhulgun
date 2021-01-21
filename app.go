@@ -5,6 +5,7 @@ import (
 	"github.com/khankhulgun/khankhulgun/config"
 	"github.com/khankhulgun/khankhulgun/controlPanel"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/agent"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/arcGIS"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/krud"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/notify"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle"
@@ -73,6 +74,9 @@ func New(moduleName string, GetGridMODEL func(schemaId string) (interface{}, int
 
 	if UseControlPanel {
 		controlPanel.Set(app.Echo, UseNotify)
+	}
+	if UseArcGISConnection {
+		arcGIS.Set(app.Echo)
 	}
 	if UseNotify {
 		notify.Set(app.Echo)
