@@ -383,7 +383,7 @@ func Filter(c echo.Context, GridModel interface{}, query *gorm.DB) *gorm.DB {
 							vmap := v.(map[string]interface{})
 							switch vmap["type"] {
 							case "contains":
-								query = query.Where("LOWER("+k+") LIKE ?", "%"+strings.ToLower(fmt.Sprintf("%v", v))+"%")
+								query = query.Where("LOWER("+k+") LIKE ?", "%"+strings.ToLower(fmt.Sprintf("%v", vmap["filter"]))+"%")
 							case "equals":
 								query = query.Where(k+" = ?", fmt.Sprintf("%v", vmap["filter"]))
 							case "lessThan":
