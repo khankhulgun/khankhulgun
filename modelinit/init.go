@@ -42,7 +42,7 @@ func ModelInit(projectPath string, moduleName string) {
 		os.MkdirAll("models/grid/caller", 0755)
 	}
 
-
+	DBSchema.GenerateSchema()
 
 	WriteGridModel(moduleName)
 	WriteModelData(moduleName)

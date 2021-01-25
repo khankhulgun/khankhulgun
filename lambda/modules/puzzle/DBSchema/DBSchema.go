@@ -10,6 +10,7 @@ import (
 	"github.com/khankhulgun/khankhulgun/dbToStruct"
 	"github.com/khankhulgun/khankhulgun/lambda/modules/puzzle/models"
 	"github.com/khankhulgun/khankhulgun/tools"
+	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
@@ -264,6 +265,34 @@ func DBConnection() *sql.DB {
 
 	return DB_
 }
+func GenerateSchema() VBSCHEMA {
+	tables := Tables()
+
+	table_metas := make(map[string][]TableMeta, 0)
+
+	for _, table := range tables["tables"] {
+		table_metas_ := TableMetas(table)
+		table_metas[table] = table_metas_
+	}
+
+	for _, table := range tables["views"] {
+		table_metas_ := TableMetas(table)
+		table_metas[table] = table_metas_
+	}
+
+	vb_schemas := VBSCHEMA{
+		tables["tables"],
+		tables["views"],
+		table_metas,
+	}
+
+
+	file, _ := json.MarshalIndent(vb_schemas, "", " ")
+
+	_ = ioutil.WriteFile("models/db_schema.json", file, 0755)
+
+	return vb_schemas
+}
 func GetDBSchema() VBSCHEMA {
 	tables := Tables()
 
@@ -284,6 +313,11 @@ func GetDBSchema() VBSCHEMA {
 		tables["views"],
 		table_metas,
 	}
+
+
+	file, _ := json.MarshalIndent(vb_schemas, "", " ")
+
+	_ = ioutil.WriteFile("db_schema.json", file, 0755)
 
 	return vb_schemas
 }
