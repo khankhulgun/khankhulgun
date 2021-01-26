@@ -118,6 +118,7 @@ func Form(c echo.Context) error {
 	csrfToken := ""
 	schema_id := c.Param("schema_id")
 	id := c.Param("id")
+	hidemap := c.QueryParam("hidemap")
 
 	return c.Render(http.StatusOK, "form.html", map[string]interface{}{
 		"title":       config.Config.Title,
@@ -127,6 +128,7 @@ func Form(c echo.Context) error {
 		"data_form_custom_elements": config.Config.DataFormCustomElements,
 		"id":                       id,
 		"csrfToken":                       csrfToken,
+		"hidemap":                       hidemap,
 	})
 
 }
