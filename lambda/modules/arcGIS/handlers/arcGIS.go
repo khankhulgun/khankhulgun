@@ -1,23 +1,22 @@
 package handlers
 
 import (
-	"fmt"
-
-	"net/http"
-	"github.com/labstack/echo/v4"
-	"strings"
-	"time"
-	"github.com/khankhulgun/khankhulgun/lambda/modules/arcGIS/models"
-	"github.com/khankhulgun/khankhulgun/DB"
+	"bytes"
+	"crypto/tls"
 	"encoding/json"
+	"fmt"
+	"github.com/grokify/html-strip-tags-go"
+	"github.com/khankhulgun/khankhulgun/DB"
+	"github.com/khankhulgun/khankhulgun/lambda/modules/arcGIS/models"
+	"github.com/labstack/echo/v4"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"reflect"
 	"regexp"
-	"net/url"
-	"io/ioutil"
-	"bytes"
 	"strconv"
-	"crypto/tls"
-	"github.com/grokify/html-strip-tags-go"
+	"strings"
+	"time"
 )
 func SAVEGIS (rawData []byte, schemaId int64, action string, rowId string, GetMODEL func(schema_id string) (string, interface{})){
 
@@ -126,6 +125,7 @@ func ArcGISAfterSave(data map[string]interface{}, schemaId int64,  Model interfa
 
 		if connectionPre.Connection != ""{
 
+
 			var connection Connection
 
 			json.Unmarshal([]byte(connectionPre.Connection), &connection)
@@ -136,165 +136,182 @@ func ArcGISAfterSave(data map[string]interface{}, schemaId int64,  Model interfa
 
 			attributes := ""
 
-			for _, attribute := range connection.Connections {
-
-				//fmt.Println(attribute["attribute"])
-
-
-				if data[attribute["field"]] != nil {
-
-					fieldValue := ""
-					if reflect.TypeOf(data[attribute["field"]]).String() == "time.Time"{
-						fieldValue = "\""+reflect.ValueOf(data[attribute["field"]]).Interface().(time.Time).Format("2006-01-02")+"\""
-
-					} else if reflect.TypeOf(data[attribute["field"]]).String() == "float64" {
-
-						fieldValue = fmt.Sprintf("%.0f",data[attribute["field"]])
-
-					} else if reflect.TypeOf(data[attribute["field"]]).String() == "string"{
-
-						var re = regexp.MustCompile(`"`)
-						fieldValue = re.ReplaceAllString(reflect.ValueOf(data[attribute["field"]]).Interface().(string), `\"`)
-
-						fieldValue = strip.StripTags(fieldValue)
-						fieldValue = "\""+fieldValue+"\""
-
-
-					} else {
-						fieldValue = "\""+fmt.Sprintf("%v",data[attribute["field"]])+"\""
-					}
-					var re = regexp.MustCompile(`\r?\n`)
-					fieldValue = re.ReplaceAllString(fieldValue, `\n`)
-
-					if fieldValue == "" {
-						fieldValue = "\""+"\""
-					}
-
-					if attributes == "" {
-
-						attributes = "\""+attribute["attribute"]+"\""+":"+fieldValue
-					} else {
-
-						attributes = attributes+","+"\""+attribute["attribute"]+"\""+":"+fieldValue
-					}
-				}
-
-
-			}
-
-			if objectID >= 1{
-				if attributes == "" {
-					attributes = "\"OBJECTID\":"+fmt.Sprintf("%v",objectID)
-				} else {
-					attributes = attributes+",\"OBJECTID\":"+fmt.Sprintf("%v",objectID)
-				}
-			}
-
-
-
 			geoData := data[connection.GeoJsonField].(string)
 
+			if(geoData != ""){
+				for _, attribute := range connection.Connections {
 
-			if connection.LayerType == "Point"{
-
-				var coordinate Coordinate
-
-				json.Unmarshal([]byte(geoData), &coordinate)
+					//fmt.Println(attribute["attribute"])
 
 
-				if coordinate.Lat == ""{
+					if data[attribute["field"]] != nil {
 
-					var coordinate CoordinateFloat
+						fieldValue := ""
+						if reflect.TypeOf(data[attribute["field"]]).String() == "time.Time"{
+							fieldValue = "\""+reflect.ValueOf(data[attribute["field"]]).Interface().(time.Time).Format("2006-01-02")+"\""
+
+						} else if reflect.TypeOf(data[attribute["field"]]).String() == "float64" {
+
+							fieldValue = fmt.Sprintf("%.0f",data[attribute["field"]])
+
+						} else if reflect.TypeOf(data[attribute["field"]]).String() == "string"{
+
+							var re = regexp.MustCompile(`"`)
+							fieldValue = re.ReplaceAllString(reflect.ValueOf(data[attribute["field"]]).Interface().(string), `\"`)
+
+							fieldValue = strip.StripTags(fieldValue)
+							fieldValue = "\""+fieldValue+"\""
+
+
+						} else {
+							fieldValue = "\""+fmt.Sprintf("%v",data[attribute["field"]])+"\""
+						}
+						var re = regexp.MustCompile(`\r?\n`)
+						fieldValue = re.ReplaceAllString(fieldValue, `\n`)
+
+						if fieldValue == "" {
+							fieldValue = "\""+"\""
+						}
+
+						if attributes == "" {
+
+							attributes = "\""+attribute["attribute"]+"\""+":"+fieldValue
+						} else {
+
+							attributes = attributes+","+"\""+attribute["attribute"]+"\""+":"+fieldValue
+						}
+					}
+
+
+				}
+
+				if objectID >= 1{
+					if attributes == "" {
+						attributes = "\"OBJECTID\":"+fmt.Sprintf("%v",objectID)
+					} else {
+						attributes = attributes+",\"OBJECTID\":"+fmt.Sprintf("%v",objectID)
+					}
+				}
+
+
+
+
+
+
+				if connection.LayerType == "Point"{
+
+					var coordinate Coordinate
+
 					json.Unmarshal([]byte(geoData), &coordinate)
 
-
-					features := ""
-					if(data["coord_z"] != nil){
-						features = fmt.Sprintf("[{\"geometry\":{\"x\":%v,\"y\":%v,\"z\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", fmt.Sprintf("%v",coordinate.Lng), fmt.Sprintf("%v",coordinate.Lat), fmt.Sprintf("%v",data["coord_z"]), attributes)
-					} else {
-						features = fmt.Sprintf("[{\"geometry\":{\"x\":%v,\"y\":%v,\"z\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", fmt.Sprintf("%v",coordinate.Lng), fmt.Sprintf("%v",coordinate.Lat), attributes)
+					err := json.Unmarshal([]byte(geoData), &coordinate)
+					if err != nil {
+						return data
 					}
 
 
-					layers := []string{}
-					json.Unmarshal([]byte(connectionPre.Layer), &layers)
+					if coordinate.Lat == ""{
+
+						var coordinate CoordinateFloat
+						err2 := json.Unmarshal([]byte(geoData), &coordinate)
+						if err2 != nil {
+							return data
+						}
+
+						features := ""
+						if(data["coord_z"] != nil){
+							features = fmt.Sprintf("[{\"geometry\":{\"x\":%v,\"y\":%v,\"z\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", fmt.Sprintf("%v",coordinate.Lng), fmt.Sprintf("%v",coordinate.Lat), fmt.Sprintf("%v",data["coord_z"]), attributes)
+						} else {
+							features = fmt.Sprintf("[{\"geometry\":{\"x\":%v,\"y\":%v,\"z\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", fmt.Sprintf("%v",coordinate.Lng), fmt.Sprintf("%v",coordinate.Lat), attributes)
+						}
 
 
-					if len(layers) >= 1 {
+						layers := []string{}
+						json.Unmarshal([]byte(connectionPre.Layer), &layers)
 
-						layer_url := layers[len(layers)-1]
-						objectIDNew := SaveArcGIS(layer_url, features, objectID)
 
-						if objectIDNew >= 1{
-							//data[connection.ObjectIdField] = objectIDNew
-							//data_, _ := json.Marshal(data)
-							//json.Unmarshal(data_, Model)
-							dataGIS := map[string]interface{}{}
-							dataGIS[connection.ObjectIdField] = objectIDNew
-							DB.DB.Table(table).Where(Identity+" = ?", rowId).Update(dataGIS)
+						if len(layers) >= 1 {
 
+							layer_url := layers[len(layers)-1]
+							objectIDNew := SaveArcGIS(layer_url, features, objectID)
+
+							if objectIDNew >= 1{
+								//data[connection.ObjectIdField] = objectIDNew
+								//data_, _ := json.Marshal(data)
+								//json.Unmarshal(data_, Model)
+								dataGIS := map[string]interface{}{}
+								dataGIS[connection.ObjectIdField] = objectIDNew
+								DB.DB.Table(table).Where(Identity+" = ?", rowId).Update(dataGIS)
+
+							}
+						}
+					}  else {
+
+						features := ""
+						if(data["coord_z"] != nil){
+							features = fmt.Sprintf("[{\"geometry\":{\"x\":%v,\"y\":%v,\"z\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", fmt.Sprintf("%v",coordinate.Lng), fmt.Sprintf("%v",coordinate.Lat), fmt.Sprintf("%v",data["coord_z"]), attributes)
+						} else {
+							features = fmt.Sprintf("[{\"geometry\":{\"x\":%v,\"y\":%v,\"z\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", fmt.Sprintf("%v",coordinate.Lng), fmt.Sprintf("%v",coordinate.Lat), attributes)
+						}
+
+						layers := []string{}
+						json.Unmarshal([]byte(connectionPre.Layer), &layers)
+
+
+						if len(layers) >= 1 {
+
+							layer_url := layers[len(layers)-1]
+							objectIDNew := SaveArcGIS(layer_url, features, objectID)
+
+							if objectIDNew >= 1{
+								dataGIS := map[string]interface{}{}
+								dataGIS[connection.ObjectIdField] = objectIDNew
+								DB.DB.Table(table).Where(Identity+" = ?", rowId).Update(dataGIS)
+
+							}
 						}
 					}
-				}  else {
 
-					features := ""
-					if(data["coord_z"] != nil){
-						features = fmt.Sprintf("[{\"geometry\":{\"x\":%v,\"y\":%v,\"z\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", fmt.Sprintf("%v",coordinate.Lng), fmt.Sprintf("%v",coordinate.Lat), fmt.Sprintf("%v",data["coord_z"]), attributes)
-					} else {
-						features = fmt.Sprintf("[{\"geometry\":{\"x\":%v,\"y\":%v,\"z\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", fmt.Sprintf("%v",coordinate.Lng), fmt.Sprintf("%v",coordinate.Lat), attributes)
+
+				} else if connection.LayerType == "Polygon" || connection.LayerType == "Line"{
+					var geoJson GeoJSon
+
+
+
+					err := json.Unmarshal([]byte(geoData), &geoJson)
+					if err != nil {
+						return data
 					}
+					if len(geoJson.Features) >= 1{
+						Coordinates, _ := json.Marshal(geoJson.Features[0].Geometry.Coordinates)
 
-					layers := []string{}
-					json.Unmarshal([]byte(connectionPre.Layer), &layers)
 
 
-					if len(layers) >= 1 {
+						features := fmt.Sprintf("[{\"geometry\":{\"rings\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", string(Coordinates), attributes)
 
-						layer_url := layers[len(layers)-1]
-						objectIDNew := SaveArcGIS(layer_url, features, objectID)
 
-						if objectIDNew >= 1{
-							dataGIS := map[string]interface{}{}
-							dataGIS[connection.ObjectIdField] = objectIDNew
-							DB.DB.Table(table).Where(Identity+" = ?", rowId).Update(dataGIS)
+						layers := []string{}
+						json.Unmarshal([]byte(connectionPre.Layer), &layers)
 
+
+						if len(layers) >= 1 {
+
+							layer_url := layers[len(layers)-1]
+							objectIDNew := SaveArcGIS(layer_url, features, objectID)
+
+							if objectIDNew >= 1{
+								dataGIS := map[string]interface{}{}
+								dataGIS[connection.ObjectIdField] = objectIDNew
+								DB.DB.Table(table).Where(Identity+" = ?", rowId).Update(dataGIS)
+
+							}
 						}
 					}
+
 				}
-
-
-			} else if connection.LayerType == "Polygon" || connection.LayerType == "Line"{
-				var geoJson GeoJSon
-
-				json.Unmarshal([]byte(geoData), &geoJson)
-
-				if len(geoJson.Features) >= 1{
-					Coordinates, _ := json.Marshal(geoJson.Features[0].Geometry.Coordinates)
-
-
-
-					features := fmt.Sprintf("[{\"geometry\":{\"rings\":%v,\"spatialReference\":{\"wkid\":4326}},\"attributes\":{%v}}]", string(Coordinates), attributes)
-
-
-					layers := []string{}
-					json.Unmarshal([]byte(connectionPre.Layer), &layers)
-
-
-					if len(layers) >= 1 {
-
-						layer_url := layers[len(layers)-1]
-						objectIDNew := SaveArcGIS(layer_url, features, objectID)
-
-						if objectIDNew >= 1{
-							dataGIS := map[string]interface{}{}
-							dataGIS[connection.ObjectIdField] = objectIDNew
-							DB.DB.Table(table).Where(Identity+" = ?", rowId).Update(dataGIS)
-
-						}
-					}
-				}
-
 			}
+
+
 
 
 

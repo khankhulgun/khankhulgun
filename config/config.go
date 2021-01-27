@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"sync"
-
-
 )
 // global vars
 
