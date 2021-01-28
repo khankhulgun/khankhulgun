@@ -126,7 +126,7 @@ func GetVB(c echo.Context) error {
 
 		VBSchemas := []models.VBSchemaList{}
 
-		DB.DB.Where("type = ?", type_).Find(&VBSchemas)
+		DB.DB.Select("id, name, type, created_at, updated_at").Where("type = ?", type_).Find(&VBSchemas)
 
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"status": true,
