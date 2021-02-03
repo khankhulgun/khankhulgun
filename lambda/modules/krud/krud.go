@@ -44,7 +44,7 @@ func Set(e *echo.Echo, GetGridMODEL func(schema_id string) (interface{}, interfa
 	public.POST("/:schemaId/:action", handlers.Crud(GetMODEL, GetMessages, GetRules))
 
 	/*
-		OTHER
+	OTHER
 	*/
 	g.POST("/upload", handlers.Upload)
 	g.OPTIONS("/upload", handlers.Upload)

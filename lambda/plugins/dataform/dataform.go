@@ -333,6 +333,66 @@ func DataClear(c echo.Context, Model interface{}, action string, id string, rule
 				}
 			}
 		}
+		if(tableName == "agaar_zuuh_3_15"){
+
+			if (*dataJson)["location"] != nil{
+				if (*dataJson)["urtrag"] == nil {
+					(*dataJson)["urtrag"] = (*dataJson)["location"]
+				}
+			}
+			if (*dataJson)["id"] == nil {
+				if (*dataJson)["user_id"] == nil || (*dataJson)["user_id"] == 0 {
+					User := agentUtils.AuthUserObject(c)
+					(*dataJson)["user_id"] = User["id"]
+				}
+			}
+
+		}
+		if(tableName == "agaar_zuuh_15_100"){
+
+			if (*dataJson)["location"] != nil{
+				if (*dataJson)["bairshil"] == nil {
+					(*dataJson)["bairshil"] = (*dataJson)["location"]
+				}
+			}
+			if (*dataJson)["id"] == nil {
+				if (*dataJson)["user_id"] == nil || (*dataJson)["user_id"] == 0 {
+					User := agentUtils.AuthUserObject(c)
+					(*dataJson)["user_id"] = User["id"]
+				}
+			}
+
+		}
+		if(tableName == "agaar_zuuh_100_4200"){
+
+			if (*dataJson)["location"] != nil{
+				if (*dataJson)["bairshil"] == nil {
+					(*dataJson)["bairshil"] = (*dataJson)["location"]
+				}
+			}
+			if (*dataJson)["id"] == nil {
+				if (*dataJson)["user_id"] == nil || (*dataJson)["user_id"] == 0 {
+					User := agentUtils.AuthUserObject(c)
+					(*dataJson)["user_id"] = User["id"]
+				}
+			}
+
+		}
+		if(tableName == "agaar_zuuh_4200_deesh"){
+
+			if (*dataJson)["location"] != nil{
+				if (*dataJson)["bairshil"] == nil {
+					(*dataJson)["bairshil"] = (*dataJson)["location"]
+				}
+			}
+			if (*dataJson)["id"] == nil {
+				if (*dataJson)["user_id"] == nil || (*dataJson)["user_id"] == 0 {
+					User := agentUtils.AuthUserObject(c)
+					(*dataJson)["user_id"] = User["id"]
+				}
+			}
+
+		}
 
 	}
 
