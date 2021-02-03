@@ -335,16 +335,19 @@ func DataClear(c echo.Context, Model interface{}, action string, id string, rule
 		}
 		if(tableName == "agaar_zuuh_3_15"){
 
-			fmt.Println("location")
-			fmt.Println((*dataJson)["location"])
-			fmt.Println((*dataJson)["location"])
-			fmt.Println((*dataJson)["location"])
-			fmt.Println((*dataJson)["location"])
-			fmt.Println((*dataJson)["location"])
-			fmt.Println((*dataJson)["location"])
-			fmt.Println("urtrag")
-			fmt.Println((*dataJson)["urtrag"])
-			fmt.Println((*dataJson)["urtrag"])
+			if((*dataJson)["orhiin_terguulegch_ner"] == "qqq"){
+				fmt.Println("location")
+				fmt.Println((*dataJson)["location"])
+				fmt.Println((*dataJson)["location"])
+				fmt.Println((*dataJson)["location"])
+				fmt.Println((*dataJson)["location"])
+				fmt.Println((*dataJson)["location"])
+				fmt.Println((*dataJson)["location"])
+				fmt.Println("urtrag")
+				fmt.Println((*dataJson)["urtrag"])
+				fmt.Println((*dataJson)["urtrag"])
+			}
+
 			if (*dataJson)["location"] != nil{
 				if (*dataJson)["urtrag"] == nil {
 					(*dataJson)["urtrag"] = (*dataJson)["location"]
