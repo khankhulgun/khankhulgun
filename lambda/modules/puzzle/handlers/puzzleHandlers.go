@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/khankhulgun/khankhulgun/DB"
 	"github.com/khankhulgun/khankhulgun/lambda/config"
@@ -15,7 +14,6 @@ import (
 	"github.com/khankhulgun/khankhulgun/tools"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 )
@@ -30,15 +28,15 @@ func Index(c echo.Context) error {
 
 
 
-	schemaFile, err := os.Open("models/db_schema.json")
-	defer schemaFile.Close()
-	if err != nil{
-		fmt.Println("schema FILE NOT FOUND")
-	}
+	//schemaFile, err := os.Open("models/db_schema.json")
+	//defer schemaFile.Close()
+	//if err != nil{
+	//	fmt.Println("schema FILE NOT FOUND")
+	//}
 	dbSchema := DBSchema.VBSCHEMA{}
-	jsonParser := json.NewDecoder(schemaFile)
-	jsonParser.Decode(&dbSchema)
-
+	//jsonParser := json.NewDecoder(schemaFile)
+	//jsonParser.Decode(&dbSchema)
+	dbSchema = DBSchema.GetDBSchema()
 
 	gridList := []models.VBSchemaList{}
 	userRoles := []models.UserRoles{}
